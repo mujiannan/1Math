@@ -170,7 +170,7 @@ namespace _1Math
                         url.Value = RangeForCheck[i, j].value;
                         
                         Task<bool> checkAccessibilityTask =url.CheckAccessibilityAsync();
-                        if (checkAccessibilityTask.Result)
+                        if (checkAccessibilityTask.Result)//用google试过，不翻墙会引发socket异常，暂时不需要处理
                         {
                             RangeForReturn[i, j].value = "有";
                         }
