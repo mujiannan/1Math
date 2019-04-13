@@ -14,16 +14,16 @@ namespace _1Math
 
         private void ButtonUrlCheck_Click(object sender, RibbonControlEventArgs e)
         {
-            CommonExcel commonExcel = new CommonExcel();
             NetTask netTask = new NetTask();
-            netTask.CheckUrlsAccessibility(commonExcel.SelectedRange);
+            System.Threading.Thread thread = new System.Threading.Thread(netTask.CheckUrlsAccessibility);
+            thread.Start();
         }
 
-        private void buttonVideoLength_Click(object sender, RibbonControlEventArgs e)
+        private void ButtonVideoLength_Click(object sender, RibbonControlEventArgs e)
         {
-            CommonExcel commonExcel = new CommonExcel();
             NetTask netTask = new NetTask();
-            netTask.CheckVideosLength(commonExcel.SelectedRange);
+            System.Threading.Thread thread = new System.Threading.Thread(netTask.CheckVideosLength);
+            thread.Start();
         }
 
         private void ButtonTest_Click(object sender, RibbonControlEventArgs e)

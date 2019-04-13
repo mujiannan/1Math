@@ -72,7 +72,7 @@
             this.buttonVideoLength.Label = "视频时长";
             this.buttonVideoLength.Name = "buttonVideoLength";
             this.buttonVideoLength.ShowImage = true;
-            this.buttonVideoLength.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.buttonVideoLength_Click);
+            this.buttonVideoLength.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.ButtonVideoLength_Click);
             // 
             // Ribbon1
             // 

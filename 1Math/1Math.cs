@@ -1,10 +1,11 @@
-﻿using Excel = Microsoft.Office.Interop.Excel;
-using System.Net;
+﻿using System.Net;
 using System.Net.Http;
 using System;
 using System.Threading.Tasks;
 using WMPLib;
 using System.Threading;
+using Excel = Microsoft.Office.Interop.Excel;
+using System.Text.RegularExpressions;
 namespace _1Math
 {
     public class CommonExcel
@@ -31,9 +32,6 @@ namespace _1Math
         {
             return ExApp.Application.Selection;
         }
-
-        
-        
     }
     public class Test
     {
@@ -64,7 +62,7 @@ namespace _1Math
             return (Rng.GetType().ToString());
         }
     }
-    public struct Video
+    class Video
     {
         public Url url;
         public string Path;
@@ -73,60 +71,99 @@ namespace _1Math
             get
             {
                 MyMediaPlayer myMediaPlayer = new MyMediaPlayer();
-                return (myMediaPlayer.GetDuration(url));
+                return (myMediaPlayer.GetDuration(url.Str));
             }
         }
     }
-    public struct Url
+    class Url
     {
-        public string Value;
-        public async Task<bool> CheckAccessibilityAsync()//用于快速返回链接内容
+        public new string ToString()
         {
-            HttpClient HttpCheckTask = new HttpClient();
-            //HttpCheckTask.CancelPendingRequests();
-            //HttpCheckTask.Timeout =TimeSpan.FromSeconds(2);//不要乱设超时
-            HttpResponseMessage httpResponse = await HttpCheckTask.GetAsync(Value, HttpCompletionOption.ResponseHeadersRead);
-            bool Accessibility = (httpResponse.StatusCode == HttpStatusCode.OK);
-            HttpCheckTask.Dispose();
-            return Accessibility;
+            return Str;
+        }
+        private enum CheckStatus
+        {
+            Null, Checking, Checked
+        }
+        private Task checkTask;
+        private CheckStatus checkStatus;
+        public void CheckAccessibility()
+        {
+            checkTask = Check();
+        }
+        private async Task Check()
+        {
+            checkStatus = CheckStatus.Checking;
+            HttpClient checkClient = new HttpClient();
+            HttpResponseMessage httpResponseMessage = await checkClient.GetAsync(str, HttpCompletionOption.ResponseHeadersRead);
+            accessibility = httpResponseMessage.IsSuccessStatusCode;
+            checkClient.Dispose();
+            checkStatus = CheckStatus.Checked;
+        }
+        private bool accessibility;
+        public bool Accessibility
+        {
+            get
+            {
+                switch (checkStatus)
+                {
+                    case CheckStatus.Null:
+                        CheckAccessibility();
+                        checkTask.Wait();
+                        break;
+                    case CheckStatus.Checking:
+                        checkTask.Wait();
+                        break;
+                    case CheckStatus.Checked:
+                        break;
+                    default:
+                        break;
+                }
+                return accessibility;
+            }
+        }
+        private string str;
+        public string Str
+        {
+            get
+            {
+                return str;
+            }
+            set
+            {
+                if (value != str)
+                {
+                    checkStatus = CheckStatus.Null;
+                    str = value;
+                }
+
+            }
         }
     }
-    public class MyMediaPlayer
+    class MyMediaPlayer
     {
         WindowsMediaPlayer mediaPlayer;
-        private string Url;
+        private string mediaUrl;
         private AutoResetEvent IsOpened = new AutoResetEvent(false);
-        public double GetDuration(Url url)
+        public MyMediaPlayer()
         {
-            Url = url.Value;
-            Thread PlayThread = new Thread(PlayInNewPlayer);
-            PlayThread.Start();
-            IsOpened.WaitOne();
-            double Duration = mediaPlayer.currentMedia.duration;
-            mediaPlayer.close();
-            return (Duration);
+            mediaPlayer = new WindowsMediaPlayer();
+            mediaPlayer.OpenStateChange += MediaPlayer_OpenStateChange;
         }
-        public double GetDuration(string url,ref WindowsMediaPlayer player)
+        public double GetDuration(string url)
         {
-            mediaPlayer = player;
-            Url = url;
+            mediaUrl = url;
             Thread PlayThread = new Thread(Play);
             PlayThread.Start();
             IsOpened.WaitOne();
             double Duration = mediaPlayer.currentMedia.duration;
-            mediaPlayer.close();
+            mediaPlayer.controls.stop();
+            mediaPlayer.URL = string.Empty;
             return (Duration);
         }
         private void Play()
         {
-            mediaPlayer.OpenStateChange += MediaPlayer_OpenStateChange;
-            mediaPlayer.URL = Url;
-        }
-        private void PlayInNewPlayer()
-        {
-            mediaPlayer = new WindowsMediaPlayer();
-            mediaPlayer.OpenStateChange += MediaPlayer_OpenStateChange;
-            mediaPlayer.URL = Url ;
+            mediaPlayer.URL = mediaUrl;
         }
 
         private void MediaPlayer_OpenStateChange(int NewState)
@@ -145,76 +182,67 @@ namespace _1Math
         private void ThisAddIn_Startup(object sender, System.EventArgs e)
         {
         }
-        public void CheckUrlsAccessibility(Excel.Range RangeForCheck)//专用于检查乂学的视频链接有效性
+        public void CheckUrlsAccessibility()//专用于检查乂学的视频链接有效性
         {
             System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
             stopwatch.Start();
-            Excel.Range RangeForReturn = RangeForCheck.Offset[0, RangeForCheck.Columns.Count];
+            CommonExcel CE = new CommonExcel();
+            string[,] Urls = new string[CE.m, CE.n];
+            for (int i = 0; i < Urls.GetLength(0); i++)
+            {
+                for (int j = 0; j < Urls.GetLength(1); j++)
+                {
+                    Urls[i, j] = CE.SelectedRange.Cells[i+1, j+1].value;
+                }
+            }//读入数组，可以按列读
+            bool[,] Accessibilities = new bool[CE.m, CE.n];
             Url url = new Url();
-            //string[,] Availability = new string[m, n];并不好使，网络出错会导致半途而废，很容易得不偿失，所以这里别用数组
             int sum = 0;
             int t = 0;
-            for (int i = 1; i <= RangeForCheck.Rows.Count; i++)
+            for (int i = 0; i < Urls.GetLength(0); i++)
             {
-                if (i>8)
+                for (int j = 0; j < Urls.GetLength(1); j++)
                 {
-                    CommonExcel.window.SmallScroll(1);//舒适地滚动
-                    //System.Windows.Forms.Application.DoEvents();//不知道为啥，一DoEvents就卡死。不过等以后技术进步了，还是不要DoEvents了吧
-                }
-                for (int j = 1; j <= RangeForCheck.Columns.Count; j++)
-                {
-                    if (RangeForCheck[i, j].value != "无" && !string.IsNullOrWhiteSpace(RangeForCheck[i, j].value))
+                    url.Str =Urls[i,j];
+                    Accessibilities[i, j] = url.Accessibility;
+                    if (!url.Accessibility)
                     {
-                        RangeForReturn[i, j].value = "正在验证有效性……";//实测降低25%性能，但是值得
-                        sum++;
-                        url.Value = RangeForCheck[i, j].value;
-                        
-                        Task<bool> checkAccessibilityTask =url.CheckAccessibilityAsync();
-                        if (checkAccessibilityTask.Result)//用google试过，不翻墙会引发socket异常，暂时不需要处理
-                        {
-                            RangeForReturn[i, j].value = "有";
-                        }
-                        else
-                        {
-                            RangeForReturn[i, j].value = "无";
-                            t++;
-                        }
+                        t++;
                     }
-                };
+                    sum++;
+                }
             }
-            //AvailabilityRange.Value = Availability;暂时不要了，找到好办法再说
-            //WaitHandle.WaitAll();
-            //stopwatch.Stop();
-            //System.Windows.Forms.MessageBox.Show(@"耗时" + stopwatch.Elapsed.TotalSeconds + "秒" +
-            //                                        "完成了" + sum + "个链接的有效性验证，其中" + t + "个无效");
+            CE.WriteInRange.Value = Accessibilities;
+            stopwatch.Stop();
+            System.Windows.Forms.MessageBox.Show(@"耗时" + stopwatch.Elapsed.TotalSeconds + "秒，"
+                                                    + "完成了" + sum + "个链接的有效性验证，其中" + t + "个无效");
         }
-        public void CheckVideosLength(Excel.Range RangeForCheckVideoLength)
+        public void CheckVideosLength()
         {
+            CommonExcel CE = new CommonExcel();
             System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
             stopwatch.Start();
-            Excel.Range RangeForReturn = RangeForCheckVideoLength.Offset[0, RangeForCheckVideoLength.Columns.Count];
-            AutoResetEvent[] Writers = new AutoResetEvent[5];
             int t = 0;
-            for (int i = 1; i <= RangeForCheckVideoLength.Rows.Count; i++)
+            MyMediaPlayer myMediaPlayer = new MyMediaPlayer();
+            Url url = new Url();
+            for (int i = 1; i <= CE.m; i++)
             {
                 if (i > 8)
                 {
                     CommonExcel.window.SmallScroll(1);//舒适地滚动
                 }
-                for (int j = 1; j <= RangeForCheckVideoLength.Columns.Count; j++)
+                for (int j = 1; j <= CE.n; j++)
                 {
-                    MyMediaPlayer myMediaPlayer = new MyMediaPlayer();
-                    WindowsMediaPlayer mediaPlayer = new WindowsMediaPlayer();
-                    RangeForReturn[i, j].value = "正在检测时长……";//实测轻微降低了性能，占比很小
-                    RangeForReturn[i, j].value = myMediaPlayer.GetDuration(RangeForCheckVideoLength.Cells[i, j].value,ref mediaPlayer);
+                    url.Str = CE.SelectedRange[i, j].value;
+                    CE.SelectedRange.Offset[0, 2 * CE.n].Cells[i, j].value = "正在检测时长……";//实测轻微降低了性能，占比很小
+                    CE.SelectedRange.Offset[0, 2 * CE.n].Cells[i, j].value = myMediaPlayer.GetDuration(url.Str);
                     t++;
                 }
             }
-            //mediaPlayer.close();
             stopwatch.Stop();
-            //System.Windows.Forms.MessageBox.Show(@"耗时" + stopwatch.Elapsed.TotalSeconds + "秒，" +
-            //                                    "共选中了"+RangeForCheckVideoLength.Count+"个单元格，"+
-            //                                    "成功完成了" + t + "个视频时长的检测");
+            System.Windows.Forms.MessageBox.Show(@"耗时" + stopwatch.Elapsed.TotalSeconds + "秒，" +
+                                                "共选中了"+CE.SelectedRange.Count+"个单元格，"+
+                                                "成功完成了" + t + "个视频时长的检测");
         }
 
 
