@@ -42,14 +42,18 @@ namespace _1Math
             this.GroupNet = this.Factory.CreateRibbonGroup();
             this.ButtonUrlCheck = this.Factory.CreateRibbonButton();
             this.buttonVideoLength = this.Factory.CreateRibbonButton();
+            this.GroupDataCleaner = this.Factory.CreateRibbonGroup();
+            this.ButtonAntiMerge = this.Factory.CreateRibbonButton();
             this.Tab1Math.SuspendLayout();
             this.GroupNet.SuspendLayout();
+            this.GroupDataCleaner.SuspendLayout();
             this.SuspendLayout();
             // 
             // Tab1Math
             // 
             this.Tab1Math.ControlId.ControlIdType = Microsoft.Office.Tools.Ribbon.RibbonControlIdType.Office;
             this.Tab1Math.Groups.Add(this.GroupNet);
+            this.Tab1Math.Groups.Add(this.GroupDataCleaner);
             this.Tab1Math.Label = "1Math";
             this.Tab1Math.Name = "Tab1Math";
             this.Tab1Math.Position = this.Factory.RibbonPosition.AfterOfficeId("TabHome");
@@ -77,6 +81,19 @@ namespace _1Math
             this.buttonVideoLength.ShowImage = true;
             this.buttonVideoLength.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.ButtonVideoLength_Click);
             // 
+            // GroupDataCleaner
+            // 
+            this.GroupDataCleaner.Items.Add(this.ButtonAntiMerge);
+            this.GroupDataCleaner.Label = "数据清洗";
+            this.GroupDataCleaner.Name = "GroupDataCleaner";
+            // 
+            // ButtonAntiMerge
+            // 
+            this.ButtonAntiMerge.Label = "取消合并";
+            this.ButtonAntiMerge.Name = "ButtonAntiMerge";
+            this.ButtonAntiMerge.ScreenTip = "批量取消合并单元格，并相对安全地自动填充";
+            this.ButtonAntiMerge.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.ButtonAntiMerge_Click);
+            // 
             // Ribbon1
             // 
             this.Name = "Ribbon1";
@@ -87,6 +104,8 @@ namespace _1Math
             this.Tab1Math.PerformLayout();
             this.GroupNet.ResumeLayout(false);
             this.GroupNet.PerformLayout();
+            this.GroupDataCleaner.ResumeLayout(false);
+            this.GroupDataCleaner.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -99,6 +118,8 @@ namespace _1Math
         internal Microsoft.Office.Tools.Ribbon.RibbonGroup GroupNet;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton ButtonUrlCheck;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton buttonVideoLength;
+        internal RibbonGroup GroupDataCleaner;
+        internal RibbonButton ButtonAntiMerge;
     }
 
     partial class ThisRibbonCollection

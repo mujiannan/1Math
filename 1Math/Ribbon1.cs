@@ -78,5 +78,13 @@ namespace _1Math
             Test test = new Test();
             test.TestIt();
         }
+
+        private void ButtonAntiMerge_Click(object sender, RibbonControlEventArgs e)
+        {
+            ShowStatusForm();
+            BuildNetTask();
+            dBuildNetTaskThread = new DBuildNetTaskThread(tasks.AntiMerge);
+            StartNetTaskThread();
+        }
     }
 }

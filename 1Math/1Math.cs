@@ -6,10 +6,13 @@ using WMPLib;
 using System.Threading;
 using Excel = Microsoft.Office.Interop.Excel;
 using System.Text.RegularExpressions;
+using System.Collections;
 namespace _1Math
 {
     public class CommonExcel
     {
+        public delegate void DShedule(double Percent);
+        public event DShedule SheduleChange;
         public static Excel.Application ExApp = Globals.ThisAddIn.Application;
         public static Excel.Window window = Globals.ThisAddIn.Application.ActiveWindow;
         public static Excel.Worksheet worksheet = Globals.ThisAddIn.Application.ActiveSheet;
@@ -27,7 +30,50 @@ namespace _1Math
             WriteInRange = SelectedRange.Offset[0, n];
             window.ScrollRow = x;
         }
-
+        public string[,] ReadAsStr(Excel.Range FromRange)
+        {
+            int m = FromRange.Rows.Count;
+            int n = FromRange.Columns.Count;
+            string[,] Values = new string[m, n];
+            for (int i = 0; i < m; i++)
+            {
+                for (int j = 0; j < n; j++)
+                {
+                    Values[i, j] = (string)FromRange[i + 1, j + 1].value;
+                }
+            }
+            return (Values);
+        }
+        public void Write(object[,] Values,Excel.Range InRange)
+        {
+            int m = InRange.Rows.Count;
+            int n = InRange.Columns.Count;
+            double Sum = InRange.Count;//这次没掉坑里
+            int sum = 0;
+            for (int i = 0; i < m; i++)
+            {
+                for (int j = 0; j < n; j++)
+                {
+                    sum++;
+                    SheduleChange.Invoke(sum / Sum);
+                    InRange[i+1,j+1].value=Values[i, j];
+                }
+            }
+        }
+        public object[,] ReadAntiMerge(Excel.Range FromRange)
+        {
+            int m = FromRange.Rows.Count;
+            int n = FromRange.Columns.Count;
+            object[,] Values = new object[m, n];
+            for (int i = 0; i < m; i++)
+            {
+                for (int j = 0; j < n; j++)
+                {
+                    Values[i, j] = FromRange[i + 1, j + 1].MergeArea.Cells[1, 1].value;
+                }
+            }
+            return (Values);
+        }
         private Excel.Range GetSelection()
         {
             return ExApp.Application.Selection;
@@ -176,7 +222,7 @@ namespace _1Math
     }
     public class Tasks
     {
-        private string[,] Urls;
+        
         private EventHandler Shutdown;
         private EventHandler Startup;
         private void ThisAddIn_Startup(object sender, System.EventArgs e)
@@ -186,25 +232,13 @@ namespace _1Math
         public event DelegateChangeStatus<string> MessageChange;
         public event DelegateChangeStatus<double> SheduleChange;
         //private double TaskShedule;
-        private void ReadUrls(CommonExcel CE)
-        {
-            Urls = new string[CE.m, CE.n];
-            MessageChange.Invoke("正在从Excel中读取数据……");
-            for (int i = 0; i < Urls.GetLength(0); i++)
-            {
-                for (int j = 0; j < Urls.GetLength(1); j++)
-                {
-                    Urls[i, j] = CE.SelectedRange.Cells[i + 1, j + 1].value;
-                }
-            }//读入数组，可以按列读，但不能像VBA那样直接读成数组，最后我选择一个一个单元格读……
-            MessageChange.Invoke("读取完毕……");
-        }
+
         public void CheckUrlsAccessibility()//专用于检查乂学的视频链接有效性
         {
             System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
             stopwatch.Start();
             CommonExcel CE = new CommonExcel();
-            ReadUrls(CE);
+            string[,] Urls = CE.ReadAsStr(CE.SelectedRange);
             SheduleChange.Invoke(0.1);
             bool[,] Accessibilities = new bool[CE.m, CE.n];
             Url url = new Url();
@@ -240,7 +274,7 @@ namespace _1Math
                 MessageChange.Invoke("回写完毕");
             }
             stopwatch.Stop();
-            MessageChange.Invoke(@"耗时" + stopwatch.Elapsed.TotalSeconds + "秒，"
+            MessageChange.Invoke(@"耗时" + stopwatch.Elapsed.Seconds + "秒，"
                                                     + "完成了" + sum + "个链接的有效性验证，其中" + t + "个无效");
         }
         public void CheckVideosLength()
@@ -248,7 +282,7 @@ namespace _1Math
             System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
             stopwatch.Start();
             CommonExcel CE = new CommonExcel();
-            ReadUrls(CE);
+            string[,] Urls = CE.ReadAsStr(CE.SelectedRange);
             SheduleChange.Invoke(0.03);
             int Sum = Urls.Length;
             int sum = 0;
@@ -271,12 +305,48 @@ namespace _1Math
             MessageChange.Invoke("测试完毕，回写Excel");
             CE.SelectedRange.Offset[0, 2 * CE.n].Value = Durations;
             stopwatch.Stop();
-            MessageChange.Invoke(@"耗时" + stopwatch.Elapsed.TotalSeconds + "秒，" +
+            MessageChange.Invoke(@"耗时" + stopwatch.Elapsed.Seconds + "秒，" +
                                                 "共选中了"+Sum+"个单元格，"+
                                                 "成功完成了" + t + "个视频时长的检测");
         }
+        public void AntiMerge()
+        {
+            System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
+            stopwatch.Start();
+            MessageChange.Invoke("准备开始，从Excel中读取中……");//假的
+            CommonExcel CE = new CommonExcel();
+            CE.SheduleChange += CE_Shedule;
+            object[,] RealValues = new object[CE.m,CE.n];
+            SheduleChange.Invoke(0.01);
+            MessageChange.Invoke("填充被合并的单元格中……");
+            RealValues = CE.ReadAntiMerge(CE.SelectedRange);
+            SheduleChange.Invoke(0.06);
+            MessageChange.Invoke("取消合并单元格中……");
+            CE.SelectedRange.UnMerge();
+            SheduleChange.Invoke(0.08);
+            MessageChange("逐个回写变体数据中，速度较慢，请耐心等候……");
+            CE.Write(RealValues, CE.SelectedRange);
+            stopwatch.Stop();
+            MessageChange.Invoke("大功告成！共耗时"+stopwatch.Elapsed.Seconds+"秒");
+            //CE.WriteInRange[2,1].Value = RealValues[1,0];
+        }
 
+        private void CE_Shedule(double Percent)
+        {
+            SheduleChange.Invoke(0.08+0.92*Percent);
+        }
 
+        //private object RealValue(Excel.Range range)
+        //{
+        //    if (range.MergeCells&&range.Value==null)
+        //    {
+        //        return (RealValue(range.Offset[-1, 0]));
+        //    }
+        //    else
+        //    {
+        //        return (range.Value);
+        //    }
+        //}
         private void ThisAddIn_Shutdown(object sender, System.EventArgs e)
         {
         }
