@@ -1,4 +1,7 @@
-﻿namespace _1Math
+﻿using System;
+using Microsoft.Office.Tools.Ribbon;
+
+namespace _1Math
 {
     partial class Ribbon1 : Microsoft.Office.Tools.Ribbon.RibbonBase
     {
@@ -87,6 +90,8 @@
             this.ResumeLayout(false);
 
         }
+
+
 
         #endregion
 

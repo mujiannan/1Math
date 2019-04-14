@@ -89,7 +89,7 @@ namespace _1Math
         private CheckStatus checkStatus;
         public void CheckAccessibility()
         {
-            checkTask = Check();
+            checkTask =Check();
         }
         private async Task Check()
         {
@@ -174,74 +174,105 @@ namespace _1Math
             }
         }
     }
-
-    public class NetTask
+    public class Tasks
     {
+        private string[,] Urls;
         private EventHandler Shutdown;
         private EventHandler Startup;
         private void ThisAddIn_Startup(object sender, System.EventArgs e)
         {
+        }
+        public delegate void DelegateChangeStatus<T>(T item);
+        public event DelegateChangeStatus<string> MessageChange;
+        public event DelegateChangeStatus<double> SheduleChange;
+        //private double TaskShedule;
+        private void ReadUrls(CommonExcel CE)
+        {
+            Urls = new string[CE.m, CE.n];
+            MessageChange.Invoke("正在从Excel中读取数据……");
+            for (int i = 0; i < Urls.GetLength(0); i++)
+            {
+                for (int j = 0; j < Urls.GetLength(1); j++)
+                {
+                    Urls[i, j] = CE.SelectedRange.Cells[i + 1, j + 1].value;
+                }
+            }//读入数组，可以按列读，但不能像VBA那样直接读成数组，最后我选择一个一个单元格读……
+            MessageChange.Invoke("读取完毕……");
         }
         public void CheckUrlsAccessibility()//专用于检查乂学的视频链接有效性
         {
             System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
             stopwatch.Start();
             CommonExcel CE = new CommonExcel();
-            string[,] Urls = new string[CE.m, CE.n];
-            for (int i = 0; i < Urls.GetLength(0); i++)
-            {
-                for (int j = 0; j < Urls.GetLength(1); j++)
-                {
-                    Urls[i, j] = CE.SelectedRange.Cells[i+1, j+1].value;
-                }
-            }//读入数组，可以按列读
+            ReadUrls(CE);
+            SheduleChange.Invoke(0.1);
             bool[,] Accessibilities = new bool[CE.m, CE.n];
             Url url = new Url();
+            int Sum = CE.SelectedRange.Count;
             int sum = 0;
             int t = 0;
-            for (int i = 0; i < Urls.GetLength(0); i++)
+            try
             {
-                for (int j = 0; j < Urls.GetLength(1); j++)
+                for (int i = 0; i < Urls.GetLength(0); i++)
                 {
-                    url.Str =Urls[i,j];
-                    Accessibilities[i, j] = url.Accessibility;
-                    if (!url.Accessibility)
+                    for (int j = 0; j < Urls.GetLength(1); j++)
                     {
-                        t++;
+                        sum++;
+                        SheduleChange.Invoke(0.1 + 0.9 * sum / Sum);
+                        url.Str = Urls[i, j];
+                        if (url.Accessibility)
+                        {
+                            Accessibilities[i, j] = true;
+                            MessageChange.Invoke(url.Str + "成功");
+                        }
+                        else
+                        {
+                            MessageChange.Invoke(url.Str + "失败");
+                            t++;
+                        }
                     }
-                    sum++;
                 }
             }
-            CE.WriteInRange.Value = Accessibilities;
+            finally
+            {
+                MessageChange.Invoke("测试完毕，回写Excel……");
+                CE.WriteInRange.Value = Accessibilities;
+                MessageChange.Invoke("回写完毕");
+            }
             stopwatch.Stop();
-            System.Windows.Forms.MessageBox.Show(@"耗时" + stopwatch.Elapsed.TotalSeconds + "秒，"
+            MessageChange.Invoke(@"耗时" + stopwatch.Elapsed.TotalSeconds + "秒，"
                                                     + "完成了" + sum + "个链接的有效性验证，其中" + t + "个无效");
         }
         public void CheckVideosLength()
         {
-            CommonExcel CE = new CommonExcel();
             System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
             stopwatch.Start();
+            CommonExcel CE = new CommonExcel();
+            ReadUrls(CE);
+            SheduleChange.Invoke(0.03);
+            int Sum = Urls.Length;
+            int sum = 0;
             int t = 0;
             MyMediaPlayer myMediaPlayer = new MyMediaPlayer();
             Url url = new Url();
-            for (int i = 1; i <= CE.m; i++)
+            double[,] Durations = new double[CE.m, CE.n];
+            for (int i = 0; i < Urls.GetLength(0); i++)
             {
-                if (i > 8)
+                for (int j = 0; j < Urls.GetLength(1); j++)
                 {
-                    CommonExcel.window.SmallScroll(1);//舒适地滚动
-                }
-                for (int j = 1; j <= CE.n; j++)
-                {
-                    url.Str = CE.SelectedRange[i, j].value;
-                    CE.SelectedRange.Offset[0, 2 * CE.n].Cells[i, j].value = "正在检测时长……";//实测轻微降低了性能，占比很小
-                    CE.SelectedRange.Offset[0, 2 * CE.n].Cells[i, j].value = myMediaPlayer.GetDuration(url.Str);
+                    sum++;
+                    url.Str = Urls[i, j];
+                    Durations[i,j]=myMediaPlayer.GetDuration(url.Str);
+                    MessageChange.Invoke(url.Str + "的时长为" + Durations[i, j] + "秒");
+                    SheduleChange.Invoke(0.03+0.97*sum / Sum);
                     t++;
                 }
             }
+            MessageChange.Invoke("测试完毕，回写Excel");
+            CE.SelectedRange.Offset[0, 2 * CE.n].Value = Durations;
             stopwatch.Stop();
-            System.Windows.Forms.MessageBox.Show(@"耗时" + stopwatch.Elapsed.TotalSeconds + "秒，" +
-                                                "共选中了"+CE.SelectedRange.Count+"个单元格，"+
+            MessageChange.Invoke(@"耗时" + stopwatch.Elapsed.TotalSeconds + "秒，" +
+                                                "共选中了"+Sum+"个单元格，"+
                                                 "成功完成了" + t + "个视频时长的检测");
         }
 
