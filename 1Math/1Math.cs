@@ -46,6 +46,7 @@ namespace _1Math
         }
         public void Write(object[,] Values,Excel.Range InRange)
         {
+            CommonExcel.ExApp.ScreenUpdating = false;
             int m = InRange.Rows.Count;
             int n = InRange.Columns.Count;
             double Sum = InRange.Count;//这次没掉坑里
@@ -59,6 +60,7 @@ namespace _1Math
                     InRange[i+1,j+1].value=Values[i, j];
                 }
             }
+            ExApp.ScreenUpdating = true;
         }
         public object[,] ReadAntiMerge(Excel.Range FromRange)
         {
@@ -315,6 +317,7 @@ namespace _1Math
             stopwatch.Start();
             MessageChange.Invoke("准备开始，从Excel中读取中……");//假的
             CommonExcel CE = new CommonExcel();
+            
             CE.SheduleChange += CE_Shedule;
             object[,] RealValues = new object[CE.m,CE.n];
             SheduleChange.Invoke(0.01);
