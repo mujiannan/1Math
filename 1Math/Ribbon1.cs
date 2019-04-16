@@ -11,22 +11,22 @@ namespace _1Math
         private void Ribbon1_Load(object sender, RibbonUIEventArgs e)
         {
         }
-        private void BuildNetTask()
+        private void BuildTask()
         {
             tasks = new Tasks();
-            tasks.MessageChange += NetTask_MessageChange;
-            tasks.SheduleChange += NetTask_SheduleChange;
+            tasks.MessageChange += Task_MessageChange;
+            tasks.SheduleChange += Task_SheduleChange;
         }
-        System.Threading.Thread NetTaskThread;
+        System.Threading.Thread TaskThread;
         private Tasks tasks;
-        private delegate void DBuildNetTaskThread();
-        private DBuildNetTaskThread dBuildNetTaskThread;
+        private delegate void DBuildTaskThread();
+        private DBuildTaskThread dBuildTaskThread;
         private void StartNetTaskThread()
         {
-            if (NetTaskThread == null)
+            if (TaskThread == null)
             {
-                NetTaskThread = new System.Threading.Thread(dBuildNetTaskThread.Invoke);
-                NetTaskThread.Start();
+                TaskThread = new System.Threading.Thread(dBuildTaskThread.Invoke);
+                TaskThread.Start();
             }
             else
             {
@@ -36,26 +36,33 @@ namespace _1Math
         private void ButtonUrlCheck_Click(object sender, RibbonControlEventArgs e)
         {
             ShowStatusForm();
-            BuildNetTask();
-            dBuildNetTaskThread = new DBuildNetTaskThread(tasks.CheckUrlsAccessibility);
+            BuildTask();
+            dBuildTaskThread = new DBuildTaskThread(tasks.CheckUrlsAccessibility);
+            StartNetTaskThread();
+        }
+        private void ButtonAntiMerge_Click(object sender, RibbonControlEventArgs e)
+        {
+            ShowStatusForm();
+            BuildTask();
+            dBuildTaskThread = new DBuildTaskThread(tasks.AntiMerge);
             StartNetTaskThread();
         }
         private void ButtonVideoLength_Click(object sender, RibbonControlEventArgs e)
         {
             ShowStatusForm();
-            BuildNetTask();
-            dBuildNetTaskThread = new DBuildNetTaskThread(tasks.CheckVideosLength);
+            BuildTask();
+            dBuildTaskThread = new DBuildTaskThread(tasks.CheckVideosLength);
             StartNetTaskThread();
         }
         private void StatusForm_FormClosing(object sender, System.Windows.Forms.FormClosingEventArgs e)
         {
-            if (NetTaskThread!=null)
+            if (TaskThread!=null)
             {
-                if (NetTaskThread.IsAlive)
+                if (TaskThread.IsAlive)
                 {
-                    NetTaskThread.Abort();
+                    TaskThread.Abort();
                 }
-                NetTaskThread = null;
+                TaskThread = null;
             }
         }
         private void ShowStatusForm()
@@ -64,27 +71,13 @@ namespace _1Math
             statusForm.Show();
             statusForm.FormClosing += StatusForm_FormClosing;
         }
-        private void NetTask_SheduleChange(double NewStatus)
+        private void Task_SheduleChange(double NewStatus)
         {
             statusForm.progressBar1.Invoke(new Action(() => { statusForm.progressBar1.Value = (int)(100 * NewStatus); }));
         }
-        private void NetTask_MessageChange(string NewStatus)
+        private void Task_MessageChange(string NewStatus)
         {
             statusForm.MessageLabel.Invoke(new Action(() => { statusForm.MessageLabel.Text = NewStatus; })); ;
-        }
-
-        private void ButtonTest_Click(object sender, RibbonControlEventArgs e)
-        {
-            Test test = new Test();
-            test.TestIt();
-        }
-
-        private void ButtonAntiMerge_Click(object sender, RibbonControlEventArgs e)
-        {
-            ShowStatusForm();
-            BuildNetTask();
-            dBuildNetTaskThread = new DBuildNetTaskThread(tasks.AntiMerge);
-            StartNetTaskThread();
         }
     }
 }
