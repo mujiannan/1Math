@@ -91,7 +91,8 @@ namespace _1Math
             // 
             this.ButtonAntiMerge.Label = "取消合并";
             this.ButtonAntiMerge.Name = "ButtonAntiMerge";
-            this.ButtonAntiMerge.ScreenTip = "批量取消合并单元格，并相对安全地自动填充";
+            this.ButtonAntiMerge.ScreenTip = "取消合并单元格";
+            this.ButtonAntiMerge.SuperTip = "批量取消选取中的合并单元格，并相对安全地自动填充。如果你只选中了一个单元格，那么会默认处理整个工作表。";
             this.ButtonAntiMerge.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.ButtonAntiMerge_Click);
             // 
             // Ribbon1

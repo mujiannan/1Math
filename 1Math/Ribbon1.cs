@@ -15,7 +15,7 @@ namespace _1Math
         {
             tasks = new Tasks();
             tasks.MessageChange += Task_MessageChange;
-            tasks.SheduleChange += Task_SheduleChange;
+            tasks.ScheduleChange += Task_ScheduleChange;
         }
         System.Threading.Thread TaskThread;
         private Tasks tasks;
@@ -71,7 +71,7 @@ namespace _1Math
             statusForm.Show();
             statusForm.FormClosing += StatusForm_FormClosing;
         }
-        private void Task_SheduleChange(double NewStatus)
+        private void Task_ScheduleChange(double NewStatus)
         {
             statusForm.progressBar1.Invoke(new Action(() => { statusForm.progressBar1.Value = (int)(100 * NewStatus); }));
         }
