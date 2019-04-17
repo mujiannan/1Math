@@ -15,13 +15,13 @@ namespace _1Math
         {
             tasks = new Tasks();
             tasks.MessageChange += Task_MessageChange;
-            tasks.ScheduleChange += Task_ScheduleChange;
+            tasks.ProgressChange += Task_ProgressChange;
         }
         System.Threading.Thread TaskThread;
         private Tasks tasks;
         private delegate void DBuildTaskThread();
         private DBuildTaskThread dBuildTaskThread;
-        private void StartNetTaskThread()
+        private void StartTaskThread()
         {
             if (TaskThread == null)
             {
@@ -38,21 +38,21 @@ namespace _1Math
             ShowStatusForm();
             BuildTask();
             dBuildTaskThread = new DBuildTaskThread(tasks.CheckUrlsAccessibility);
-            StartNetTaskThread();
+            StartTaskThread();
         }
         private void ButtonAntiMerge_Click(object sender, RibbonControlEventArgs e)
         {
             ShowStatusForm();
             BuildTask();
             dBuildTaskThread = new DBuildTaskThread(tasks.AntiMerge);
-            StartNetTaskThread();
+            StartTaskThread();
         }
         private void ButtonVideoLength_Click(object sender, RibbonControlEventArgs e)
         {
             ShowStatusForm();
             BuildTask();
             dBuildTaskThread = new DBuildTaskThread(tasks.CheckVideosLength);
-            StartNetTaskThread();
+            StartTaskThread();
         }
         private void StatusForm_FormClosing(object sender, System.Windows.Forms.FormClosingEventArgs e)
         {
@@ -71,7 +71,7 @@ namespace _1Math
             statusForm.Show();
             statusForm.FormClosing += StatusForm_FormClosing;
         }
-        private void Task_ScheduleChange(double NewStatus)
+        private void Task_ProgressChange(double NewStatus)
         {
             statusForm.progressBar1.Invoke(new Action(() => { statusForm.progressBar1.Value = (int)(100 * NewStatus); }));
         }
