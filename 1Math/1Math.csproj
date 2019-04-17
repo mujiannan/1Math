@@ -30,10 +30,10 @@
     <DefineConstants>VSTO40</DefineConstants>
     <IsWebBootstrapper>False</IsWebBootstrapper>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <PublishUrl>D:\OneDrive\MySoftWare\VSTO\1Math1.0.0.9\</PublishUrl>
+    <PublishUrl>D:\OneDrive\MySoftWare\VSTO\1Math1.0.0.11\</PublishUrl>
     <InstallUrl />
     <TargetCulture>zh-chs</TargetCulture>
-    <ApplicationVersion>1.0.0.10</ApplicationVersion>
+    <ApplicationVersion>1.0.0.11</ApplicationVersion>
     <AutoIncrementApplicationRevision>true</AutoIncrementApplicationRevision>
     <UpdateEnabled>true</UpdateEnabled>
     <UpdateInterval>7</UpdateInterval>
@@ -205,6 +205,7 @@
       <DependentUpon>StatusForm.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="1Math_1_TemporaryKey.pfx" />
+    <None Include="1Math_2_TemporaryKey.pfx" />
     <None Include="1Math_TemporaryKey.pfx" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -283,11 +284,10 @@
     <SignManifests>true</SignManifests>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestKeyFile>
-    </ManifestKeyFile>
+    <ManifestKeyFile>1Math_2_TemporaryKey.pfx</ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>20C8D88A609E4D6DBCA8E06FBCE471D8EF9120F4</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>B48269FD4EBF55093AC3B4E08AF048BB498C6162</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>false</SignAssembly>

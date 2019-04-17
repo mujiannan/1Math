@@ -21,7 +21,6 @@ namespace _1Math
         public event DelegateChangeStatus<string> MessageChange;
         public event DelegateChangeStatus<double> ScheduleChange;
         //private double TaskShedule;
-
         public void CheckUrlsAccessibility()//专用于检查乂学的视频链接有效性
         {
             System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
@@ -88,7 +87,20 @@ namespace _1Math
                     {
                         sum++;
                         url.Str = Urls[i, j].ToString();
-                        Durations[i - 1, j - 1] = url.Accessibility ? myMediaPlayer.GetDuration(url.Str) : 0;
+                        int RetryTimes = 0;
+                        Retry:
+                        try
+                        {
+                            Durations[i - 1, j - 1] = myMediaPlayer.GetDuration(url.Str);
+                        }
+                        catch (Exception)
+                        {
+                            if (RetryTimes<5)
+                            {
+                                RetryTimes++;
+                                goto Retry;
+                            }
+                        }
                         MessageChange.Invoke(url.Str + "的时长为" + Durations[i - 1, j - 1] + "秒");
                         ScheduleChange.Invoke(0.03 + 0.97 * sum / Sum);
                         t++;
@@ -186,6 +198,74 @@ namespace _1Math
         #endregion
 
     }
+    class MergedAreas//实例化后，直接运行SafelyUnMergedAndFill方法即可。其中拆分的目标是当前Selection，但如果Selection为Single，则自动将目标更改为Selection所在的整个工作表
+    {
+        public delegate void DelegateChangeStatus<T>(T item);
+        public event DelegateChangeStatus<string> MessageChange;//消息显示时间，可以删除
+        public event DelegateChangeStatus<double> ScheduleChange;//进度报告事件，可以删除
+        public void SafelyUnMergeAndFill()
+        {
+            MessageChange.Invoke("已找到所有合并单元格，正在安全拆分……");
+            ScheduleChange.Invoke(0.5);
+            Excel.Range RangeNeedUnMerge=GetAsArrayList()
+            RangeNeedUnMerge.UnMerge();
+            ScheduleChange.Invoke(0.55);
+            int Sum = MergedRanges.Count;
+            int sum = 0;
+            foreach (Excel.Range range in MergedRanges)
+            {
+                ScheduleChange.Invoke(0.55 + 0.4 * ((++sum) / Sum));
+                range.Value = range.Cells[1, 1];
+            }
+            application.ScreenUpdating = true;
+            ScheduleChange.Invoke(1);
+            stopwatch.Stop();
+            MessageChange.Invoke("耗时" + (stopwatch.Elapsed.TotalSeconds).ToString() + "秒");
+        }
+        private ArrayList GetAsArrayList(Excel.Range FromRange)//附带功能：如果将此方法改为Public，那么可以单独用作快速获取合并单元格区域的方法
+        {
+            MessageChange.Invoke("在选区中探寻合并单元格……");
+            ArrayList MergedAreas = new ArrayList();
+            Excel.Range RangeNeedUnMerge = FromRange;
+            Excel.Application application = FromRange.Application;
+            if (RangeNeedUnMerge.Count == 1)
+            {
+                MessageChange.Invoke("只选择了一个单元格，默认处理其所在的整张工作表！");
+                RangeNeedUnMerge = FromRange.Worksheet.UsedRange;//这样的设定会使我们开发出更便于使用的VSTO
+            }
+            application.FindFormat.MergeCells = true;
+            Excel.Range Result = RangeNeedUnMerge.Find(What: "", After: RangeNeedUnMerge.Cells[1, 1], SearchFormat: true);
+            Excel.Range FirstResult = Result;
+            Excel.Range MergedArea = Result;
+            if (FirstResult == null)
+            {
+                MessageChange.Invoke("没有发现合并单元格！");
+                return null;//直接return舒服一些，别else了……
+            }
+            else
+            {
+                //卧槽，还是要else，太坑了。随便查找一下，如果只选中一块合并单元格，竟然是能超出当前选取的……
+                //excel这种设定，倒也合理，直接把整个合并单元格区域当成起点，跑下一段去了。但是，它跟vba不一致啊……
+                if (FirstResult.Row > (RangeNeedUnMerge.Row + RangeNeedUnMerge.Rows.Count - 1))
+                {
+                    MergedAreas.Add(RangeNeedUnMerge);
+                    return MergedAreas;
+                }
+            }
+            MergedArea = FirstResult.MergeArea;
+            int t = 0;
+            ScheduleChange.Invoke(0.1);
+            do
+            {
+                t++;
+                ScheduleChange.Invoke(0.5 - 0.4 / t);
+                MergedAreas.Add(MergedArea);
+                Result = RangeNeedUnMerge.Find(What: "", After: Result, SearchFormat: true); ;//这里的接龙很巧妙，但也很坑。我还尝试着用FindNext，但是出现了一点问题。
+                MergedArea = Result.MergeArea;
+            } while (MergedArea != null && MergedArea.Cells[1, 1].Address != FirstResult.Address);
+            return MergedAreas;
+        }
+    }
     class Url
     {
         public new string ToString()
@@ -263,18 +343,31 @@ namespace _1Math
         }
         public double GetDuration(string url)
         {
-            mediaUrl = url;
-            Thread PlayThread = new Thread(Play);
-            PlayThread.Start();
-            IsOpened.WaitOne();
-            double Duration = mediaPlayer.currentMedia.duration;
-            mediaPlayer.controls.stop();
-            mediaPlayer.URL = string.Empty;
-            return (Duration);
+            try
+            {
+                mediaUrl = url;
+                Thread PlayThread = new Thread(Play);
+                PlayThread.Start();
+                IsOpened.WaitOne();
+                double Duration = mediaPlayer.currentMedia.duration;
+                return (Duration);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
         }
         private void Play()
         {
-            mediaPlayer.URL = mediaUrl;
+            try
+            {
+                mediaPlayer.URL = mediaUrl;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
         private void MediaPlayer_OpenStateChange(int NewState)
         {
