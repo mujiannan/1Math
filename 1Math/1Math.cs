@@ -133,7 +133,7 @@ namespace _1Math
             stopwatch.Stop();
             MessageChange.Invoke("耗时" + (stopwatch.Elapsed.TotalSeconds).ToString() + "秒");
         }
-        public void AntiMerge1()//这是一个单过程独立方法……
+        public void AntiMerge1()//这是一个单过程独立方法……没啥用了，先留着吧，纪念一下
         {
             System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
             stopwatch.Start();
@@ -233,7 +233,7 @@ namespace _1Math
             Target = In;
             GetAsArrayList();
         }
-        public ArrayList ToArrayList()
+        public ArrayList ToArrayList()//类本身当然不能作为数组，但我可以为其添加ToArrayList方法，伪装一下
         {
             return mergedAreas;
         }
