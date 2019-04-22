@@ -11,58 +11,105 @@ namespace _1Math
 {
     public class Tasks
     {
-
+        Excel.Range rangeForReturn;
+        private int ThreadsCount;
+        int threadsLimit;
         private EventHandler Shutdown;
         private EventHandler Startup;
-        private void ThisAddIn_Startup(object sender, System.EventArgs e)
-        {
-        }
+
         public delegate void DelegateChangeStatus<T>(T item);
         public event DelegateChangeStatus<string> MessageChange;
         public event DelegateChangeStatus<double> ProgressChange;
-        //private double TaskShedule;
-        public void CheckUrlsAccessibility()//专用于检查乂学的视频链接有效性
+        private delegate void DTestUrl(Url url,int i,int j);
+        private int m, n;
+        private int x=0, y=1;
+        bool[,] accessibilities;
+        DTestUrl[,] dTestUrls;
+        object[,] UrlsRange;
+        private double Sum;
+        private int sum=0;
+        private int InAccessibleUrlsCount;
+        private delegate void DComplete();
+        private event DComplete CompleteOne;
+        private event DComplete Complete;
+        private delegate void DCompleteOne(int sender);
+        private System.Diagnostics.Stopwatch stopwatch;
+        public void CheckUrlsAccessibility()
         {
-            System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
+            stopwatch = new System.Diagnostics.Stopwatch();
             stopwatch.Start();
-            MessageChange.Invoke("准备资源中……");
             Excel.Application application = Globals.ThisAddIn.Application;
-            object[,] Urls = application.Selection.Value;
-            bool[,] Accessibilities = new bool[application.Selection.Rows.Count, application.Selection.Columns.Count];
-            Url url = new Url();
-            int Sum = application.Selection.Count;
-            int sum = 0;
-            int t = 0;
-            ProgressChange.Invoke(0.1);
-            try
-            {
-                for (int i = 1; i <= Urls.GetLength(0); i++)
-                {
-                    for (int j = 1; j <= Urls.GetLength(1); j++)
-                    {
-                        sum++;
-                        ProgressChange.Invoke(0.1 + 0.9 * sum / Sum);
-                        url.Str = Urls[i, j].ToString();
-                        if (url.Accessibility)
-                        {
-                            Accessibilities[i - 1, j - 1] = true;
-                            MessageChange.Invoke(url.Str + "成功");
-                        }
-                        else
-                        {
-                            MessageChange.Invoke(url.Str + "失败");
-                            t++;
-                        }
-                    }
-                }
-            }
-            finally
-            {
-                application.Selection.OffSet[0, application.Selection.Columns.Count].Value = Accessibilities;
-            }
+            //object[,] Values = application.Selection.Value;
+            UrlsRange = application.Selection.Value;
+            m = UrlsRange.GetLength(0);
+            n = UrlsRange.GetLength(1);
+            Sum = UrlsRange.Length;
+            rangeForReturn = application.Selection.OffSet[0, n];
+            accessibilities = new bool[m, n];
+            dTestUrls = new DTestUrl[m, n];
+            CompleteOne += Tasks_CompleteOne;
+            Complete += Tasks_Complete;
+            threadsLimit = 8;
+            dTestUrlsNext();
+        }
+        private void Tasks_Complete()
+        {
+            rangeForReturn.Value= accessibilities;
+            ProgressChange.Invoke(1);
             stopwatch.Stop();
-            MessageChange.Invoke(@"耗时" + stopwatch.Elapsed.Seconds + "秒，"
-                                                    + "完成了" + sum + "个链接的有效性验证，其中" + t + "个无效");
+            MessageChange.Invoke("耗时"+stopwatch.Elapsed.TotalSeconds.ToString()+"秒，共验证了"+Sum+"个视频的有效性，其中"+InAccessibleUrlsCount+"个无效");
+        }
+        private void Tasks_CompleteOne()
+        {
+            sum++;
+            ProgressChange.Invoke(sum / Sum);
+            ThreadsCount--;
+            if (sum<Sum)
+            {
+                dTestUrlsNext();
+            }
+            else
+            {
+                Complete.Invoke();
+            }
+
+        }
+        private void dTestUrlsNext()
+        {
+            for (int i = 0; i < threadsLimit-ThreadsCount; i++)
+            {
+                if (x < m)
+                {
+                    x++;
+                }
+                else if (y < n)
+                {
+                    y++;
+                }
+                else
+                {
+                    return;
+                }
+                ThreadsCount++;
+                Url url = new Url
+                {
+                    Str = UrlsRange[x, y].ToString()
+                };
+                dTestUrls[x - 1, y - 1] = new DTestUrl(WriteAccessibilityIn);
+                dTestUrls[x - 1, y - 1].BeginInvoke(url, x, y, null, null);
+            }
+        }
+
+        private void WriteAccessibilityIn(Url url,int i,int j)
+        {
+            bool accessibility= url.Accessibility;
+            accessibilities[i - 1, j - 1] = accessibility;
+            if (!accessibility)
+            {
+                InAccessibleUrlsCount++;
+            }
+            //MessageChange.Invoke(url.Str + "验证结果：" + accessibility);
+            CompleteOne.Invoke();
         }
         public void CheckVideosLength()
         {
@@ -133,68 +180,8 @@ namespace _1Math
             stopwatch.Stop();
             MessageChange.Invoke("耗时" + (stopwatch.Elapsed.TotalSeconds).ToString() + "秒");
         }
-        public void AntiMerge1()//这是一个单过程独立方法……没啥用了，先留着吧，纪念一下
+        private void ThisAddIn_Startup(object sender, System.EventArgs e)
         {
-            System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
-            stopwatch.Start();
-            MessageChange.Invoke("在选区中探寻合并单元格……");
-            ArrayList MergedRanges = new ArrayList();
-            Excel.Application application = Globals.ThisAddIn.Application;
-            application.ScreenUpdating = false;
-            Excel.Range RangeNeedUnMerge = application.Selection;
-            if (RangeNeedUnMerge.Count == 1)
-            {
-                MessageChange.Invoke("只选中了一个单元格，默认处理整张工作表！");
-                RangeNeedUnMerge = application.ActiveSheet.UsedRange;
-            }
-            application.FindFormat.MergeCells = true;
-            Excel.Range Result = RangeNeedUnMerge.Find(What: "", After: RangeNeedUnMerge.Cells[1, 1], SearchFormat: true);
-            Excel.Range FirstResult = Result;
-            Excel.Range MergedRange = FirstResult;
-            if (FirstResult == null)
-            {
-                MessageChange.Invoke("没有发现合并单元格！");
-                ProgressChange.Invoke(1);
-                application.ScreenUpdating = true;
-                return;//直接return舒服一些，别else了……
-            }
-            else
-            {
-                //卧槽，还是要else，太坑了。随便查找一下，如果只选中一块合并单元格，竟然是能超出当前选取的……
-                //excel这种设定，倒也合理，直接把整个合并单元格区域当成起点，跑下一段去了。但是，它跟vba不一致啊……
-                if (FirstResult.Row > (RangeNeedUnMerge.Row + RangeNeedUnMerge.Rows.Count - 1))
-                {
-                    MergedRanges.Add(RangeNeedUnMerge);
-                    goto Fool;
-                }
-            }
-            MergedRange = FirstResult.MergeArea;
-            int t = 0;
-            ProgressChange.Invoke(0.1);
-            do
-            {
-                t++;
-                ProgressChange.Invoke(0.5 - 0.4 / t);
-                MergedRanges.Add(MergedRange);
-                Result = RangeNeedUnMerge.Find(What: "", After: Result, SearchFormat: true); ;//这里的接龙很巧妙，但也很坑
-                MergedRange = Result.MergeArea;
-            } while (MergedRange != null && MergedRange.Cells[1, 1].Address != FirstResult.Address);//卧槽，必须用do while，如果先判断，肯定就跳过去了。我写的逻辑太坑，一层套一层，每一步都对后续步骤有深渊影响
-        Fool:
-            MessageChange.Invoke("已找到所有合并单元格，正在安全拆分……");
-            ProgressChange.Invoke(0.5);
-            RangeNeedUnMerge.UnMerge();
-            ProgressChange.Invoke(0.55);
-            int Sum = MergedRanges.Count;
-            int sum = 0;
-            foreach (Excel.Range range in MergedRanges)
-            {
-                ProgressChange.Invoke(0.55 + 0.4 * ((++sum)/ Sum));
-                range.Value = range.Cells[1, 1];
-            }
-            application.ScreenUpdating = true;
-            ProgressChange.Invoke(1);
-            stopwatch.Stop();
-            MessageChange.Invoke("耗时" + (stopwatch.Elapsed.TotalSeconds).ToString() + "秒");
         }
         private void ThisAddIn_Shutdown(object sender, System.EventArgs e)
         {
@@ -349,8 +336,30 @@ namespace _1Math
             }
         }
     }
-    class MyMediaPlayer
+    class MyMediaPlayer:IDisposable
     {
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+        protected virtual void Dispose(bool Disposing)
+        {
+            if (Disposing)
+            {
+                IsOpened.Dispose();
+                mediaPlayer.close();
+                mediaPlayer = null;
+            }
+            else
+            {
+                mediaPlayer.close();
+            }
+        }
+        ~MyMediaPlayer()
+        {
+            Dispose(false);
+        }
         WindowsMediaPlayer mediaPlayer;
         private string mediaUrl;
         private AutoResetEvent IsOpened = new AutoResetEvent(false);
