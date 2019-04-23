@@ -73,11 +73,11 @@ namespace _1Math
         }
         private void Task_ProgressChange(double NewStatus)
         {
-            statusForm.progressBar1.Invoke(new Action(() => { statusForm.progressBar1.Value = (int)(100 * NewStatus); }));
+            statusForm.progressBar1.BeginInvoke(new Action(() => { statusForm.progressBar1.Value = (int)(100 * NewStatus); }));
         }
         private void Task_MessageChange(string NewStatus)
         {
-            statusForm.MessageLabel.Invoke(new Action(() => { statusForm.MessageLabel.Text = NewStatus; })); ;
+            statusForm.MessageLabel.BeginInvoke(new Action(() => { statusForm.MessageLabel.Text = NewStatus; })); ;
         }
     }
 }

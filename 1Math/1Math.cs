@@ -16,7 +16,6 @@ namespace _1Math
         int threadsLimit;
         private EventHandler Shutdown;
         private EventHandler Startup;
-
         public delegate void DelegateChangeStatus<T>(T item);
         public event DelegateChangeStatus<string> MessageChange;
         public event DelegateChangeStatus<double> ProgressChange;
@@ -50,19 +49,22 @@ namespace _1Math
             CompleteOne += Tasks_CompleteOne;
             Complete += Tasks_Complete;
             threadsLimit = 8;
-            dTestUrlsNext();
+            for (int i = 0; i < threadsLimit; i++)
+            {
+                dTestUrlsNext();
+            }
         }
         private void Tasks_Complete()
         {
             rangeForReturn.Value= accessibilities;
-            ProgressChange.Invoke(1);
+            ProgressChange.BeginInvoke(1,null,null);
             stopwatch.Stop();
-            MessageChange.Invoke("耗时"+stopwatch.Elapsed.TotalSeconds.ToString()+"秒，共验证了"+Sum+"个视频的有效性，其中"+InAccessibleUrlsCount+"个无效");
+            MessageChange.BeginInvoke("耗时" + stopwatch.Elapsed.TotalSeconds.ToString() + "秒，共验证了" + Sum + "个视频的有效性，其中" + InAccessibleUrlsCount + "个无效",null,null);
         }
         private void Tasks_CompleteOne()
         {
             sum++;
-            ProgressChange.Invoke(sum / Sum);
+            ProgressChange.BeginInvoke(sum / Sum, null, null);
             ThreadsCount--;
             if (sum<Sum)
             {
@@ -70,39 +72,36 @@ namespace _1Math
             }
             else
             {
-                Complete.Invoke();
+                Complete.BeginInvoke(null,null);
             }
 
         }
         private void dTestUrlsNext()
         {
-            for (int i = 0; i < threadsLimit-ThreadsCount; i++)
+            if (x < m)
             {
-                if (x < m)
-                {
-                    x++;
-                }
-                else if (y < n)
-                {
-                    y++;
-                }
-                else
-                {
-                    return;
-                }
-                ThreadsCount++;
-                Url url = new Url
-                {
-                    Str = UrlsRange[x, y].ToString()
-                };
-                dTestUrls[x - 1, y - 1] = new DTestUrl(WriteAccessibilityIn);
-                dTestUrls[x - 1, y - 1].BeginInvoke(url, x, y, null, null);
+                x++;
             }
+            else if (y < n)
+            {
+                y++;
+            }
+            else
+            {
+                return;
+            }
+            ThreadsCount++;
+            Url url = new Url
+            {
+                Str = UrlsRange[x, y].ToString()
+            };
+            dTestUrls[x - 1, y - 1] = new DTestUrl(WriteAccessibilityIn);
+            dTestUrls[x - 1, y - 1].BeginInvoke(url, x, y, null, null);
         }
-
         private void WriteAccessibilityIn(Url url,int i,int j)
         {
-            bool accessibility= url.Accessibility;
+            bool accessibility;
+            accessibility = url.Accessibility;
             accessibilities[i - 1, j - 1] = accessibility;
             if (!accessibility)
             {
@@ -125,7 +124,7 @@ namespace _1Math
             MyMediaPlayer myMediaPlayer = new MyMediaPlayer();
             Url url = new Url();
             double[,] Durations = new double[application.Selection.Rows.Count, application.Selection.Columns.Count];
-            ProgressChange.Invoke(0.03);
+            ProgressChange.BeginInvoke(0.03,null,null);
             try
             {
                 for (int i = 1; i <= Urls.GetLength(0); i++)
@@ -149,7 +148,7 @@ namespace _1Math
                             }
                         }
                         MessageChange.Invoke(url.Str + "的时长为" + Durations[i - 1, j - 1] + "秒");
-                        ProgressChange.Invoke(0.03 + 0.97 * sum / Sum);
+                        ProgressChange.BeginInvoke(0.03 + 0.97 * sum / Sum,null,null);
                         t++;
                     }
                 }
@@ -291,8 +290,16 @@ namespace _1Math
         {
             checkStatus = CheckStatus.Checking;
             HttpClient checkClient = new HttpClient();
-            HttpResponseMessage httpResponseMessage = await checkClient.GetAsync(str, HttpCompletionOption.ResponseHeadersRead);
-            accessibility = httpResponseMessage.IsSuccessStatusCode;
+            checkClient.Timeout = new TimeSpan(0, 0, 1);
+            try
+            {
+                HttpResponseMessage httpResponseMessage = await checkClient.GetAsync(str, HttpCompletionOption.ResponseHeadersRead);
+                accessibility = httpResponseMessage.IsSuccessStatusCode;
+            }
+            catch (Exception)
+            {
+                accessibility = false;
+            }
             checkClient.Dispose();
             checkStatus = CheckStatus.Checked;
         }
