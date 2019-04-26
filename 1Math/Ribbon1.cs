@@ -11,9 +11,9 @@ namespace _1Math
         private void Ribbon1_Load(object sender, RibbonUIEventArgs e)
         {
         }
-        private void BuildTask()
+        private void BuildTask(Tasks.TaskName taskName)
         {
-            tasks = new Tasks();
+            tasks = new Tasks(taskName);
             tasks.MessageChange += Task_MessageChange;
             tasks.ProgressChange += Task_ProgressChange;
         }
@@ -36,22 +36,29 @@ namespace _1Math
         private void ButtonUrlCheck_Click(object sender, RibbonControlEventArgs e)
         {
             ShowStatusForm();
-            BuildTask();
-            dBuildTaskThread = new DBuildTaskThread(tasks.CheckUrlsAccessibility);
+            Accessibility accessibility = new Accessibility();
+            accessibility.MessageChange += Task_MessageChange;
+            accessibility.ProgressChange += Task_ProgressChange;
+            dBuildTaskThread = new DBuildTaskThread(accessibility.Start);
             StartTaskThread();
         }
+
+
+
         private void ButtonAntiMerge_Click(object sender, RibbonControlEventArgs e)
         {
             ShowStatusForm();
-            BuildTask();
+            BuildTask(Tasks.TaskName.AntiMerge);
             dBuildTaskThread = new DBuildTaskThread(tasks.AntiMerge);
             StartTaskThread();
         }
         private void ButtonVideoLength_Click(object sender, RibbonControlEventArgs e)
         {
             ShowStatusForm();
-            BuildTask();
-            dBuildTaskThread = new DBuildTaskThread(tasks.CheckVideosLength);
+            VideoLength videoLength = new VideoLength();
+            videoLength.MessageChange += Task_MessageChange;
+            videoLength.ProgressChange += Task_ProgressChange;
+            dBuildTaskThread = new DBuildTaskThread(videoLength.Start);
             StartTaskThread();
         }
         private void StatusForm_FormClosing(object sender, System.Windows.Forms.FormClosingEventArgs e)
