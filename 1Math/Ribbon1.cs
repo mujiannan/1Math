@@ -11,9 +11,9 @@ namespace _1Math
         private void Ribbon1_Load(object sender, RibbonUIEventArgs e)
         {
         }
-        private void BuildTask(Tasks.TaskName taskName)
+        private void BuildTask()
         {
-            tasks = new Tasks(taskName);
+            tasks = new Tasks();
             tasks.MessageChange += Task_MessageChange;
             tasks.ProgressChange += Task_ProgressChange;
         }
@@ -48,7 +48,7 @@ namespace _1Math
         private void ButtonAntiMerge_Click(object sender, RibbonControlEventArgs e)
         {
             ShowStatusForm();
-            BuildTask(Tasks.TaskName.AntiMerge);
+            BuildTask();
             dBuildTaskThread = new DBuildTaskThread(tasks.AntiMerge);
             StartTaskThread();
         }

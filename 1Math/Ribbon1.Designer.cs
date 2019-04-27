@@ -51,7 +51,6 @@ namespace _1Math
             // 
             // Tab1Math
             // 
-            this.Tab1Math.ControlId.ControlIdType = Microsoft.Office.Tools.Ribbon.RibbonControlIdType.Office;
             this.Tab1Math.Groups.Add(this.GroupNet);
             this.Tab1Math.Groups.Add(this.GroupDataCleaner);
             this.Tab1Math.Label = "1Math";

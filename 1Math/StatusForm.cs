@@ -17,7 +17,6 @@ namespace _1Math
         {
             InitializeComponent();
         }
-
         private void StatusForm_Load(object sender, EventArgs e)
         {
 

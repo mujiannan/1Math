@@ -10,70 +10,101 @@ using System.Collections;
 using System.Windows.Media;
 namespace _1Math
 {
-    public class NetTasks
+    
+    public static class CE
     {
-        protected System.Diagnostics.Stopwatch stopwatch;
-        protected Excel.Application application;
-        protected Excel.Range rangeForReturn;
-        private int ThreadsCount;
-        protected int threadsLimit;
-        private EventHandler Shutdown;
-        private EventHandler Startup;
-        public delegate void DelegateChangeStatus<T>(T item);
-        public event DelegateChangeStatus<string> MessageChange;
-        public event DelegateChangeStatus<double> ProgressChange;
-        private delegate void DTestUrl(Url url, int i, int j);
-        protected int m, n;
-        private int x = 0, y = 1;
-        volatile DTestUrl[,] dTestUrls;
-        object[,] UrlsRange;
-        protected double Sum;//总任务量
-        private int sum = 0;//完成任务量
-        public NetTasks()
+        private static System.Diagnostics.Stopwatch stopwatch;
+        public static string Elapse
+        {
+            get
+            {
+                return (stopwatch.Elapsed.TotalSeconds.ToString());
+            }
+        }
+        public static Excel.Application App = Globals.ThisAddIn.Application;
+        public static Excel.Range Selection
+        {
+            get
+            {
+                return (App.Selection);
+            }
+        }
+        public static void StartTask()
         {
             stopwatch = new System.Diagnostics.Stopwatch();
             stopwatch.Start();
-            application = Globals.ThisAddIn.Application;
-            UrlsRange = application.Selection.Value;
+            App.ScreenUpdating = false;
+        }
+        public static void EndTask()
+        {
+            App.ScreenUpdating = true;
+            stopwatch.Stop();
+        }
+    }
+    public abstract class NetTask
+    {
+        protected Thread[] threads;
+        protected Excel.Range rangeForReturn;
+        protected int threadsLimit;
+        public delegate void DelegateChangeStatus<T>(T item);
+        public event DelegateChangeStatus<string> MessageChange;
+        public event DelegateChangeStatus<double> ProgressChange;
+        protected int m, n;
+        private volatile int x = 0, y = 1;
+        protected object[,] UrlsRange;//不需要锁
+        protected double Sum;//总任务量
+        private volatile int sum = 0;//完成任务量
+        private readonly int[] HasNoNext =new int[2]{0,0};
+        protected NetTask()
+        {
+            CE.StartTask();
+            if (CE.Selection.Count > 1)
+            {
+                UrlsRange=CE.Selection.Value;
+            }
+            else
+            {
+                UrlsRange = (object[,])Array.CreateInstance(typeof(object), new int[2] { 1, 1 }, new int[2] { 1, 1 });
+                UrlsRange[1, 1] =CE.Selection.Cells[1,1].Value;
+                
+            }
             Sum = UrlsRange.Length;
             m = UrlsRange.GetLength(0);
             n = UrlsRange.GetLength(1);
-            dTestUrls = new DTestUrl[m, n];
         }
         public void Start()
         {
-            
-            for (int i = 0; i < threadsLimit; i++)
+            for (int i = 0; i < threads.Length; i++)
             {
-                Next();
-            }
+                threads[i] = new Thread(Work);
+                threads[i].Start();
+            };
         }
-        protected virtual void Complete()//结束，必须覆写
+        private void Finish()
         {
-
+            ProgressChange(1);
+            CE.EndTask();
         }
-        public void Report(string Message)
+        protected virtual void Complete() { }//结束，必须覆写
+        protected void Report(string Message)
         {
             MessageChange.BeginInvoke(Message,null,null);
         }
         protected void CompleteOne()
         {
             sum++;
-            ProgressChange.BeginInvoke(sum / Sum, null, null);
-            ThreadsCount--;
             if (sum < Sum)
             {
-                Next();
+                ProgressChange.BeginInvoke(sum / Sum, null, null);
             }
             else
             {
-                ProgressChange.BeginInvoke(1, null, null);
-                stopwatch.Stop();
+                Finish();
                 Complete();
             }
 
         }
-        private void Next()//封闭着就行了，完全不用动
+        protected int[] GetNext()//封闭着就行了，完全不用动
         {
             if (x < m)
             {
@@ -81,299 +112,113 @@ namespace _1Math
             }
             else if (y < n)
             {
+                x = 1;
                 y++;
             }
             else
             {
-                return;
+                return(HasNoNext);
             }
-            ThreadsCount++;
-            Url url = new Url
-            {
-                Str = UrlsRange[x, y].ToString()
-            };
-            dTestUrls[x - 1, y - 1] = new DTestUrl(Work);
-            dTestUrls[x - 1, y - 1].BeginInvoke(url, x, y, null, null);
+            return (new int[2] { x, y });
         }
-
-        protected virtual void Work(Url url, int i, int j)//工作方法，必须覆盖，不然就直接结束
-        {
-            CompleteOne();
-        }
+        protected virtual void Work() => CompleteOne();//工作方法，必须覆盖，不然就直接结束
     }
-    public class Accessibility : NetTasks
+    public class Accessibility : NetTask
     {
-        private bool[,] Results;
+        private bool[,] results;//这个也许要锁，不太确定
         public Accessibility()
         {
-            threadsLimit = 4;
-            Results  = new bool[m, n];
-            rangeForReturn = application.Selection.OffSet[0, n];
+            threadsLimit = 10;
+            threads = new Thread[threadsLimit];
+            results  = new bool[m, n];
+            rangeForReturn = CE.Selection.Offset[0, n];
         }
-        private int InAccessibleUrlsCount;
+        private int inAccessibleUrlsCount;
         protected override void Complete()
         {
-            rangeForReturn.Value = Results;
-            Report("耗时" + stopwatch.Elapsed.TotalSeconds.ToString() + "秒，共验证了" + Sum + "个视频的有效性，其中" + InAccessibleUrlsCount + "个无效");
+            rangeForReturn.Value = results;
+            Report("耗时" + CE.Elapse + "秒，共验证了" + Sum + "个视频的有效性，其中" + inAccessibleUrlsCount + "个无效");
         }
-        protected override void Work(Url url, int i, int j)
+        protected override void Work()
         {
+            int[] next = GetNext();
             bool accessibility;
-            accessibility = url.Accessibility;
-            Results[i - 1, j - 1] = accessibility;
-            if (!accessibility)
+            int i, j;
+            Url url = new Url();
+            while (next[0] != 0)
             {
-                InAccessibleUrlsCount++;
-            }
-            //MessageChange.Invoke(url.Str + "验证结果：" + accessibility);
-            CompleteOne();
+                i = next[0];
+                j = next[1];
+                url.SetReferTo(UrlsRange[i, j].ToString());
+                accessibility = url.Accessibility;
+                results[i - 1, j - 1] = accessibility;
+                if (!accessibility)
+                {
+                    inAccessibleUrlsCount++;
+                }
+                CompleteOne();
+                next = GetNext();
+            };
         }
     }
-    public class VideoLength : NetTasks
+    public class VideoLength : NetTask
     {
-        private volatile double[,] Results;
+        private double[,] results;
         public VideoLength()
         {
-            threadsLimit = 2;
-            Results = new double[m, n];
-            rangeForReturn = application.Selection.OffSet[0, 2 * n];
+            threadsLimit = 1;
+            threads = new Thread[threadsLimit];
+            results = new double[m, n];
+            rangeForReturn = CE.Selection.Offset[0,2*n];
         }
-        private volatile int Success;
+        private int success;
         protected override void Complete()
         {
-            rangeForReturn.Value = Results;
-            Report("耗时" + stopwatch.Elapsed.TotalSeconds.ToString() + "秒，成功获取了" + Success + "个视频的时长");
+            rangeForReturn.Value = results;
+            Report("耗时" + CE.Elapse + "秒，测试了" + Sum + "个视频的时长，其中" + success + "个测试成功");
         }
-        protected override void Work(Url url, int i, int j)
+        protected override void Work()
         {
-            Func<double> func = (() =>
+            int[] next = GetNext();
+            double duration;
+            int i, j;
+            MyMediaPlayer mediaPlayer = new MyMediaPlayer();
+            while (next[0] != 0)
             {
-                MediaPlayer mediaPlayer = new MediaPlayer();
-                mediaPlayer.Open(new Uri(url.Str));
-                DateTime start = DateTime.Now;
-                TimeSpan timeSpan;
-                do
+                i = next[0];
+                j = next[1];
+                duration = mediaPlayer.GetDuration(UrlsRange[i, j].ToString());
+                results[i - 1, j - 1] = duration;
+                if (duration>0)
                 {
-                    Thread.Sleep(100);
-                    timeSpan = DateTime.Now - start;
-                } while (!mediaPlayer.NaturalDuration.HasTimeSpan&&timeSpan.TotalSeconds<2);
-                double Duration = mediaPlayer.NaturalDuration.HasTimeSpan ? mediaPlayer.NaturalDuration.TimeSpan.TotalSeconds : 0;
-                mediaPlayer.Close();
-                if (Duration>0)
-                {
-                    Success++;
-                } 
-                return (Duration);
-            });
-            Results[i - 1, j - 1] = func();
-            CompleteOne();
+                    success++;
+                }
+                CompleteOne();
+                next = GetNext();
+            };
+            mediaPlayer.Dispose();
         }
     }
 
     public class Tasks
     {
-        Excel.Application application;
-        Excel.Range rangeForReturn;
-        private int ThreadsCount;
-        int threadsLimit;
-        private EventHandler Shutdown;
-        private EventHandler Startup;
         public delegate void DelegateChangeStatus<T>(T item);
         public event DelegateChangeStatus<string> MessageChange;
         public event DelegateChangeStatus<double> ProgressChange;
-        private delegate void DTestUrl(Url url,int i,int j);
-        private int m, n;
-        private int x=0, y=1;
-        bool[,] accessibilities;
-        DTestUrl[,] dTestUrls;
-        object[,] UrlsRange;
-        private double Sum;
-        private int sum=0;
-        private int InAccessibleUrlsCount;
-        private delegate void DComplete();
-        private event DComplete CompleteOne;
-        private event DComplete Complete;
-        private delegate void DCompleteOne(int sender);
-        private System.Diagnostics.Stopwatch stopwatch;
-        public enum TaskName
-        {
-            CheckUrlsAccessibility,CheckVideosLength,AntiMerge
-        }
-        public Tasks(TaskName taskName)
-        {
-            stopwatch = new System.Diagnostics.Stopwatch();
-            stopwatch.Start();
-            Initialize(taskName);
-        }
-        private void Initialize(TaskName taskName)
-        {
-            application = Globals.ThisAddIn.Application;
 
-            
-            if ((int)taskName<2)
-            {
-                UrlsRange = application.Selection.Value;
-                Sum = UrlsRange.Length;
-                m = UrlsRange.GetLength(0);
-                n = UrlsRange.GetLength(1);
-                rangeForReturn = application.Selection.OffSet[0, n];
-                dTestUrls = new DTestUrl[m, n];
-            }
-        }
-        public void CheckUrlsAccessibility()
-        {
-            accessibilities = new bool[m, n];
-            CompleteOne += Tasks_CompleteOneAccessibility;
-            Complete += Tasks_CompleteAccessibilities;
-            threadsLimit = 4;
-            for (int i = 0; i < threadsLimit; i++)
-            {
-                NextAccessibility();
-            }
-        }
-        private void Tasks_CompleteAccessibilities()
-        {
-            rangeForReturn.Value= accessibilities;
-            ProgressChange.BeginInvoke(1,null,null);
-            stopwatch.Stop();
-            MessageChange.BeginInvoke("耗时" + stopwatch.Elapsed.TotalSeconds.ToString() + "秒，共验证了" + Sum + "个视频的有效性，其中" + InAccessibleUrlsCount + "个无效",null,null);
-        }
-        private void Tasks_CompleteOneAccessibility()
-        {
-            sum++;
-            ProgressChange.BeginInvoke(sum / Sum, null, null);
-            ThreadsCount--;
-            if (sum<Sum)
-            {
-                NextAccessibility();
-            }
-            else
-            {
-                Complete.BeginInvoke(null,null);
-            }
-
-        }
-        private void NextAccessibility()
-        {
-            if (x < m)
-            {
-                x++;
-            }
-            else if (y < n)
-            {
-                y++;
-            }
-            else
-            {
-                return;
-            }
-            ThreadsCount++;
-            Url url = new Url
-            {
-                Str = UrlsRange[x, y].ToString()
-            };
-            dTestUrls[x - 1, y - 1] = new DTestUrl(WriteAccessibilityIn);
-            dTestUrls[x - 1, y - 1].BeginInvoke(url, x, y, null, null);
-        }
-        private void WriteAccessibilityIn(Url url,int i,int j)
-        {
-            bool accessibility;
-            accessibility = url.Accessibility;
-            accessibilities[i - 1, j - 1] = accessibility;
-            if (!accessibility)
-            {
-                InAccessibleUrlsCount++;
-            }
-            //MessageChange.Invoke(url.Str + "验证结果：" + accessibility);
-            CompleteOne.Invoke();
-        }
-        public void CheckVideosLength()
-        {
-            System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
-            stopwatch.Start();
-            MessageChange.Invoke("准备资源中……");
-            Excel.Application application = Globals.ThisAddIn.Application;
-            object[,] Urls = application.Selection.Value;
-
-            int Sum = Urls.Length;
-            int sum = 0;
-            int t = 0;
-            MyMediaPlayer myMediaPlayer = new MyMediaPlayer();
-            Url url = new Url();
-            double[,] Durations = new double[application.Selection.Rows.Count, application.Selection.Columns.Count];
-            ProgressChange.BeginInvoke(0.03,null,null);
-            try
-            {
-                for (int i = 1; i <= Urls.GetLength(0); i++)
-                {
-                    for (int j = 1; j <= Urls.GetLength(1); j++)
-                    {
-                        sum++;
-                        url.Str = Urls[i, j].ToString();
-                        int RetryTimes = 0;
-                        Retry:
-                        try
-                        {
-                            Durations[i - 1, j - 1] = myMediaPlayer.GetDuration(url.Str);
-                        }
-                        catch (Exception)
-                        {
-                            if (RetryTimes<5)
-                            {
-                                RetryTimes++;
-                                goto Retry;
-                            }
-                        }
-                        MessageChange.Invoke(url.Str + "的时长为" + Durations[i - 1, j - 1] + "秒");
-                        ProgressChange.BeginInvoke(0.03 + 0.97 * sum / Sum,null,null);
-                        t++;
-                    }
-                }
-            }
-            finally
-            {
-                application.Selection.Offset[0, 2 * application.Selection.Columns.Count].Value = Durations;
-            }
-            stopwatch.Stop();
-            MessageChange.Invoke(@"耗时" + stopwatch.Elapsed.Seconds + "秒，" +
-                                                "共选中了" + Sum + "个单元格，" +
-                                                "成功完成了" + t + "个视频时长的检测");
-        }
         public void AntiMerge()
         {
+            CE.StartTask();
             MessageChange.Invoke("在选区中探寻合并单元格……");
-            application.ScreenUpdating = false;
             ProgressChange.Invoke(0.05);
             MergedAreas mergedAreas = new MergedAreas();
             ProgressChange.Invoke(0.5);
             MessageChange.Invoke("已找到所有合并单元格，正在安全拆分……");
             mergedAreas.SafelyUnMergeAndFill();
-            application.ScreenUpdating = true;
             ProgressChange.Invoke(1);
-            stopwatch.Stop();
-            MessageChange.Invoke("耗时" + (stopwatch.Elapsed.TotalSeconds).ToString() + "秒");
+            CE.EndTask();
+            MessageChange.Invoke("耗时" + CE.Elapse + "秒");
         }
-        private void ThisAddIn_Startup(object sender, System.EventArgs e)
-        {
-        }
-        private void ThisAddIn_Shutdown(object sender, System.EventArgs e)
-        {
-        }
-
-        #region VSTO 生成的代码
-
-        /// <summary>
-        /// 设计器支持所需的方法 - 不要修改
-        /// 使用代码编辑器修改此方法的内容。
-        /// </summary>
-        private void InternalStartup()
-        {
-            this.Startup += new System.EventHandler(ThisAddIn_Startup);
-            this.Shutdown += new System.EventHandler(ThisAddIn_Shutdown);
-        }
-
-        #endregion
-
     }
     class MergedAreas//实例化后，直接运行SafelyUnMergedAndFill方法即可。拆分的目标默认为当前Selection。目标区域为Single时，则自动将目标区域更改为整个活动工作表
     {
@@ -446,9 +291,25 @@ namespace _1Math
     }
     public class Url
     {
-        public new string ToString()
+        private string str;
+        public void SetReferTo(string value)
         {
-            return Str;
+            if (value != str)
+            {
+                checkStatus = CheckStatus.Null;//这样可以不需要反复实例化就可以验证有效性，不知道会不会节省资源
+                str = value;
+            }
+        }
+        public new string ToString()//假的
+        {
+            return str;
+        }
+        public Url(string url)
+        {
+            str = url;
+        }
+        public Url()
+        {
         }
         private enum CheckStatus
         {
@@ -499,23 +360,7 @@ namespace _1Math
                 return accessibility;
             }
         }
-        private string str;
-        public string Str
-        {
-            get
-            {
-                return str;
-            }
-            set
-            {
-                if (value != str)
-                {
-                    checkStatus = CheckStatus.Null;
-                    str = value;
-                }
 
-            }
-        }
     }
     class MyMediaPlayer:IDisposable
     {
@@ -526,15 +371,24 @@ namespace _1Math
         }
         protected virtual void Dispose(bool Disposing)
         {
-            if (Disposing)
+            Retry:
+            try
             {
-                IsOpened.Dispose();
-                mediaPlayer.close();
-                mediaPlayer = null;
+                if (Disposing)
+                {
+                    IsOpened.Dispose();
+                    mediaPlayer.close();
+                    mediaPlayer = null;
+                }
+                else
+                {
+                    mediaPlayer.close();
+                }
             }
-            else
+            catch (Exception)
             {
-                mediaPlayer.close();
+
+                goto Retry;
             }
         }
         ~MyMediaPlayer()
@@ -555,7 +409,7 @@ namespace _1Math
             }
             catch (Exception)
             {
-                Thread.Sleep(500);
+                Thread.Sleep(200);
                 goto Retry;
             }
             
@@ -564,17 +418,27 @@ namespace _1Math
         public double GetDuration(string url)
         {
             Thread PlayThread = new Thread(Play);
+            int RetryTimes = 0;
+            Retry:
             try
             {
                 mediaUrl = url;
                 PlayThread.Start();
-                IsOpened.WaitOne(2000);
+                IsOpened.WaitOne(5000);
                 double Duration = mediaPlayer.currentMedia.duration;
                 return Duration;
             }
             catch (Exception)
             {
-                return 0;
+                if (RetryTimes<3)
+                {
+                    RetryTimes++;
+                    goto Retry;
+                }
+                else
+                {
+                    return 0;
+                }
             }
 
         }
@@ -586,7 +450,7 @@ namespace _1Math
             }
             catch (Exception)
             {
-                throw;
+                return;
             }
         }
         private void MediaPlayer_OpenStateChange(int NewState)
