@@ -166,7 +166,7 @@ namespace _1Math
         private double[,] results;
         public VideoLength()
         {
-            threadsLimit = 1;
+            threadsLimit = 4;
             threads = new Thread[threadsLimit];
             results = new double[m, n];
             rangeForReturn = CE.Selection.Offset[0,2*n];
@@ -182,12 +182,14 @@ namespace _1Math
             int[] next = GetNext();
             double duration;
             int i, j;
-            MyMediaPlayer mediaPlayer = new MyMediaPlayer();
+            //MyMediaPlayer mediaPlayer = new MyMediaPlayer();
+            DotNetPlayer dotNetPlayer = new DotNetPlayer();
             while (next[0] != 0)
             {
                 i = next[0];
                 j = next[1];
-                duration = mediaPlayer.GetDuration(UrlsRange[i, j].ToString());
+                //duration = mediaPlayer.GetDuration(UrlsRange[i, j].ToString());
+                duration = dotNetPlayer.GetDuration(new Uri(UrlsRange[i, j].ToString()));
                 results[i - 1, j - 1] = duration;
                 if (duration>0)
                 {
@@ -196,10 +198,61 @@ namespace _1Math
                 CompleteOne();
                 next = GetNext();
             };
-            mediaPlayer.Dispose();
+            //mediaPlayer.Dispose();
+            dotNetPlayer.Dispose();
         }
     }
-
+    public class DotNetPlayer:IDisposable
+    {
+        private bool disposed;
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+        ~DotNetPlayer()
+        {
+            Dispose(false);
+        }
+        private void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    //呵呵，暂时还没有啥托管资源需要释放的
+                }
+                mediaPlayer.Close();
+                mediaPlayer = null;
+                disposed = true;
+            }
+            
+        }
+        MediaPlayer mediaPlayer;
+        const double timeOut = 20;
+        public DotNetPlayer()
+        {
+            mediaPlayer = new MediaPlayer();
+        }
+        public double GetDuration(Uri uri)
+        {
+            mediaPlayer.Open(uri);
+            double duration = 0;
+            DateTime start = DateTime.Now;
+            TimeSpan timeSpan = new TimeSpan(0);
+            do
+            {
+                Thread.Sleep(100);
+                if (mediaPlayer.NaturalDuration.HasTimeSpan)
+                {
+                    duration = mediaPlayer.NaturalDuration.TimeSpan.TotalSeconds;
+                    mediaPlayer.Stop();
+                }
+                timeSpan = DateTime.Now - start;
+            } while (duration==0&&timeSpan.TotalSeconds<timeOut);
+            return (duration);
+        }
+    }
     public class Tasks
     {
         public delegate void DelegateChangeStatus<T>(T item);
@@ -362,104 +415,4 @@ namespace _1Math
         }
 
     }
-    class MyMediaPlayer:IDisposable
-    {
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-        protected virtual void Dispose(bool Disposing)
-        {
-            Retry:
-            try
-            {
-                if (Disposing)
-                {
-                    IsOpened.Dispose();
-                    mediaPlayer.close();
-                    mediaPlayer = null;
-                }
-                else
-                {
-                    mediaPlayer.close();
-                }
-            }
-            catch (Exception)
-            {
-
-                goto Retry;
-            }
-        }
-        ~MyMediaPlayer()
-        {
-            Dispose(false);
-        }
-        WindowsMediaPlayer mediaPlayer;
-        private string mediaUrl;
-        private AutoResetEvent IsOpened;
-        public MyMediaPlayer()
-        {
-            IsOpened = new AutoResetEvent(false);
-            Retry:
-            try
-            {
-                mediaPlayer = new WindowsMediaPlayer();
-                mediaPlayer.OpenStateChange += MediaPlayer_OpenStateChange;
-            }
-            catch (Exception)
-            {
-                Thread.Sleep(200);
-                goto Retry;
-            }
-            
-            
-        }
-        public double GetDuration(string url)
-        {
-            Thread PlayThread = new Thread(Play);
-            int RetryTimes = 0;
-            Retry:
-            try
-            {
-                mediaUrl = url;
-                PlayThread.Start();
-                IsOpened.WaitOne(5000);
-                double Duration = mediaPlayer.currentMedia.duration;
-                return Duration;
-            }
-            catch (Exception)
-            {
-                if (RetryTimes<3)
-                {
-                    RetryTimes++;
-                    goto Retry;
-                }
-                else
-                {
-                    return 0;
-                }
-            }
-
-        }
-        private void Play()
-        {
-            try
-            {
-                mediaPlayer.URL = mediaUrl;
-            }
-            catch (Exception)
-            {
-                return;
-            }
-        }
-        private void MediaPlayer_OpenStateChange(int NewState)
-        {
-            if (NewState == (int)WMPOpenState.wmposMediaOpen)
-            {
-                IsOpened.Set();
-            }
-        }
-    }
-    
 }
