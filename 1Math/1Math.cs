@@ -44,8 +44,8 @@ namespace _1Math
     public abstract class NetTask
     {
         protected Thread[] threads;
+        protected int threadsLimit=2;
         protected Excel.Range rangeForReturn;
-        protected int threadsLimit;
         public delegate void DelegateChangeStatus<T>(T item);
         public event DelegateChangeStatus<string> MessageChange;
         public event DelegateChangeStatus<double> ProgressChange;
@@ -66,7 +66,6 @@ namespace _1Math
             {
                 UrlsRange = (object[,])Array.CreateInstance(typeof(object), new int[2] { 1, 1 }, new int[2] { 1, 1 });
                 UrlsRange[1, 1] =CE.Selection.Cells[1,1].Value;
-                
             }
             Sum = UrlsRange.Length;
             m = UrlsRange.GetLength(0);
@@ -74,11 +73,15 @@ namespace _1Math
         }
         public void Start()
         {
+            Report("正在准备资源……");
+            threadsLimit = (int)System.Math.Min(threadsLimit, Sum);
+            threads = new Thread[threadsLimit];
             for (int i = 0; i < threads.Length; i++)
             {
                 threads[i] = new Thread(Work);
                 threads[i].Start();
             };
+            Report("正在处理,线程数："+threadsLimit+"个");
         }
         private void Finish()
         {
@@ -129,7 +132,6 @@ namespace _1Math
         public Accessibility()
         {
             threadsLimit = 10;
-            threads = new Thread[threadsLimit];
             results  = new bool[m, n];
             rangeForReturn = CE.Selection.Offset[0, n];
         }
@@ -142,15 +144,13 @@ namespace _1Math
         protected override void Work()
         {
             int[] next = GetNext();
-            bool accessibility;
-            int i, j;
             Url url = new Url();
             while (next[0] != 0)
             {
-                i = next[0];
-                j = next[1];
+                int i = next[0];
+                int j = next[1];
                 url.SetReferTo(UrlsRange[i, j].ToString());
-                accessibility = url.Accessibility;
+                bool accessibility = url.Accessibility;
                 results[i - 1, j - 1] = accessibility;
                 if (!accessibility)
                 {
@@ -167,11 +167,10 @@ namespace _1Math
         public VideoLength()
         {
             threadsLimit = 4;
-            threads = new Thread[threadsLimit];
             results = new double[m, n];
             rangeForReturn = CE.Selection.Offset[0,2*n];
         }
-        private int success;
+        private volatile int success;
         protected override void Complete()
         {
             rangeForReturn.Value = results;
@@ -180,16 +179,12 @@ namespace _1Math
         protected override void Work()
         {
             int[] next = GetNext();
-            double duration;
-            int i, j;
-            //MyMediaPlayer mediaPlayer = new MyMediaPlayer();
             DotNetPlayer dotNetPlayer = new DotNetPlayer();
             while (next[0] != 0)
             {
-                i = next[0];
-                j = next[1];
-                //duration = mediaPlayer.GetDuration(UrlsRange[i, j].ToString());
-                duration = dotNetPlayer.GetDuration(new Uri(UrlsRange[i, j].ToString()));
+                int i = next[0];
+                int j = next[1];
+                double duration = dotNetPlayer.GetDuration(new Uri(UrlsRange[i, j].ToString()));
                 results[i - 1, j - 1] = duration;
                 if (duration>0)
                 {
@@ -198,7 +193,6 @@ namespace _1Math
                 CompleteOne();
                 next = GetNext();
             };
-            //mediaPlayer.Dispose();
             dotNetPlayer.Dispose();
         }
     }
@@ -229,7 +223,7 @@ namespace _1Math
             
         }
         MediaPlayer mediaPlayer;
-        const double timeOut = 20;
+        const double timeOut = 5;
         public DotNetPlayer()
         {
             mediaPlayer = new MediaPlayer();
@@ -242,7 +236,7 @@ namespace _1Math
             TimeSpan timeSpan = new TimeSpan(0);
             do
             {
-                Thread.Sleep(100);
+                Thread.Sleep(50);
                 if (mediaPlayer.NaturalDuration.HasTimeSpan)
                 {
                     duration = mediaPlayer.NaturalDuration.TimeSpan.TotalSeconds;
