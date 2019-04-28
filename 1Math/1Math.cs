@@ -52,7 +52,7 @@ namespace _1Math
         protected int m, n;
         private volatile int x = 0, y = 1;
         protected object[,] UrlsRange;//不需要锁
-        protected double Sum;//总任务量
+        protected int Sum;//总任务量
         private volatile int sum = 0;//完成任务量
         private readonly int[] HasNoNext =new int[2]{0,0};
         protected NetTask()
@@ -74,7 +74,7 @@ namespace _1Math
         public void Start()
         {
             Report("正在准备资源……");
-            threadsLimit = (int)System.Math.Min(threadsLimit, Sum);
+            threadsLimit = System.Math.Min(threadsLimit, Sum);
             threads = new Thread[threadsLimit];
             for (int i = 0; i < threads.Length; i++)
             {
@@ -98,12 +98,12 @@ namespace _1Math
             sum++;
             if (sum < Sum)
             {
-                ProgressChange.BeginInvoke(sum / Sum, null, null);
+                ProgressChange.BeginInvoke(sum /(double)Sum, null, null);
             }
             else
             {
-                Finish();
                 Complete();
+                Finish();
             }
 
         }
@@ -135,7 +135,7 @@ namespace _1Math
             results  = new bool[m, n];
             rangeForReturn = CE.Selection.Offset[0, n];
         }
-        private int inAccessibleUrlsCount;
+        private int inAccessibleUrlsCount=0;
         protected override void Complete()
         {
             rangeForReturn.Value = results;
@@ -170,7 +170,7 @@ namespace _1Math
             results = new double[m, n];
             rangeForReturn = CE.Selection.Offset[0,2*n];
         }
-        private volatile int success;
+        private volatile int success=0;
         protected override void Complete()
         {
             rangeForReturn.Value = results;
@@ -185,9 +185,9 @@ namespace _1Math
                 int i = next[0];
                 int j = next[1];
                 double duration = dotNetPlayer.GetDuration(new Uri(UrlsRange[i, j].ToString()));
-                results[i - 1, j - 1] = duration;
                 if (duration>0)
                 {
+                    results[i - 1, j - 1] = duration;
                     success++;
                 }
                 CompleteOne();
