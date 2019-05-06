@@ -7,84 +7,108 @@ namespace _1Math
 {
     public partial class Ribbon1
     {
+        System.Threading.Tasks.Task backGroundTask;
+        System.Threading.Tasks.Task BackGroundTask
+        {
+            set
+            {
+                if (backGroundTask==null)
+                {
+                    backGroundTask = value;
+                }
+                else
+                {
+                    throw (new Exception("AnotherBackGroundTaskIsRunning"));
+                }
+            }
+        }
+        
         private StatusForm statusForm;
         private void Ribbon1_Load(object sender, RibbonUIEventArgs e)
         {
         }
-        private void BuildTask()
-        {
-            tasks = new Tasks();
-            tasks.MessageChange += Task_MessageChange;
-            tasks.ProgressChange += Task_ProgressChange;
-        }
-        System.Threading.Thread TaskThread;
-        private Tasks tasks;
-        private delegate void DBuildTaskThread();
-        private DBuildTaskThread dBuildTaskThread;
-        private void StartTaskThread()
-        {
-            if (TaskThread == null)
-            {
-                TaskThread = new System.Threading.Thread(dBuildTaskThread.Invoke);
-                TaskThread.Start();
-            }
-            else
-            {
-                System.Windows.Forms.MessageBox.Show("请等待其它NetTask完成");
-            }
-        }
         private void ButtonUrlCheck_Click(object sender, RibbonControlEventArgs e)
         {
+            if (statusForm != null)
+            {
+                System.Windows.Forms.MessageBox.Show("AnotherBackGroundTaskIsRunning", "PleaseWaitForThePreviousTask");
+                return;
+            }
             ShowStatusForm();
+            CTS = new System.Threading.CancellationTokenSource();
             Accessibility accessibility = new Accessibility();
-            accessibility.MessageChange += Task_MessageChange;
-            accessibility.ProgressChange += Task_ProgressChange;
-            dBuildTaskThread = new DBuildTaskThread(accessibility.Start);
-            StartTaskThread();
+            accessibility.StatusChange += _StatusChange;
+            BackGroundTask = new System.Threading.Tasks.Task(() =>
+              {
+                  accessibility.Start(CTS.Token);
+              }, CTS.Token);
+            backGroundTask.Start();
         }
-
-
-
+        System.Threading.CancellationTokenSource CTS;
         private void ButtonAntiMerge_Click(object sender, RibbonControlEventArgs e)
         {
+            if (statusForm!=null)
+            {
+                System.Windows.Forms.MessageBox.Show("AnotherBackGroundTaskIsRunning","PleaseWaitForThePreviousTask");
+                return;
+            }
             ShowStatusForm();
-            BuildTask();
-            dBuildTaskThread = new DBuildTaskThread(tasks.AntiMerge);
-            StartTaskThread();
+            CTS=new System.Threading.CancellationTokenSource();
+            MergeAreas mergeAreas = new MergeAreas();
+            mergeAreas.StatusChange += _StatusChange;
+            BackGroundTask = new System.Threading.Tasks.Task(() =>
+            {
+                mergeAreas.SafelyUnMergeAndFill(CTS.Token);
+            }, CTS.Token);
+            backGroundTask.Start();
         }
+        private void _StatusChange(object sender, Status NewStatus)
+        {
+            if (statusForm!=null)
+            {
+                statusForm.BeginInvoke(new Action(() => { statusForm.progressBar1.Value = (int)(100 * NewStatus.Progress); }));
+                statusForm.BeginInvoke(new Action(() => { statusForm.MessageLabel.Text = NewStatus.Message; }));
+            }
+        }
+
         private void ButtonVideoLength_Click(object sender, RibbonControlEventArgs e)
         {
+            if (statusForm != null)
+            {
+                System.Windows.Forms.MessageBox.Show("AnotherBackGroundTaskIsRunning", "PleaseWaitForThePreviousTask");
+                return;
+            }
             ShowStatusForm();
+            CTS = new System.Threading.CancellationTokenSource();
             VideoLength videoLength = new VideoLength();
-            videoLength.MessageChange += Task_MessageChange;
-            videoLength.ProgressChange += Task_ProgressChange;
-            dBuildTaskThread = new DBuildTaskThread(videoLength.Start);
-            StartTaskThread();
+            videoLength.StatusChange += _StatusChange;
+            BackGroundTask = new System.Threading.Tasks.Task(() =>
+              {
+                  videoLength.Start(CTS.Token);
+              }, CTS.Token);
+            backGroundTask.Start();
         }
+
+
         private void StatusForm_FormClosing(object sender, System.Windows.Forms.FormClosingEventArgs e)
         {
-            if (TaskThread!=null)
+            if (!CTS.IsCancellationRequested)
             {
-                if (TaskThread.IsAlive)
-                {
-                    TaskThread.Abort();
-                }
-                TaskThread = null;
+                CTS.Cancel();
             }
+            CTS.Dispose();
+            CTS = null;
+            backGroundTask.Dispose();
+            backGroundTask = null;
+            CE.EndTask();
+            statusForm.Dispose();
+            statusForm = null;
         }
         private void ShowStatusForm()
         {
             statusForm = new StatusForm();
             statusForm.Show();
             statusForm.FormClosing += StatusForm_FormClosing;
-        }
-        private void Task_ProgressChange(double NewStatus)
-        {
-            statusForm.progressBar1.BeginInvoke(new Action(() => { statusForm.progressBar1.Value = (int)(100 * NewStatus); }));
-        }
-        private void Task_MessageChange(string NewStatus)
-        {
-            statusForm.MessageLabel.BeginInvoke(new Action(() => { statusForm.MessageLabel.Text = NewStatus; })); ;
         }
     }
 }
