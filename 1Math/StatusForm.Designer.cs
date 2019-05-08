@@ -1,4 +1,6 @@
-﻿namespace _1Math
+﻿using System;
+
+namespace _1Math
 {
     partial class StatusForm
     {
@@ -46,6 +48,7 @@
             this.progressBar1.Name = "progressBar1";
             this.progressBar1.Size = new System.Drawing.Size(513, 23);
             this.progressBar1.TabIndex = 1;
+            this.progressBar1.Click += new System.EventHandler(this.ProgressBar1_Click);
             // 
             // StatusForm
             // 
@@ -65,7 +68,37 @@
         }
 
         #endregion
-
+        public void MessageLabel_TextChange(object Sender,MessageEventArgs messageEventArgs)
+        {
+            if (this.IsDisposed)
+            {
+                return;
+            }
+            if (this.MessageLabel.InvokeRequired)
+            {
+                MessageLabel.BeginInvoke(new Action(() => { MessageLabel.Text = messageEventArgs.NewMessage; }));
+            }
+            else
+            {
+                MessageLabel.Text = messageEventArgs.NewMessage;
+            }
+        }
+        public void ProgressBar_ValueChange(object Sender,ProgressEventArgs progressEventArgs)
+        {
+            int value = (int)(100 * progressEventArgs.NewProgress);
+            if (this.IsDisposed)
+            {
+                return;
+            }
+            if (this.progressBar1.InvokeRequired)
+            {
+                progressBar1.BeginInvoke(new Action(() => { progressBar1.Value = value; }));
+            }
+            else
+            {
+                progressBar1.Value =value;
+            }
+        }
         public System.Windows.Forms.Label MessageLabel;
         public System.Windows.Forms.ProgressBar progressBar1;
     }

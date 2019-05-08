@@ -30,10 +30,10 @@
     <DefineConstants>VSTO40</DefineConstants>
     <IsWebBootstrapper>False</IsWebBootstrapper>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <PublishUrl>D:\OneDrive\MySoftWare\VSTO\1Math1.0.0.15\</PublishUrl>
+    <PublishUrl>D:\OneDrive\MySoftWare\VSTO\1Math1.0.0.18\</PublishUrl>
     <InstallUrl />
     <TargetCulture>zh-chs</TargetCulture>
-    <ApplicationVersion>1.0.0.17</ApplicationVersion>
+    <ApplicationVersion>1.0.0.19</ApplicationVersion>
     <AutoIncrementApplicationRevision>true</AutoIncrementApplicationRevision>
     <UpdateEnabled>true</UpdateEnabled>
     <UpdateInterval>7</UpdateInterval>
@@ -117,6 +117,8 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
     <DefineConstants>$(DefineConstants);TRACE</DefineConstants>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>
+    </DocumentationFile>
   </PropertyGroup>
   <!--
     This section specifies references for the project.
@@ -175,6 +177,7 @@
     can be found.
   -->
   <ItemGroup>
+    <Compile Include="IStatusReportable.cs" />
     <Compile Include="StatusForm.cs">
       <SubType>Form</SubType>
     </Compile>

@@ -9,7 +9,38 @@ using System.Collections;
 using System.Windows.Media;
 namespace _1Math
 {
-    
+    public delegate void CancelableMethod(CancellationToken token);
+    public class BackGroundTask
+    {
+        private Task _backGroundTask;
+        CancellationTokenSource _CTS = new CancellationTokenSource();
+        public void Start(CancelableMethod cancelableMethod)
+        {
+            _backGroundTask = new Task(() =>
+            {
+                cancelableMethod(_CTS.Token);
+            }, _CTS.Token);
+            _backGroundTask.Start();
+        }
+        public BackGroundTask(IHasStatusReporter ObjHasStatusReporter)
+        {
+            StatusForm statusForm = new StatusForm();
+            statusForm.Show();
+            ObjHasStatusReporter.MessageChange += statusForm.MessageLabel_TextChange;
+            ObjHasStatusReporter.ProgressChange += statusForm.ProgressBar_ValueChange;
+            statusForm.FormClosing += StatusForm_FormClosing;
+        }
+
+        private void StatusForm_FormClosing(object sender, System.Windows.Forms.FormClosingEventArgs e)
+        {
+            if (!_CTS.IsCancellationRequested)
+            {
+                _CTS.Cancel();
+            }
+            CE.EndTask();
+            GC.Collect();
+        }
+    }
     public static class CE
     {
         private static System.Diagnostics.Stopwatch stopwatch;
@@ -40,14 +71,14 @@ namespace _1Math
             stopwatch.Stop();
         }
     }
-    public abstract class NetTask
+    public abstract class NetTask:IHasStatusReporter//此抽象类是针对excel中长耗时任务的一个多线程模板
     {
         protected CancellationToken Canceling;
         protected Thread[] threads;
-        protected int threadsLimit=2;
+        protected int threadsLimit=2;//默认双线程
         protected Excel.Range rangeForReturn;
-        protected volatile Status NewStatus = new Status();
-        public event ChangeStatus StatusChange;
+        public event ChangeMessage MessageChange;
+        public event ChangeProgress ProgressChange;
         protected int m, n;
         private volatile int x = 0, y = 1;
         protected object[,] UrlsRange;//不需要锁
@@ -83,21 +114,28 @@ namespace _1Math
             };
             Report($"正在处理,线程数：{threadsLimit}个");
         }
-        private void Finish()
+        private void End()
         {
             Report(1);
             CE.EndTask();
-        }
-        protected virtual void Complete() { }//结束，必须覆写
+        }//结束
+        protected abstract void Complete();//完成全部任务
         protected void Report(string Message)
         {
-            NewStatus.Message = Message;
-            StatusChange(this, NewStatus);
+            ChangeMessage changeMessage = MessageChange;
+            if (changeMessage != null)
+            {
+                MessageChange(this, new MessageEventArgs(Message));
+            }
+
         }
         protected void Report(double Progress)
         {
-            NewStatus.Progress = Progress;
-            StatusChange(this, NewStatus);
+            ChangeProgress changeProgress = ProgressChange;
+            if (changeProgress != null)
+            {
+                ProgressChange(this, new ProgressEventArgs(Progress));
+            }
         }
         protected void CompleteOne()
         {
@@ -109,13 +147,13 @@ namespace _1Math
             else
             {
                 Complete();
-                Finish();
+                End();
             }
 
         }
         protected int[] GetNext()//封闭着就行了，完全不用动
         {
-            if (Canceling.IsCancellationRequested)
+            if (Canceling.IsCancellationRequested)//这里，巧妙地在工作线程每次领取下一个任务时检查任务是否被取消
             {
                 return (HasNoNext);
             }
@@ -134,14 +172,14 @@ namespace _1Math
             }
             return (new int[2] { x, y });
         }
-        protected virtual void Work() => CompleteOne();//工作方法，必须覆盖，不然就直接结束
+        protected abstract void Work();//工作方法
     }
     public class Accessibility : NetTask
     {
         private bool[,] results;//这个也许要锁，不太确定
         public Accessibility()
         {
-            threadsLimit = 10;
+            threadsLimit = Environment.ProcessorCount*2;
             results  = new bool[m, n];
             rangeForReturn = CE.Selection.Offset[0, n];
         }
@@ -176,7 +214,7 @@ namespace _1Math
         private double[,] results;
         public VideoLength()
         {
-            threadsLimit = 4;
+            threadsLimit = Environment.ProcessorCount;
             results = new double[m, n];
             rangeForReturn = CE.Selection.Offset[0,2*n];
         }
@@ -257,121 +295,111 @@ namespace _1Math
             return (duration);
         }
     }
-    public class Status : EventArgs
+
+    
+    class MergeAreas:IHasStatusReporter//实例化后，直接运行SafelyUnMergedAndFill方法即可。拆分的目标默认为当前Selection。目标区域为Single时，则自动将目标区域更改为整个活动工作表
     {
-        public Status()
-        {
-            Message = string.Empty;
-            Progress = 0;
-        }
-        public string Message;
-        public double Progress;
-    }
-    public delegate void ChangeStatus(object sender, Status NewStatus);
-    class MergeAreas//实例化后，直接运行SafelyUnMergedAndFill方法即可。拆分的目标默认为当前Selection。目标区域为Single时，则自动将目标区域更改为整个活动工作表
-    {
-        private Excel.Application application;
-        private Excel.Range Target;
-        private ArrayList mergedAreas;
+        CancellationToken _cancellationToken;
+        private readonly Excel.Application _application;
+        private Excel.Range _target;
+        private ArrayList _mergedAreas;
+        public event ChangeMessage MessageChange;
+        public event ChangeProgress ProgressChange;
         private ArrayList MergedAreas
         {
             get
             {
-                if (mergedAreas == null)
+                if (_mergedAreas == null)
                 {
                     GetMergedAreas();
                 }
-                return mergedAreas;
+                return _mergedAreas;
             }
         }
-
-        Status NewStatus = new Status();
-        public event ChangeStatus StatusChange;
         public MergeAreas()
         {
             CE.StartTask();
-            application = Globals.ThisAddIn.Application;
-            Target = application.Selection;
+            _application = Globals.ThisAddIn.Application;
+            _target = _application.Selection;
         }
         public MergeAreas(Excel.Range In)//此重载提供了将这个类用于快速获取合并单元格区域的可能性
         {
             CE.StartTask();
-            application = In.Application;
-            Target = In;
+            _application = In.Application;
+            _target = In;
         }
         public ArrayList ToArrayList()//类本身当然不能作为数组，但我可以为其添加ToArrayList方法，伪装一下
         {
-            if (mergedAreas == null)
+            if (_mergedAreas == null)
             {
                 GetMergedAreas();
             }
-            NewStatus.Progress = 0.5;
-            StatusChange.Invoke(this, NewStatus);
-            return mergedAreas;
+            ProgressChange(this,new ProgressEventArgs(1));
+            return _mergedAreas;
         }
         public async void SafelyUnMergeAndFill(CancellationToken cancellationToken=new CancellationToken())
         {
-            if (mergedAreas==null)
+            _cancellationToken = cancellationToken;
+            if (_mergedAreas==null)
             {
                 await Task.Run(new Action(GetMergedAreas));
-                if (mergedAreas==null)
+                if (_mergedAreas==null)
                 {
-                    NewStatus.Progress = 1;
                     CE.EndTask();
-                    NewStatus.Message = $"找不到合并的单元格";
-                    StatusChange.Invoke(this, NewStatus);
+                    MessageChange(this,new MessageEventArgs("找不到合并的单元格"));
+                    ProgressChange(this,new ProgressEventArgs(1));
                     return;
                 }
             }
-            NewStatus.Progress = 0.5;
-            NewStatus.Message = "取消合并中……";
-            StatusChange.Invoke(this, NewStatus);
-            Target.UnMerge();
-            foreach (Excel.Range range in mergedAreas)
+            ProgressChange(this,new ProgressEventArgs(0.5));
+            if (_cancellationToken.IsCancellationRequested)
             {
-                if (!cancellationToken.IsCancellationRequested)
-                {
-                    range.Value = range.Cells[1, 1];//为什么这也能迭代……啥原因呢
-                }
-                else
+                return;
+            }
+            _target.UnMerge();
+            int t = 0;
+            double Sum = _mergedAreas.Count;
+            foreach (Excel.Range range in _mergedAreas)
+            {
+                if (_cancellationToken.IsCancellationRequested)
                 {
                     return;
                 }
+                t++;
+                MessageChange(this, new MessageEventArgs($"取消合并中，第{t}个……"));
+                ProgressChange(this, new ProgressEventArgs(0.5+t/Sum/2));
+                range.Value = range.Cells[1, 1];//为什么这也能迭代……啥原因呢，不是说foreach不能这么来么
             }
-            NewStatus.Progress = 1;
+            ProgressChange(this,new ProgressEventArgs(1));
             CE.EndTask();
-            NewStatus.Message = $"大功告成，耗时{CE.Elapse}秒！";
-            StatusChange.Invoke(this, NewStatus);
+            MessageChange(this,new MessageEventArgs($"大功告成，耗时{CE.Elapse}秒！"));
         }
         private void GetMergedAreas()
         {
-            NewStatus.Message = "搜寻_MergedAreas中";
-            StatusChange.Invoke(this, NewStatus);
-            mergedAreas = new ArrayList();
-            if (Target.Count == 1)
+            
+            _mergedAreas = new ArrayList();
+            if (_target.Count == 1)
             {
-                NewStatus.Message = "只选择了一个单元格，自动将搜寻区域拓展至其所在的整张工作表";
-                StatusChange.Invoke(this, NewStatus);
-                Target = Target.Worksheet.UsedRange;//这样的设定会使我们开发出更便于使用的VSTO
+                MessageChange(this,new MessageEventArgs("只选择了一个单元格，自动将搜寻区域拓展至其所在的整张工作表"));
+                _target = _target.Worksheet.UsedRange;//这样的设定会使我们开发出更便于使用的VSTO
             }
-            application.FindFormat.MergeCells = true;
-            Excel.Range Result = Target.Find(What: "", After: Target.Cells[1, 1], SearchFormat: true);
+            _application.FindFormat.MergeCells = true;
+            Excel.Range Result = _target.Find(What: "", After: _target.Cells[1, 1], SearchFormat: true);
             Excel.Range FirstResult = Result;
             Excel.Range MergedArea = Result;
             if (FirstResult == null)
             {
-                NewStatus.Message = "没有发现合并单元格！";
-                StatusChange.Invoke(this, NewStatus); 
-                mergedAreas = null;
+                MessageChange(this,new MessageEventArgs("没有发现合并单元格！"));
+                _mergedAreas = null;
                 return;
             }
             else
             {
                 //卧槽，还是要else，太坑了。随便查找一下，如果只选中一块合并单元格，竟然是会跳出当前选区的……
                 //excel这种设定，倒也合理，直接把整个合并单元格区域当成起点，跑下一段去了。但是，它跟vba不一致啊……
-                if (FirstResult.Row > (Target.Row + Target.Rows.Count - 1))
+                if (FirstResult.Row > (_target.Row + _target.Rows.Count - 1))
                 {
-                    mergedAreas.Add(Target);
+                    _mergedAreas.Add(_target);
                     return;
                 }
             }
@@ -379,13 +407,17 @@ namespace _1Math
             int t = 0;
             do
             {
+                if (_cancellationToken.IsCancellationRequested)
+                {
+                    return;
+                }
                 t++;
-                mergedAreas.Add(MergedArea);
-                Result = Target.Find(What: "", After: Result, SearchFormat: true); ;//这里的接龙很巧妙，但也很坑。我还尝试着用FindNext，但是出现了一点问题。
+                MessageChange(this, new MessageEventArgs($"搜寻中，找到{t}处合并区域"));
+                _mergedAreas.Add(MergedArea);
+                Result = _target.Find(What: "", After: Result, SearchFormat: true); ;//这里的接龙很巧妙，但也很坑。我还尝试着用FindNext，但是出现了一点问题。
                 MergedArea = Result.MergeArea;
             } while (MergedArea != null && MergedArea.Cells[1, 1].Address != FirstResult.Address);
-            NewStatus.Message = "_MergedAreas搜寻完毕";
-            StatusChange.Invoke(this, NewStatus);
+            MessageChange(this,new MessageEventArgs($"搜寻完毕，共发现{t}处合并区域"));
         }
     }
     public class Url//这TM写得真够大的
