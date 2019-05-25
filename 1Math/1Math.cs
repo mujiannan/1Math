@@ -9,38 +9,6 @@ using System.Collections;
 using System.Windows.Media;
 namespace _1Math
 {
-    public delegate void CancelableMethod(CancellationToken token);
-    public class BackGroundTask
-    {
-        private Task _backGroundTask;
-        CancellationTokenSource _CTS = new CancellationTokenSource();
-        public void Start(CancelableMethod cancelableMethod)
-        {
-            _backGroundTask = new Task(() =>
-            {
-                cancelableMethod(_CTS.Token);
-            }, _CTS.Token);
-            _backGroundTask.Start();
-        }
-        public BackGroundTask(IHasStatusReporter ObjHasStatusReporter)
-        {
-            StatusForm statusForm = new StatusForm();
-            statusForm.Show();
-            ObjHasStatusReporter.MessageChange += statusForm.MessageLabel_TextChange;
-            ObjHasStatusReporter.ProgressChange += statusForm.ProgressBar_ValueChange;
-            statusForm.FormClosing += StatusForm_FormClosing;
-        }
-
-        private void StatusForm_FormClosing(object sender, System.Windows.Forms.FormClosingEventArgs e)
-        {
-            if (!_CTS.IsCancellationRequested)
-            {
-                _CTS.Cancel();
-            }
-            CE.EndTask();
-            GC.Collect();
-        }
-    }
     public static class CE
     {
         private static System.Diagnostics.Stopwatch stopwatch;
@@ -71,48 +39,48 @@ namespace _1Math
             stopwatch.Stop();
         }
     }
-    public abstract class NetTask:IHasStatusReporter//此抽象类是针对excel中长耗时任务的一个多线程模板
+    public abstract class Concurrent : IHasStatusReporter//此抽象类是针对excel中长耗时任务的一个多线程模板
     {
-        protected CancellationToken Canceling;
-        protected Thread[] threads;
-        protected int threadsLimit=2;//默认双线程
-        protected Excel.Range rangeForReturn;
+        protected CancellationToken _canceling;
+        protected Thread[] _threads;
+        protected int _threadsLimit = 2;//默认双线程
+        protected Excel.Range _rangeForReturn;
         public event ChangeMessage MessageChange;
         public event ChangeProgress ProgressChange;
-        protected int m, n;
-        private volatile int x = 0, y = 1;
-        protected object[,] UrlsRange;//不需要锁
-        protected int Sum;//总任务量
-        private volatile int sum = 0;//完成任务量
-        private readonly int[] HasNoNext =new int[2]{0,0};
-        protected NetTask()
+        protected int _m, _n;
+        private volatile int _x = 0, _y = 1;
+        protected object[,] SourceRange;//不需要锁
+        protected int _Sum;//总任务量
+        private volatile int _sum = 0;//完成任务量
+        private readonly int[] _noNext = new int[2] { 0, 0 };
+        protected Concurrent()
         {
             CE.StartTask();
             if (CE.Selection.Count > 1)
             {
-                UrlsRange=CE.Selection.Value;
+                SourceRange = CE.Selection.Value;
             }
             else
             {
-                UrlsRange = (object[,])Array.CreateInstance(typeof(object), new int[2] { 1, 1 }, new int[2] { 1, 1 });
-                UrlsRange[1, 1] =CE.Selection.Cells[1,1].Value;
+                SourceRange = (object[,])Array.CreateInstance(typeof(object), new int[2] { 1, 1 }, new int[2] { 1, 1 });
+                SourceRange[1, 1] = CE.Selection.Cells[1, 1].Value;
             }
-            Sum = UrlsRange.Length;
-            m = UrlsRange.GetLength(0);
-            n = UrlsRange.GetLength(1);
+            _Sum = SourceRange.Length;
+            _m = SourceRange.GetLength(0);
+            _n = SourceRange.GetLength(1);
         }
-        public void Start(CancellationToken cancellationToken=new CancellationToken())
+        public void Start(CancellationToken cancellationToken = new CancellationToken())
         {
-            Canceling = cancellationToken;
+            _canceling = cancellationToken;
             Report("正在准备资源……");
-            threadsLimit = System.Math.Min(threadsLimit, Sum);//这样可省事儿多了，根据任务数量与预设的线程上限共同确定线程数
-            threads = new Thread[threadsLimit];
-            for (int i = 0; i < threads.Length; i++)
+            _threadsLimit = System.Math.Min(_threadsLimit, _Sum);//这样可省事儿多了，根据任务数量与预设的线程上限共同确定线程数
+            _threads = new Thread[_threadsLimit];
+            for (int i = 0; i < _threads.Length; i++)
             {
-                threads[i] = new Thread(Work);
-                threads[i].Start();
+                _threads[i] = new Thread(Work);
+                _threads[i].Start();
             };
-            Report($"正在处理,线程数：{threadsLimit}个");
+            Report($"正在处理,线程数：{_threadsLimit}个");
         }
         private void End()
         {
@@ -139,10 +107,10 @@ namespace _1Math
         }
         protected void CompleteOne()
         {
-            sum++;
-            if (sum < Sum)
+            _sum++;
+            if (_sum < _Sum)
             {
-                Report(sum /(double)Sum);
+                Report(_sum / (double)_Sum);
             }
             else
             {
@@ -153,41 +121,80 @@ namespace _1Math
         }
         protected int[] GetNext()//封闭着就行了，完全不用动
         {
-            if (Canceling.IsCancellationRequested)//这里，巧妙地在工作线程每次领取下一个任务时检查任务是否被取消
+            if (_canceling.IsCancellationRequested)//这里，巧妙地在工作线程每次领取下一个任务时检查任务是否被取消
             {
-                return (HasNoNext);
+                return (_noNext);
             }
-            if (x < m)
+            if (_x < _m)
             {
-                x++;
+                _x++;
             }
-            else if (y < n)
+            else if (_y < _n)
             {
-                x = 1;
-                y++;
+                _x = 1;
+                _y++;
             }
             else
             {
-                return(HasNoNext);
+                return (_noNext);
             }
-            return (new int[2] { x, y });
+            return (new int[2] { _x, _y });
         }
         protected abstract void Work();//工作方法
     }
-    public class Accessibility : NetTask
+    public class Tranlation : Concurrent
+    {
+        private string[,] results;
+        public Tranlation()
+        {
+            _threadsLimit = Environment.ProcessorCount;
+            results = new string[_m, _n];
+            _rangeForReturn = CE.Selection.Offset[0, _n];
+        }
+        private int _errCount = 0;
+        protected override void Complete()
+        {
+            _rangeForReturn.Value = results;
+            Report($"耗时{CE.Elapse}秒，共翻译了{_Sum}个单元格内容");
+        }
+        protected override void Work()
+        {
+            int[] next = GetNext();
+            while (next[0]!=0)
+            {
+                Text text = new Text();
+                int i = next[0];
+                int j = next[1];
+                text.Content = SourceRange[i, j].ToString();
+                Task<string> task = text.ToEnglishAsync();
+                try
+                {
+                    results[i - 1, j - 1] = task.Result;
+                }
+                catch (Exception Ex)
+                {
+                    results[i - 1, j - 1] = (++_errCount).ToString()+": "+ Ex.ToString();
+                }
+                CompleteOne();
+                task.Dispose();
+                next = GetNext();
+            }
+        }
+    }
+    public class Accessibility : Concurrent
     {
         private bool[,] results;//这个也许要锁，不太确定
         public Accessibility()
         {
-            threadsLimit = Environment.ProcessorCount*2;
-            results  = new bool[m, n];
-            rangeForReturn = CE.Selection.Offset[0, n];
+            _threadsLimit = Environment.ProcessorCount * 2;
+            results = new bool[_m, _n];
+            _rangeForReturn = CE.Selection.Offset[0, _n];
         }
-        private int inAccessibleUrlsCount=0;
+        private int inAccessibleUrlsCount = 0;
         protected override void Complete()
         {
-            rangeForReturn.Value = results;
-            Report($"耗时{CE.Elapse}秒，共验证了{Sum}个视频的有效性，其中{inAccessibleUrlsCount}个无效");
+            _rangeForReturn.Value = results;
+            Report($"耗时{CE.Elapse}秒，共验证了{_Sum}个视频的有效性，其中{inAccessibleUrlsCount}个无效");
         }
         protected override void Work()
         {
@@ -197,7 +204,7 @@ namespace _1Math
             {
                 int i = next[0];
                 int j = next[1];
-                url.SetReferTo(UrlsRange[i, j].ToString());
+                url.SetReferTo(SourceRange[i, j].ToString());
                 bool accessibility = url.Accessibility;
                 results[i - 1, j - 1] = accessibility;
                 if (!accessibility)
@@ -209,20 +216,20 @@ namespace _1Math
             };
         }
     }
-    public class VideoLength : NetTask
+    public class VideoLength : Concurrent
     {
         private double[,] results;
         public VideoLength()
         {
-            threadsLimit = Environment.ProcessorCount;
-            results = new double[m, n];
-            rangeForReturn = CE.Selection.Offset[0,2*n];
+            _threadsLimit = Environment.ProcessorCount;
+            results = new double[_m, _n];
+            _rangeForReturn = CE.Selection.Offset[0, 2 * _n];
         }
-        private volatile int success=0;
+        private volatile int success = 0;
         protected override void Complete()
         {
-            rangeForReturn.Value = results;
-            Report($"耗时{CE.Elapse}秒，测试了{Sum}个视频的时长，其中{success}个测试成功");
+            _rangeForReturn.Value = results;
+            Report($"耗时{CE.Elapse}秒，测试了{_Sum}个视频的时长，其中{success}个测试成功");
         }
         protected override void Work()
         {
@@ -232,8 +239,8 @@ namespace _1Math
             {
                 int i = next[0];
                 int j = next[1];
-                double duration = dotNetPlayer.GetDuration(new Uri(UrlsRange[i, j].ToString()));
-                if (duration>0)
+                double duration = dotNetPlayer.GetDuration(new Uri(SourceRange[i, j].ToString()));
+                if (duration > 0)
                 {
                     results[i - 1, j - 1] = duration;
                     success++;
@@ -295,8 +302,6 @@ namespace _1Math
             return (duration);
         }
     }
-
-    
     class MergeAreas:IHasStatusReporter//实例化后，直接运行SafelyUnMergedAndFill方法即可。拆分的目标默认为当前Selection。目标区域为Single时，则自动将目标区域更改为整个活动工作表
     {
         CancellationToken _cancellationToken;

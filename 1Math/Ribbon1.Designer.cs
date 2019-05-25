@@ -44,15 +44,19 @@ namespace _1Math
             this.buttonVideoLength = this.Factory.CreateRibbonButton();
             this.GroupDataCleaner = this.Factory.CreateRibbonGroup();
             this.ButtonAntiMerge = this.Factory.CreateRibbonButton();
+            this.ButtonToEnglish = this.Factory.CreateRibbonButton();
+            this.GroupText = this.Factory.CreateRibbonGroup();
             this.Tab1Math.SuspendLayout();
             this.GroupNet.SuspendLayout();
             this.GroupDataCleaner.SuspendLayout();
+            this.GroupText.SuspendLayout();
             this.SuspendLayout();
             // 
             // Tab1Math
             // 
             this.Tab1Math.Groups.Add(this.GroupNet);
             this.Tab1Math.Groups.Add(this.GroupDataCleaner);
+            this.Tab1Math.Groups.Add(this.GroupText);
             this.Tab1Math.Label = "1Math";
             this.Tab1Math.Name = "Tab1Math";
             this.Tab1Math.Position = this.Factory.RibbonPosition.AfterOfficeId("TabHome");
@@ -94,6 +98,21 @@ namespace _1Math
             this.ButtonAntiMerge.SuperTip = "批量取消选取中的合并单元格，并相对安全地自动填充。如果你只选中了一个单元格，那么会默认处理整个工作表。";
             this.ButtonAntiMerge.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.ButtonAntiMerge_Click);
             // 
+            // ButtonToEnglish
+            // 
+            this.ButtonToEnglish.Description = "选中一块连续单元格，点击按钮，译文将自动置于右侧";
+            this.ButtonToEnglish.Label = "中译英";
+            this.ButtonToEnglish.Name = "ButtonToEnglish";
+            this.ButtonToEnglish.ScreenTip = "批量中译英";
+            this.ButtonToEnglish.SuperTip = "作者太懒，连个字段都不想加……所以就只放了需要用到的中译英";
+            this.ButtonToEnglish.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.ButtonToEnglish_Click);
+            // 
+            // GroupText
+            // 
+            this.GroupText.Items.Add(this.ButtonToEnglish);
+            this.GroupText.Label = "文本处理";
+            this.GroupText.Name = "GroupText";
+            // 
             // Ribbon1
             // 
             this.Name = "Ribbon1";
@@ -106,6 +125,8 @@ namespace _1Math
             this.GroupNet.PerformLayout();
             this.GroupDataCleaner.ResumeLayout(false);
             this.GroupDataCleaner.PerformLayout();
+            this.GroupText.ResumeLayout(false);
+            this.GroupText.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -120,6 +141,8 @@ namespace _1Math
         internal Microsoft.Office.Tools.Ribbon.RibbonButton buttonVideoLength;
         internal RibbonGroup GroupDataCleaner;
         internal RibbonButton ButtonAntiMerge;
+        internal RibbonButton ButtonToEnglish;
+        internal RibbonGroup GroupText;
     }
 
     partial class ThisRibbonCollection

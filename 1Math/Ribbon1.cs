@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.Office.Tools.Ribbon;
+
 namespace _1Math
 {
     public partial class Ribbon1
@@ -28,6 +29,13 @@ namespace _1Math
             VideoLength videoLength = new VideoLength();
             BackGroundTask backGroundTask = new BackGroundTask(videoLength);
             backGroundTask.Start(new CancelableMethod(videoLength.Start));
+        }
+
+        private void ButtonToEnglish_Click(object sender, RibbonControlEventArgs e)
+        {
+            Tranlation tranlation = new Tranlation();
+            BackGroundTask backGroundTask = new BackGroundTask(tranlation);
+            backGroundTask.Start(new CancelableMethod(tranlation.Start));
         }
     }
 }
