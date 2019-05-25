@@ -10,21 +10,18 @@ namespace _1Math
 {
     class Text
     {
-        private string _content;
-        public string Content
+        private List<object> _content=new List<object>();
+        private List<string> _result = new List<string>();
+        public void AddContent(string newContent)
         {
-            set
-            {
-                _content = value;
-            }
+            _content.Add(new {Text = newContent});
         }
-        public async Task<string> ToEnglishAsync()
+        public async Task<List<string>> ToEnglishAsync()
         {
             string host = "https://api.cognitive.microsofttranslator.com";
             string route = "/translate?api-version=3.0&to=en";
-            string subscriptionKey = "b72b53dd8edd435db758795dc00894d2";
-            System.Object[] body = new System.Object[] { new { Text =_content } };
-            string requestBody = JsonConvert.SerializeObject(body);
+            string subscriptionKey = Properties.Resources.AzureCognitiveKey;
+            string requestBody = JsonConvert.SerializeObject(_content);
             HttpClient client = new HttpClient();
             HttpRequestMessage request = new HttpRequestMessage
             {
@@ -36,10 +33,13 @@ namespace _1Math
             var response = await client.SendAsync(request);
             string responseBody = await response.Content.ReadAsStringAsync();
             Newtonsoft.Json.Linq.JArray result = JsonConvert.DeserializeObject<Newtonsoft.Json.Linq.JArray>(responseBody);
-            string translation = result[0]["translations"][0]["text"].ToString();
+            for (int i = 0; i < result.Count; i++)
+            {
+                _result.Add(result[i]["translations"][0]["text"].ToString());
+            }
             client.Dispose();
             request.Dispose();
-            return translation;
+            return _result;
         }
     }
 }

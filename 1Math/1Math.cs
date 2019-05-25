@@ -6,6 +6,7 @@ using System.Threading;
 using Excel = Microsoft.Office.Interop.Excel;
 using System.Text.RegularExpressions;
 using System.Collections;
+using System.Collections.Generic;
 using System.Windows.Media;
 namespace _1Math
 {
@@ -119,6 +120,20 @@ namespace _1Math
             }
 
         }
+        protected void Complete(int num)
+        {
+            _sum+=num;
+            if (_sum < _Sum)
+            {
+                Report(_sum / (double)_Sum);
+            }
+            else
+            {
+                Complete();
+                End();
+            }
+
+        }
         protected int[] GetNext()//封闭着就行了，完全不用动
         {
             if (_canceling.IsCancellationRequested)//这里，巧妙地在工作线程每次领取下一个任务时检查任务是否被取消
@@ -151,33 +166,44 @@ namespace _1Math
             results = new string[_m, _n];
             _rangeForReturn = CE.Selection.Offset[0, _n];
         }
-        private int _errCount = 0;
+        //private int _errCount = 0;
         protected override void Complete()
         {
             _rangeForReturn.Value = results;
             Report($"耗时{CE.Elapse}秒，共翻译了{_Sum}个单元格内容");
         }
+        private struct Position
+        {
+            public int X, Y;
+        }
         protected override void Work()
         {
             int[] next = GetNext();
+            int ContentCount = 0;
+            List<Position> positions = new List<Position>();
+            Text text = new Text();
             while (next[0]!=0)
             {
-                Text text = new Text();
                 int i = next[0];
                 int j = next[1];
-                text.Content = SourceRange[i, j].ToString();
-                Task<string> task = text.ToEnglishAsync();
-                try
-                {
-                    results[i - 1, j - 1] = task.Result;
-                }
-                catch (Exception Ex)
-                {
-                    results[i - 1, j - 1] = (++_errCount).ToString()+": "+ Ex.ToString();
-                }
-                CompleteOne();
-                task.Dispose();
+                text.AddContent(SourceRange[i, j].ToString());
+                positions.Add(new Position { X=i,Y=j });
                 next = GetNext();
+                
+                if (next[0] == 0||(++ ContentCount) ==100)//被坑惨了
+                {
+                    Task<List<string>> task = text.ToEnglishAsync();
+                    for (int k = 0; k < positions.Count; k++)
+                    {
+                        results[positions[k].X - 1, positions[k].Y - 1] = task.Result[k];
+                    }
+                    Complete(positions.Count);//脑子不好
+                    //及时释放资源
+                    task.Dispose();
+                    positions.Clear();
+                    text = new Text();
+                    ContentCount = 0;//被坑惨了
+                }
             }
         }
     }
