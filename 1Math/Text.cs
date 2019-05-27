@@ -32,10 +32,17 @@ namespace _1Math
             request.Headers.Add("Ocp-Apim-Subscription-Key", subscriptionKey);
             var response = await client.SendAsync(request);
             string responseBody = await response.Content.ReadAsStringAsync();
-            Newtonsoft.Json.Linq.JArray result = JsonConvert.DeserializeObject<Newtonsoft.Json.Linq.JArray>(responseBody);
-            for (int i = 0; i < result.Count; i++)
+            try
             {
-                _result.Add(result[i]["translations"][0]["text"].ToString());
+                Newtonsoft.Json.Linq.JArray result = JsonConvert.DeserializeObject<Newtonsoft.Json.Linq.JArray>(responseBody);
+                for (int i = 0; i < result.Count; i++)
+                {
+                    _result.Add(result[i]["translations"][0]["text"].ToString());
+                }
+            }
+            catch (Exception)
+            {
+                throw;
             }
             client.Dispose();
             request.Dispose();

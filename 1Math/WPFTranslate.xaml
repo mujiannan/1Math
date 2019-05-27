@@ -1,0 +1,31 @@
+﻿<UserControl x:Class="_1Math.WPFTranslate"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:_1Math"
+             mc:Ignorable="d" 
+             d:DesignHeight="200" d:DesignWidth="800">
+    <Grid Background="White">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <TextBlock FontSize="32"><Run Text="Bing"/><Run Text="翻译"/></TextBlock>
+        <StackPanel Orientation="Vertical" Grid.Row="1" Margin="10 10 10 10">
+            <ProgressBar Grid.Row="1" VerticalAlignment="Center" Height="50" Margin="0 0 0 0" MaxWidth="Infinity"></ProgressBar>
+            <StackPanel Margin="0 10 0 0" Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock Text="从" FontSize="36"></TextBlock>
+                <ComboBox Name="ComboBoxFromLanguage" Text="自动检测" FontSize="36" Margin="10 0 0 0" VerticalAlignment="Center" SelectedIndex="0" IsReadOnly="True">
+                    <ComboBoxItem Content="自动"/>
+                </ComboBox>
+                <TextBlock Text="翻译到" FontSize="36" Margin="10 0 0 0"></TextBlock>
+                <ComboBox Name="ComboBoxToLanguage" Text="自动检测" FontSize="36" Margin="10 0 0 0" VerticalAlignment="Center" SelectedIndex="0" IsReadOnly="True">
+                    <ComboBoxItem Content="简体中文"/>
+                </ComboBox>
+                <Button Content="开始翻译" FontSize="36" Height="50" Margin="30 0 0 0" HorizontalAlignment="Right"></Button>
+                <Button Name="Test" Content="测试" FontSize="36" Margin="30 0 0 0" Click="Test_Click"></Button>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</UserControl>

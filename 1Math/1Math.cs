@@ -195,7 +195,15 @@ namespace _1Math
                     Task<List<string>> task = text.ToEnglishAsync();
                     for (int k = 0; k < positions.Count; k++)
                     {
-                        results[positions[k].X - 1, positions[k].Y - 1] = task.Result[k];
+                        try
+                        {
+                            results[positions[k].X - 1, positions[k].Y - 1] = task.Result[k];
+                        }
+                        catch (Exception Ex)
+                        {
+                            results[positions[k].X - 1, positions[k].Y - 1] = Ex.ToString();
+                        }
+                        
                     }
                     Complete(positions.Count);//脑子不好
                     //及时释放资源
