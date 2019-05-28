@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:_1Math"
              mc:Ignorable="d" 
-             d:DesignHeight="200" d:DesignWidth="800">
+             d:DesignHeight="200" d:DesignWidth="800" Initialized="UserControl_Initialized">
     <Grid Background="White">
         <Grid.RowDefinitions>
             <RowDefinition Height="50"></RowDefinition>
@@ -13,18 +13,14 @@
         </Grid.RowDefinitions>
         <TextBlock FontSize="32"><Run Text="Bing"/><Run Text="翻译"/></TextBlock>
         <StackPanel Orientation="Vertical" Grid.Row="1" Margin="10 10 10 10">
-            <ProgressBar Grid.Row="1" VerticalAlignment="Center" Height="50" Margin="0 0 0 0" MaxWidth="Infinity"></ProgressBar>
+            <ProgressBar Name="ProgressBarForTranslation" Grid.Row="1" VerticalAlignment="Center" Height="50" Margin="0 0 0 0" MaxWidth="Infinity"></ProgressBar>
             <StackPanel Margin="0 10 0 0" Orientation="Horizontal" VerticalAlignment="Center">
                 <TextBlock Text="从" FontSize="36"></TextBlock>
-                <ComboBox Name="ComboBoxFromLanguage" Text="自动检测" FontSize="36" Margin="10 0 0 0" VerticalAlignment="Center" SelectedIndex="0" IsReadOnly="True">
-                    <ComboBoxItem Content="自动"/>
+                <ComboBox Name="ComboBoxFromLanguage" FontSize="12" Margin="10 0 0 0" VerticalAlignment="Center" IsReadOnly="True">
                 </ComboBox>
                 <TextBlock Text="翻译到" FontSize="36" Margin="10 0 0 0"></TextBlock>
-                <ComboBox Name="ComboBoxToLanguage" Text="自动检测" FontSize="36" Margin="10 0 0 0" VerticalAlignment="Center" SelectedIndex="0" IsReadOnly="True">
-                    <ComboBoxItem Content="简体中文"/>
-                </ComboBox>
-                <Button Content="开始翻译" FontSize="36" Height="50" Margin="30 0 0 0" HorizontalAlignment="Right"></Button>
-                <Button Name="Test" Content="测试" FontSize="36" Margin="30 0 0 0" Click="Test_Click"></Button>
+                <ComboBox Name="ComboBoxToLanguage" FontSize="12" Margin="10 0 0 0" VerticalAlignment="Center" IsReadOnly="True"/>
+                <Button Name="ButtonStartTranslate" Content="开始翻译" Click="ButtonStartTranslate_Click" FontSize="36" Height="50" Margin="30 0 0 0" HorizontalAlignment="Right"></Button>
             </StackPanel>
         </StackPanel>
     </Grid>

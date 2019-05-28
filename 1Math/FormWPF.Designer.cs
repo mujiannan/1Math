@@ -38,7 +38,7 @@
             this.elementHost1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.elementHost1.Location = new System.Drawing.Point(0, 0);
             this.elementHost1.Name = "elementHost1";
-            this.elementHost1.Size = new System.Drawing.Size(765, 203);
+            this.elementHost1.Size = new System.Drawing.Size(1202, 197);
             this.elementHost1.TabIndex = 0;
             this.elementHost1.Text = "elementHost1";
             this.elementHost1.ChildChanged += new System.EventHandler<System.Windows.Forms.Integration.ChildChangedEventArgs>(this.ElementHost1_ChildChanged);
@@ -49,7 +49,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoScroll = true;
-            this.ClientSize = new System.Drawing.Size(765, 203);
+            this.ClientSize = new System.Drawing.Size(1202, 197);
             this.Controls.Add(this.elementHost1);
             this.Name = "FormWPF";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;

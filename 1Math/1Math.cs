@@ -157,11 +157,13 @@ namespace _1Math
         }
         protected abstract void Work();//工作方法
     }
-    public class Tranlation : Concurrent
+    public class Translation : Concurrent
     {
         private string[,] results;
-        public Tranlation()
+        private string _toLanguageCode;
+        public Translation(string toLanguageCode)
         {
+            _toLanguageCode = toLanguageCode;
             _threadsLimit = Environment.ProcessorCount;
             results = new string[_m, _n];
             _rangeForReturn = CE.Selection.Offset[0, _n];
@@ -181,18 +183,18 @@ namespace _1Math
             int[] next = GetNext();
             int ContentCount = 0;
             List<Position> positions = new List<Position>();
-            Text text = new Text();
-            while (next[0]!=0)
+            Translator translator = new Translator();
+            while (next[0] != 0)
             {
                 int i = next[0];
                 int j = next[1];
-                text.AddContent(SourceRange[i, j].ToString());
-                positions.Add(new Position { X=i,Y=j });
+                translator.AddContent(SourceRange[i, j].ToString());
+                positions.Add(new Position { X = i, Y = j });
                 next = GetNext();
-                
-                if (next[0] == 0||(++ ContentCount) ==100)//被坑惨了
+
+                if (next[0] == 0 || (++ContentCount) == 100)//被坑惨了
                 {
-                    Task<List<string>> task = text.ToEnglishAsync();
+                    Task<List<string>> task = translator.TranslateAsync(_toLanguageCode);
                     for (int k = 0; k < positions.Count; k++)
                     {
                         try
@@ -203,13 +205,12 @@ namespace _1Math
                         {
                             results[positions[k].X - 1, positions[k].Y - 1] = Ex.ToString();
                         }
-                        
                     }
                     Complete(positions.Count);//脑子不好
                     //及时释放资源
                     task.Dispose();
                     positions.Clear();
-                    text = new Text();
+                    translator = new Translator();
                     ContentCount = 0;//被坑惨了
                 }
             }
