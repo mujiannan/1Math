@@ -157,65 +157,6 @@ namespace _1Math
         }
         protected abstract void Work();//工作方法
     }
-    public class Translation : Concurrent
-    {
-        private string[,] results;
-        private string _toLanguageCode;
-        public Translation(string toLanguageCode)
-        {
-            _toLanguageCode = toLanguageCode;
-            _threadsLimit = Environment.ProcessorCount;
-            results = new string[_m, _n];
-            _rangeForReturn = CE.Selection.Offset[0, _n];
-        }
-        //private int _errCount = 0;
-        protected override void Complete()
-        {
-            _rangeForReturn.Value = results;
-            Report($"耗时{CE.Elapse}秒，共翻译了{_Sum}个单元格内容");
-        }
-        private struct Position
-        {
-            public int X, Y;
-        }
-        protected override void Work()
-        {
-            int[] next = GetNext();
-            int ContentCount = 0;
-            List<Position> positions = new List<Position>();
-            Translator translator = new Translator();
-            while (next[0] != 0)
-            {
-                int i = next[0];
-                int j = next[1];
-                translator.AddContent(SourceRange[i, j].ToString());
-                positions.Add(new Position { X = i, Y = j });
-                next = GetNext();
-
-                if (next[0] == 0 || (++ContentCount) == 100)//被坑惨了
-                {
-                    Task<List<string>> task = translator.TranslateAsync(_toLanguageCode);
-                    for (int k = 0; k < positions.Count; k++)
-                    {
-                        try
-                        {
-                            results[positions[k].X - 1, positions[k].Y - 1] = task.Result[k];
-                        }
-                        catch (Exception Ex)
-                        {
-                            results[positions[k].X - 1, positions[k].Y - 1] = Ex.ToString();
-                        }
-                    }
-                    Complete(positions.Count);//脑子不好
-                    //及时释放资源
-                    task.Dispose();
-                    positions.Clear();
-                    translator = new Translator();
-                    ContentCount = 0;//被坑惨了
-                }
-            }
-        }
-    }
     public class Accessibility : Concurrent
     {
         private bool[,] results;//这个也许要锁，不太确定
