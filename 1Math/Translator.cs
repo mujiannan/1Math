@@ -13,7 +13,7 @@ namespace _1Math
     {
         private static string _host = "https://api.cognitive.microsofttranslator.com";
         private static string _subscriptionKey = Properties.Resources.AzureCognitiveKey;
-        private List<List<string>> _perfectContentForTranslation=new List<List<string>> { new List<string>()};//this whole List<List<string>> must be limited to 5000 characters
+        private List<List<object>> _perfectContentForTranslation=new List<List<object>> { new List<object>()};//this whole List<List<string>> must be limited to 5000 characters
         private const int _limitedCharactersCount = 5000;
         private const int _limitedItemsCount = 100;
         private int _CharactersCount = 0;
@@ -39,15 +39,14 @@ namespace _1Math
             {
                 throw new Exception("OutOfCharactersCount");
             }
-            _perfectContentForTranslation[_perfectContentForTranslation.Count - 1].Add(newContent);//先验证是否超过100毫无意义，因为就算没超过100，也可能在添加后导致长度达到5000……
+            _perfectContentForTranslation[_perfectContentForTranslation.Count - 1].Add(new { Text=newContent });//先验证是否超过100毫无意义，因为就算没超过100，也可能在添加后导致长度达到5000……
             _CharactersCount += newContent.Length;
             if (_perfectContentForTranslation[_perfectContentForTranslation.Count - 1].Count>100|| _CharactersCount > _limitedCharactersCount)//each List<string> must be limited to one hundred item
             {
                 _perfectContentForTranslation[_perfectContentForTranslation.Count - 1].RemoveAt(_perfectContentForTranslation[_perfectContentForTranslation.Count - 1].Count - 1);//that's complex, but only one line
-                _perfectContentForTranslation.Add(new List<string>());
-                _CharactersCount = 0;//a new List<string>, a new _CharactersCount
-                _perfectContentForTranslation[_perfectContentForTranslation.Count - 1].Add(newContent);
-                _CharactersCount += newContent.Length;
+                _perfectContentForTranslation.Add(new List<object>());
+                _perfectContentForTranslation[_perfectContentForTranslation.Count - 1].Add(new{ Text = newContent});
+                _CharactersCount = newContent.Length;//a new List<string>, a new _CharactersCount
             }
         }
         public List<string> Contents//user naturally set the contents, ignore all limits
@@ -155,7 +154,7 @@ namespace _1Math
             return results;
         }
         //TranslateAsync will call this method
-        private async Task<List<string>> TranslateAsync(List<string> contentsForTranslation,string toLanguageCode)
+        private async Task<List<string>> TranslateAsync(List<object> contentsForTranslation,string toLanguageCode)
         {
             if (!TranslatableLanguages.ContainsKey(toLanguageCode))
             {

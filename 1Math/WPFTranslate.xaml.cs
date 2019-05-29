@@ -65,7 +65,7 @@ namespace _1Math
             Translator translator = new Translator();
             translator.AddContent("I love you");
             translator.AddContent("Are you OK？");
-            this.ButtonStartTranslate.Content = translator.TranslateAsync(toLanguageCode).Result[0];
+            CE.Selection.Value = translator.TranslateAsync(toLanguageCode).Result[0];
         }
 
         private void Translation_ProgressChange(object Sender, ProgressEventArgs progressEventArgs)
