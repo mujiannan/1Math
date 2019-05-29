@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Excel = Microsoft.Office.Interop.Excel;
 
 namespace _1Math
 {
@@ -50,8 +51,9 @@ namespace _1Math
             }));
         }
 
-        private void ButtonStartTranslate_Click(object sender, RoutedEventArgs e)
+        private async void ButtonStartTranslate_ClickAsync(object sender, RoutedEventArgs e)
         {
+            CE.StartTask();
             string toLanguageNativeName = (string)this.ComboBoxToLanguage.SelectedItem;
             string toLanguageCode=string.Empty;
             foreach (string code in Translator.TranslatableLanguages.Keys)
@@ -63,9 +65,32 @@ namespace _1Math
                 }
             }
             Translator translator = new Translator();
-            translator.AddContent("I love you");
-            translator.AddContent("Are you OK？");
-            CE.Selection.Value = translator.TranslateAsync(toLanguageCode).Result[0];
+            translator.ProgressChange += Translator_ProgressChange;
+            for (int i = 0; i < CE.Selection.Rows.Count; i++)
+            {
+                for (int j = 0; j < CE.Selection.Columns.Count; j++)
+                {
+                    translator.AddContent(CE.Selection[i+1,j+1].Value);
+                }
+            }
+            List<string> translation = await translator.TranslateAsync(toLanguageCode);
+            Excel.Range ResultRange = CE.Selection.Offset[0, CE.Selection.Columns.Count];
+            int t = 0;
+            for (int i = 0; i < CE.Selection.Rows.Count; i++)
+            {
+                for (int j = 0; j < CE.Selection.Columns.Count; j++)
+                {
+                    ResultRange[i + 1, j + 1].Value = translation[t];
+                    t++;
+                }
+            }
+            CE.EndTask();
+            System.Windows.Forms.MessageBox.Show(CE.Elapse);
+        }
+
+        private void Translator_ProgressChange(object sender, Translator.TranslatingEventArgs translatingEventArgs)
+        {
+            this.Dispatcher.BeginInvoke(new Action(()=>this.ProgressBarForTranslation.Value = 100*translatingEventArgs.NewProgress));
         }
 
         private void Translation_ProgressChange(object Sender, ProgressEventArgs progressEventArgs)

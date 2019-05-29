@@ -10,6 +10,13 @@ using System.Collections.Generic;
 using System.Windows.Media;
 namespace _1Math
 {
+    public static class Test
+    {
+        public static async Task TestTranslateAsync(string toLanguageCode)
+        {
+
+        }
+    }
     public static class CE
     {
         private static System.Diagnostics.Stopwatch stopwatch;

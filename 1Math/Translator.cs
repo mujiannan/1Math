@@ -109,48 +109,47 @@ namespace _1Math
         public class TranslatingEventArgs : EventArgs
         {
             private double _newProgress;
+            public TranslatingEventArgs(double newProgress)
+            {
+                if (newProgress >= 0 & newProgress <= 1)
+                {
+                    _newProgress = newProgress;
+                }
+                else
+                {
+                    throw new Exception("InvalidNewProgress");
+                }
+            }
             public double NewProgress
             {
                 get => _newProgress;
-                set
-                {
-                    if (value>=0&value<=1)
-                    {
-                        _newProgress = value;
-                    }
-                    else
-                    {
-                        throw new Exception("InvalidNewProgress");
-                    }
-                }
             }
         }
-        private delegate void DTranslating(object sender, TranslatingEventArgs translatingEventArgs);
-        private event EventHandler ProgressChange;
+        public delegate void DTranslating(object sender, TranslatingEventArgs translatingEventArgs);
+        public event DTranslating ProgressChange;
+        private void ChangeProgress(double newProgress)
+        {
+            DTranslating dTranslating = ProgressChange;
+            if (dTranslating!=null)
+            {
+                ProgressChange(this, new TranslatingEventArgs(newProgress));
+            }
+        }
 
         //Main method for translation
         public async Task<List<string>> TranslateAsync(string toLanguageCode)
         {
             Task<List<string>>[] tasks = new Task<List<string>>[_perfectContentForTranslation.Count];
-            List<string> results = new List<string>();
             for (int i = 0; i < _perfectContentForTranslation.Count; i++)
             {
                 tasks[i] =TranslateAsync(_perfectContentForTranslation[i], toLanguageCode);
-                results.AddRange(await tasks[i]);
             }
-            //for (int i = 0; i < tasks.Length; i++)
-            //{
-            //    if (i >= _limitedThreadsCount)
-            //    {
-            //        Task.WaitAny(tasks); 
-            //    }
-            //    tasks[i].Start();
-            //}
-            //List<string> results = new List<string>();
-            //for (int i = 0; i < tasks.Length; i++)
-            //{
-            //    results.AddRange(await tasks[i]);
-            //}
+            List<string> results = new List<string>();
+            for (int i = 0; i < tasks.Length; i++)
+            {
+                results.AddRange(await tasks[i]);
+                ChangeProgress((double)i / tasks.Length);
+            }
             return results;
         }
         //TranslateAsync will call this method
