@@ -32,9 +32,7 @@ namespace _1Math
         }
         private void ButtonToEnglish_Click(object sender, RibbonControlEventArgs e)
         {
-            Translation translation = new Translation("en");
-            BackGroundTask backGroundTask = new BackGroundTask(translation);
-            backGroundTask.Start(new CancelableMethod(translation.Start));
+
         }
 
         private void ButtonTranslate_Click(object sender, RibbonControlEventArgs e)

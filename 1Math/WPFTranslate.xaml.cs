@@ -37,9 +37,9 @@ namespace _1Math
         private void SetAcceptLanguages()
         {
             List<string> AcceptLanguages = new List<string>();
-            foreach (string item in Translator.TranslatableLanguages.Keys)
+            foreach (string code in Translator.TranslatableLanguages.Keys)
             {
-                AcceptLanguages.Add(Translator.TranslatableLanguages[item]["nativeName"]);
+                AcceptLanguages.Add(Translator.TranslatableLanguages[code].nativeName);
             }
             _fromLanguages.AddRange(AcceptLanguages);
             _toLanguages.AddRange(AcceptLanguages);
@@ -56,15 +56,16 @@ namespace _1Math
             string toLanguageCode=string.Empty;
             foreach (string code in Translator.TranslatableLanguages.Keys)
             {
-                if (Translator.TranslatableLanguages[code]["nativeName"]==toLanguageNativeName)
+                if (Translator.TranslatableLanguages[code].nativeName==toLanguageNativeName)
                 {
                     toLanguageCode = code;
                     break;
                 }
             }
-            Translation translation = new Translation(toLanguageCode);
-            translation.ProgressChange += Translation_ProgressChange;
-            translation.Start();
+            Translator translator = new Translator();
+            translator.AddContent("I love you");
+            translator.AddContent("Are you OK？");
+            this.ButtonStartTranslate.Content = translator.TranslateAsync(toLanguageCode).Result[0];
         }
 
         private void Translation_ProgressChange(object Sender, ProgressEventArgs progressEventArgs)

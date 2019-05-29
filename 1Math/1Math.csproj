@@ -210,7 +210,7 @@
     <Compile Include="Ribbon1.Designer.cs">
       <DependentUpon>Ribbon1.cs</DependentUpon>
     </Compile>
-    <Compile Include="Text.cs" />
+    <Compile Include="Translator.cs" />
     <Compile Include="WPFTranslate.xaml.cs">
       <DependentUpon>WPFTranslate.xaml</DependentUpon>
     </Compile>

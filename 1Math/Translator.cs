@@ -13,7 +13,7 @@ namespace _1Math
     {
         private static string _host = "https://api.cognitive.microsofttranslator.com";
         private static string _subscriptionKey = Properties.Resources.AzureCognitiveKey;
-        private List<List<string>> _perfectContentForTranslation=new List<List<string>>();//this whole List<List<string>> must be limited to 5000 characters
+        private List<List<string>> _perfectContentForTranslation=new List<List<string>> { new List<string>()};//this whole List<List<string>> must be limited to 5000 characters
         private const int _limitedCharactersCount = 5000;
         private const int _limitedItemsCount = 100;
         private int _CharactersCount = 0;
@@ -35,29 +35,28 @@ namespace _1Math
         }
         public void AddContent(string newContent)
         {
-            if (newContent.Length < _limitedCharactersCount)
-            {
-                _CharactersCount += newContent.Length;
-            }
-            else
+            if (newContent.Length > _limitedCharactersCount)
             {
                 throw new Exception("OutOfCharactersCount");
             }
             _perfectContentForTranslation[_perfectContentForTranslation.Count - 1].Add(newContent);//先验证是否超过100毫无意义，因为就算没超过100，也可能在添加后导致长度达到5000……
+            _CharactersCount += newContent.Length;
             if (_perfectContentForTranslation[_perfectContentForTranslation.Count - 1].Count>100|| _CharactersCount > _limitedCharactersCount)//each List<string> must be limited to one hundred item
             {
                 _perfectContentForTranslation[_perfectContentForTranslation.Count - 1].RemoveAt(_perfectContentForTranslation[_perfectContentForTranslation.Count - 1].Count - 1);//that's complex, but only one line
                 _perfectContentForTranslation.Add(new List<string>());
+                _CharactersCount = 0;//a new List<string>, a new _CharactersCount
                 _perfectContentForTranslation[_perfectContentForTranslation.Count - 1].Add(newContent);
+                _CharactersCount += newContent.Length;
             }
         }
         public List<string> Contents//user naturally set the contents, ignore all limits
         {
             set
             {
-                for (int i = 0; i < Contents; i++)
+                for (int i = 0; i < value.Count; i++)
                 {
-                    AddContent(Contents[i]);
+                    AddContent(value[i]);
                 }
             }
         }
@@ -82,11 +81,11 @@ namespace _1Math
                 return _acceptLanguages;
             }
         }//jsonAcceptLanguage
-        private struct Language
+        public struct Language
         {
-            string name, nativeName, dir;
+            public string name, nativeName, dir;
         }
-        private static Dictionary<string, Dictionary<string, string>> _translatableLanguages=null;
+        private static Dictionary<string, Language> _translatableLanguages=null;
         public static Dictionary<string, Language> TranslatableLanguages//code as key, struct Language as value
         {
             get
@@ -94,7 +93,7 @@ namespace _1Math
                 if (_translatableLanguages==null)
                 {
                     string translation = JsonConvert.DeserializeObject<JObject>(AcceptLanguages)["translation"].ToString();//extract "translation" from jsonAcceptLanguage
-                    _translatableLanguages = JsonConvert.DeserializeObject<Dictionary<string,Language>>(translation);//如果字段为null，则先获取再设置，最后总是返回该字段
+                    _translatableLanguages = JsonConvert.DeserializeObject<Dictionary<string, Language>>(translation);//如果字段为null，则先获取再设置，最后总是返回该字段
                 }
                 return _translatableLanguages;
             }
@@ -103,14 +102,29 @@ namespace _1Math
         {
             get
             {
-                return TranslatableLanguages["zh-Hans"]["nativeName"];
+                return TranslatableLanguages["zh-Hans"].nativeName;
             }
         }
 
         //TranslatingProgressReporter
-        public struct TranslatingEventArgs : EventArgs
+        public class TranslatingEventArgs : EventArgs
         {
-            double NewProgress;
+            private double _newProgress;
+            public double NewProgress
+            {
+                get => _newProgress;
+                set
+                {
+                    if (value>=0&value<=1)
+                    {
+                        _newProgress = value;
+                    }
+                    else
+                    {
+                        throw new Exception("InvalidNewProgress");
+                    }
+                }
+            }
         }
         private delegate void DTranslating(object sender, TranslatingEventArgs translatingEventArgs);
         private event EventHandler ProgressChange;
@@ -118,31 +132,30 @@ namespace _1Math
         //Main method for translation
         public async Task<List<string>> TranslateAsync(string toLanguageCode)
         {
-            Task<string>[] tasks = new Task<string>[_perfectContentForTranslation.Count];
+            Task<List<string>>[] tasks = new Task<List<string>>[_perfectContentForTranslation.Count];
+            List<string> results = new List<string>();
             for (int i = 0; i < _perfectContentForTranslation.Count; i++)
             {
-                tasks[i] = new Action(translateAsync(_perfectContentForTranslation[i], toLanguageCode));
+                tasks[i] =TranslateAsync(_perfectContentForTranslation[i], toLanguageCode);
+                results.AddRange(await tasks[i]);
             }
-            for (int i = 0; i < tasks.Count; i++)
-            {
-                if (i < _limitedThreadsCount)
-                {
-                    tasks[i].Start();
-                }
-                else
-                {
-                    Task.WaitAny(tasks);
-                }
-            }
-            Task.WaitAll(tasks);
-            List<string> results = new List<string>();
-            for (int i = 0; i < tasks.Count; i++)
-            {
-                results.AddRange(tasks[i].Result);
-            }
+            //for (int i = 0; i < tasks.Length; i++)
+            //{
+            //    if (i >= _limitedThreadsCount)
+            //    {
+            //        Task.WaitAny(tasks); 
+            //    }
+            //    tasks[i].Start();
+            //}
+            //List<string> results = new List<string>();
+            //for (int i = 0; i < tasks.Length; i++)
+            //{
+            //    results.AddRange(await tasks[i]);
+            //}
+            return results;
         }
         //TranslateAsync will call this method
-        private async Task<List<string>> translateAsync(List<string> contentsForTranslation,string toLanguageCode)
+        private async Task<List<string>> TranslateAsync(List<string> contentsForTranslation,string toLanguageCode)
         {
             if (!TranslatableLanguages.ContainsKey(toLanguageCode))
             {
@@ -158,7 +171,7 @@ namespace _1Math
                 Content = new StringContent(requestBody, Encoding.UTF8, "application/json")
             };
             request.Headers.Add("Ocp-Apim-Subscription-Key", _subscriptionKey);
-            var response = await client.SendAsync(request);
+            HttpResponseMessage response = await client.SendAsync(request);
             string responseBody = await response.Content.ReadAsStringAsync();
             List<string> results = new List<string>();
             try
