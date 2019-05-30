@@ -125,6 +125,9 @@
   -->
   <ItemGroup>
     <Reference Include="Accessibility" />
+    <Reference Include="AzureCognitiveTranslator">
+      <HintPath>..\..\AzureCognitiveTranslator\bin\Release\netstandard2.0\AzureCognitiveTranslator.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Office.Interop.Excel, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
@@ -210,7 +213,6 @@
     <Compile Include="Ribbon1.Designer.cs">
       <DependentUpon>Ribbon1.cs</DependentUpon>
     </Compile>
-    <Compile Include="Translator.cs" />
     <Compile Include="WPFTranslate.xaml.cs">
       <DependentUpon>WPFTranslate.xaml</DependentUpon>
     </Compile>

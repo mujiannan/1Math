@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 using System.Collections;
 using System.Collections.Generic;
 using System.Windows.Media;
+using AzureCognitiveTranslator;
 namespace _1Math
 {
     public static class Test

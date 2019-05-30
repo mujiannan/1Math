@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using AzureCognitiveTranslator;
 using Microsoft.Office.Tools.Ribbon;
 
 namespace _1Math
