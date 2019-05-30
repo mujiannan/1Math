@@ -12,11 +12,8 @@ namespace _1Math
 {
     public static class Test
     {
-        public static async Task TestTranslateAsync(string toLanguageCode)
-        {
-
-        }
     }
+
     public static class CE
     {
         private static System.Diagnostics.Stopwatch stopwatch;
@@ -45,6 +42,35 @@ namespace _1Math
         {
             App.ScreenUpdating = true;
             stopwatch.Stop();
+        }
+    }
+    public static class Main
+    {
+        public static async Task TranslateSelectionAsync(string toLanguageCode, Translator translator)
+        {
+            CE.StartTask();
+            Excel.Range selection = CE.Selection;
+            int m = selection.Rows.Count, n = selection.Columns.Count;
+            for (int i = 0; i < m; i++)
+            {
+                for (int j = 0; j < n; j++)
+                {
+                    translator.AddContent(selection[i + 1, j + 1].Value);
+                }
+            }
+            List<string> translation = await translator.TranslateAsync(toLanguageCode);
+            string[,] translationArr = new string[m, n];
+            int t = 0;
+            for (int i = 0; i < m; i++)
+            {
+                for (int j = 0; j < n; j++)
+                {
+                    translationArr[i, j] = translation[t];
+                    t++;
+                }
+            }
+            selection.Offset[0, n].Value = translationArr;
+            CE.EndTask();
         }
     }
     public abstract class Concurrent : IHasStatusReporter//此抽象类是针对excel中长耗时任务的一个多线程模板
@@ -271,7 +297,7 @@ namespace _1Math
             mediaPlayer.Open(uri);
             double duration = 0;
             DateTime start = DateTime.Now;
-            TimeSpan timeSpan = new TimeSpan(0);
+            TimeSpan timeSpan;
             do
             {
                 Thread.Sleep(50);

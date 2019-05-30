@@ -112,7 +112,7 @@ namespace _1Math
             this.ButtonToEnglish.Name = "ButtonToEnglish";
             this.ButtonToEnglish.ScreenTip = "批量中译英";
             this.ButtonToEnglish.SuperTip = "选中具备有效文本的连续单元格，译文将显示在选区右侧";
-            this.ButtonToEnglish.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.ButtonToEnglish_Click);
+            this.ButtonToEnglish.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.ButtonToEnglish_ClickAsync);
             // 
             // ButtonTranslate
             // 
@@ -154,7 +154,6 @@ namespace _1Math
         internal RibbonGroup GroupDataCleaner;
         internal RibbonButton ButtonAntiMerge;
         internal RibbonGroup GroupText;
-        private RibbonDropDownItem itemToEnglish;
         internal RibbonSplitButton ButtonToEnglish;
         internal RibbonButton ButtonTranslate;
     }

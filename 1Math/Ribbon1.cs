@@ -30,11 +30,11 @@ namespace _1Math
             BackGroundTask backGroundTask = new BackGroundTask(videoLength);
             backGroundTask.Start(new CancelableMethod(videoLength.Start));
         }
-        private void ButtonToEnglish_Click(object sender, RibbonControlEventArgs e)
+        private async void ButtonToEnglish_ClickAsync(object sender, RibbonControlEventArgs e)
         {
-
+            Translator translator = new Translator(Properties.Resources.AzureCognitiveBaseUrl, Properties.Resources.AzureCognitiveKey);
+            await Main.TranslateSelectionAsync("en", translator);
         }
-
         private void ButtonTranslate_Click(object sender, RibbonControlEventArgs e)
         {
             FormWPF formWPF = new FormWPF();

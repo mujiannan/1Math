@@ -61,6 +61,15 @@ namespace _1Math.Properties {
         }
         
         /// <summary>
+        ///   查找类似 api.cognitive.microsofttranslator.com 的本地化字符串。
+        /// </summary>
+        internal static string AzureCognitiveBaseUrl {
+            get {
+                return ResourceManager.GetString("AzureCognitiveBaseUrl", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 b72b53dd8edd435db758795dc00894d2 的本地化字符串。
         /// </summary>
         internal static string AzureCognitiveKey {

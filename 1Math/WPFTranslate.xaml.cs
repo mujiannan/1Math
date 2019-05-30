@@ -37,10 +37,11 @@ namespace _1Math
         }
         private void SetAcceptLanguages()
         {
+            Translator translator = new Translator(Properties.Resources.AzureCognitiveBaseUrl, Properties.Resources.AzureCognitiveKey);
             List<string> AcceptLanguages = new List<string>();
-            foreach (string code in Translator.TranslatableLanguages.Keys)
+            foreach (string code in translator.TranslatableLanguages.Keys)
             {
-                AcceptLanguages.Add(Translator.TranslatableLanguages[code].nativeName);
+                AcceptLanguages.Add(translator.TranslatableLanguages[code].nativeName);
             }
             _fromLanguages.AddRange(AcceptLanguages);
             _toLanguages.AddRange(AcceptLanguages);
@@ -53,49 +54,45 @@ namespace _1Math
 
         private async void ButtonStartTranslate_ClickAsync(object sender, RoutedEventArgs e)
         {
-            CE.StartTask();
+            Translator translator = new Translator(Properties.Resources.AzureCognitiveBaseUrl, Properties.Resources.AzureCognitiveKey);
             string toLanguageNativeName = (string)this.ComboBoxToLanguage.SelectedItem;
-            string toLanguageCode=string.Empty;
-            foreach (string code in Translator.TranslatableLanguages.Keys)
+            string toLanguageCode = string.Empty;
+            foreach (string code in translator.TranslatableLanguages.Keys)
             {
-                if (Translator.TranslatableLanguages[code].nativeName==toLanguageNativeName)
+                if (translator.TranslatableLanguages[code].nativeName == toLanguageNativeName)
                 {
                     toLanguageCode = code;
                     break;
                 }
             }
-            Translator translator = new Translator();
             translator.ProgressChange += Translator_ProgressChange;
-            for (int i = 0; i < CE.Selection.Rows.Count; i++)
-            {
-                for (int j = 0; j < CE.Selection.Columns.Count; j++)
-                {
-                    translator.AddContent(CE.Selection[i+1,j+1].Value);
-                }
-            }
-            List<string> translation = await translator.TranslateAsync(toLanguageCode);
-            Excel.Range ResultRange = CE.Selection.Offset[0, CE.Selection.Columns.Count];
-            int t = 0;
-            for (int i = 0; i < CE.Selection.Rows.Count; i++)
-            {
-                for (int j = 0; j < CE.Selection.Columns.Count; j++)
-                {
-                    ResultRange[i + 1, j + 1].Value = translation[t];
-                    t++;
-                }
-            }
-            CE.EndTask();
-            System.Windows.Forms.MessageBox.Show(CE.Elapse);
+            await Main.TranslateSelectionAsync(toLanguageCode, translator);
         }
+
+       
 
         private void Translator_ProgressChange(object sender, Translator.TranslatingEventArgs translatingEventArgs)
         {
-            this.Dispatcher.BeginInvoke(new Action(()=>this.ProgressBarForTranslation.Value = 100*translatingEventArgs.NewProgress));
+            try
+            {
+                this.Dispatcher.BeginInvoke(new Action(() => this.ProgressBarForTranslation.Value = 100 * translatingEventArgs.NewProgress));
+            }
+            catch (Exception)
+            {
+                
+            }
+            
         }
-
         private void Translation_ProgressChange(object Sender, ProgressEventArgs progressEventArgs)
         {
-            this.Dispatcher.BeginInvoke(new Action(()=> { ProgressBarForTranslation.Value = 100*progressEventArgs.NewProgress; }));
+            try
+            {
+                this.Dispatcher.BeginInvoke(new Action(() => { ProgressBarForTranslation.Value = 100 * progressEventArgs.NewProgress; }));
+            }
+            catch (Exception)
+            {
+
+            }
         }
     }
 }

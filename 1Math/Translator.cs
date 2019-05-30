@@ -11,12 +11,18 @@ namespace _1Math
 {
     public class Translator
     {
-        private static string _host = "https://api.cognitive.microsofttranslator.com";
-        private static string _subscriptionKey = Properties.Resources.AzureCognitiveKey;
+        private string _host;
+        private string _subscriptionKey;
+        public Translator(string baseUrl, string key)//baseUrl should be string like "api.cognitive.microsofttranslator.com", determined by the Region of your AzureCognitiveService
+        {
+            _host = "https://" + baseUrl;
+            _subscriptionKey = key;
+        }
         private List<List<object>> _perfectContentForTranslation=new List<List<object>> { new List<object>()};//this whole List<List<string>> must be limited to 5000 characters
-        private const int _limitedCharactersCount = 5000;
-        private const int _limitedItemsCount = 100;
+
         private int _CharactersCount = 0;
+
+        //SetThreadsCount
         private int _limitedThreadsCount=2;
         public int LimitedThreadsCount
         {
@@ -33,6 +39,10 @@ namespace _1Math
                 }
             }
         }
+
+        //SetContensForTranslation
+        private const int _limitedCharactersCount = 5000;
+        private const int _limitedItemsCount = 100;
         public void AddContent(string newContent)
         {
             if (newContent.Length > _limitedCharactersCount)
@@ -41,7 +51,7 @@ namespace _1Math
             }
             _perfectContentForTranslation[_perfectContentForTranslation.Count - 1].Add(new { Text=newContent });//先验证是否超过100毫无意义，因为就算没超过100，也可能在添加后导致长度达到5000……
             _CharactersCount += newContent.Length;
-            if (_perfectContentForTranslation[_perfectContentForTranslation.Count - 1].Count>100|| _CharactersCount > _limitedCharactersCount)//each List<string> must be limited to one hundred item
+            if (_perfectContentForTranslation[_perfectContentForTranslation.Count - 1].Count>_limitedItemsCount|| _CharactersCount > _limitedCharactersCount)//each List<string> must be limited to one hundred item
             {
                 _perfectContentForTranslation[_perfectContentForTranslation.Count - 1].RemoveAt(_perfectContentForTranslation[_perfectContentForTranslation.Count - 1].Count - 1);//that's complex, but only one line
                 _perfectContentForTranslation.Add(new List<object>());
@@ -59,8 +69,10 @@ namespace _1Math
                 }
             }
         }
-        private static string _acceptLanguages=string.Empty;//不要在AcceptLanguages之外使用这个字段
-        private static string AcceptLanguages
+
+        //jsonAcceptLanguage
+        private string _acceptLanguages=string.Empty;//不要在AcceptLanguages之外使用这个字段
+        private string AcceptLanguages
         {
             get
             {
@@ -79,13 +91,15 @@ namespace _1Math
                 }
                 return _acceptLanguages;
             }
-        }//jsonAcceptLanguage
+        }
+
+        //GetTranslableLanguage
         public struct Language
         {
             public string name, nativeName, dir;
         }
         private static Dictionary<string, Language> _translatableLanguages=null;
-        public static Dictionary<string, Language> TranslatableLanguages//code as key, struct Language as value
+        public Dictionary<string, Language> TranslatableLanguages//code as key, struct Language as value
         {
             get
             {
@@ -97,35 +111,24 @@ namespace _1Math
                 return _translatableLanguages;
             }
         }
-        public static string Test
-        {
-            get
-            {
-                return TranslatableLanguages["zh-Hans"].nativeName;
-            }
-        }
-
-        //TranslatingProgressReporter
+        
+        //This is a useless TranslatingProgressReporter(If you translate more than one million characters at one time, maybe it's useful)
         public class TranslatingEventArgs : EventArgs
         {
-            private double _newProgress;
             public TranslatingEventArgs(double newProgress)
             {
                 if (newProgress >= 0 & newProgress <= 1)
                 {
-                    _newProgress = newProgress;
+                    NewProgress = newProgress;
                 }
                 else
                 {
                     throw new Exception("InvalidNewProgress");
                 }
             }
-            public double NewProgress
-            {
-                get => _newProgress;
-            }
+            public double NewProgress { get; }
         }
-        public delegate void DTranslating(object sender, TranslatingEventArgs translatingEventArgs);
+        public delegate void DTranslating(object sender, TranslatingEventArgs e);
         public event DTranslating ProgressChange;
         private void ChangeProgress(double newProgress)
         {
@@ -148,7 +151,7 @@ namespace _1Math
             for (int i = 0; i < tasks.Length; i++)
             {
                 results.AddRange(await tasks[i]);
-                ChangeProgress((double)i / tasks.Length);
+                ChangeProgress((double)(i+1) / tasks.Length);
             }
             return results;
         }
