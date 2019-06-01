@@ -125,9 +125,6 @@
   -->
   <ItemGroup>
     <Reference Include="Accessibility" />
-    <Reference Include="AzureCognitiveTranslator">
-      <HintPath>..\..\AzureCognitiveTranslator\bin\Release\netstandard2.0\AzureCognitiveTranslator.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.Office.Interop.Excel, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
@@ -307,6 +304,12 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\AzureCognitiveTranslator\AzureCognitiveTranslator.csproj">
+      <Project>{75f0d1f6-c72d-4c45-b9c0-ceb30bc50fbd}</Project>
+      <Name>AzureCognitiveTranslator</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

@@ -22,11 +22,11 @@ namespace _1Math
         {
             get
             {
-                return (stopwatch.Elapsed.TotalSeconds.ToString());
+                return stopwatch.Elapsed.TotalSeconds.ToString();
             }
         }
         public static Excel.Application App = Globals.ThisAddIn.Application;
-        public static Excel.Range Selection
+        public static dynamic Selection
         {
             get
             {
@@ -35,22 +35,31 @@ namespace _1Math
         }
         public static void StartTask()
         {
-            stopwatch = new System.Diagnostics.Stopwatch();
-            stopwatch.Start();
+            if (stopwatch==null)
+            {
+                stopwatch = new System.Diagnostics.Stopwatch();
+                stopwatch.Start();
+            }
+            else
+            {
+                stopwatch.Restart();
+            }
             App.ScreenUpdating = false;
         }
         public static void EndTask()
         {
             App.ScreenUpdating = true;
-            stopwatch.Stop();
+            stopwatch?.Stop();
         }
     }
     public static class Main
     {
         public static async Task TranslateSelectionAsync(string toLanguageCode, Translator translator)
         {
-            CE.StartTask();
-            Excel.Range selection = CE.Selection;
+            if (!(CE.Selection is Excel.Range selection))
+            {
+                throw new Exception("PleaseSelectExcelRange");
+            }
             int m = selection.Rows.Count, n = selection.Columns.Count;
             for (int i = 0; i < m; i++)
             {
@@ -71,7 +80,6 @@ namespace _1Math
                 }
             }
             selection.Offset[0, n].Value = translationArr;
-            CE.EndTask();
         }
     }
     public abstract class Concurrent : IHasStatusReporter//此抽象类是针对excel中长耗时任务的一个多线程模板
@@ -84,21 +92,24 @@ namespace _1Math
         public event ChangeProgress ProgressChange;
         protected int _m, _n;
         private volatile int _x = 0, _y = 1;
-        protected object[,] SourceRange;//不需要锁
+        protected object[,] SourceRange { get; }//不需要锁
         protected int _Sum;//总任务量
         private volatile int _sum = 0;//完成任务量
         private readonly int[] _noNext = new int[2] { 0, 0 };
         protected Concurrent()
         {
-            CE.StartTask();
-            if (CE.Selection.Count > 1)
+            if (!(CE.Selection is Excel.Range selection))
             {
-                SourceRange = CE.Selection.Value;
+                throw new Exception("SelectionIsn'tExcelRange");
+            }
+            if (selection.Count > 1)
+            {
+                SourceRange = selection.Value;
             }
             else
             {
                 SourceRange = (object[,])Array.CreateInstance(typeof(object), new int[2] { 1, 1 }, new int[2] { 1, 1 });
-                SourceRange[1, 1] = CE.Selection.Cells[1, 1].Value;
+                SourceRange[1, 1] = selection.Cells[1, 1].Value;
             }
             _Sum = SourceRange.Length;
             _m = SourceRange.GetLength(0);
@@ -120,7 +131,6 @@ namespace _1Math
         private void End()
         {
             Report(1);
-            CE.EndTask();
         }//结束
         protected abstract void Complete();//完成全部任务
         protected void Report(string Message)
@@ -249,7 +259,15 @@ namespace _1Math
             {
                 int i = next[0];
                 int j = next[1];
-                double duration = dotNetPlayer.GetDuration(new Uri(SourceRange[i, j].ToString()));
+                double duration;
+                try
+                {
+                    duration = dotNetPlayer.GetDuration(new Uri(SourceRange[i, j].ToString()));
+                }
+                catch (Exception)
+                {
+                    duration = 0;
+                }
                 if (duration > 0)
                 {
                     results[i - 1, j - 1] = duration;

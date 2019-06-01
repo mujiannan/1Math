@@ -14,27 +14,75 @@ namespace _1Math
         }
         private void ButtonUrlCheck_Click(object sender, RibbonControlEventArgs e)
         {
-            Accessibility accessibility = new Accessibility();
-            BackGroundTask backGroundTask = new BackGroundTask(accessibility);
-            backGroundTask.Start(new CancelableMethod(accessibility.Start));
+            CE.StartTask();
+            try
+            {
+                Accessibility accessibility = new Accessibility();
+                BackGroundTask backGroundTask = new BackGroundTask(accessibility);
+                backGroundTask.Start(new CancelableMethod(accessibility.Start));
+            }
+            catch (Exception Ex)
+            {
+                System.Windows.Forms.MessageBox.Show(Ex.Message);
+                
+            }
+            finally
+            {
+                CE.EndTask();
+            }
         }
         private void ButtonAntiMerge_Click(object sender, RibbonControlEventArgs e)
         {
-            MergeAreas mergeAreas = new MergeAreas();
-            BackGroundTask backGroundTask = new BackGroundTask(mergeAreas);
-            backGroundTask.Start(new CancelableMethod(mergeAreas.SafelyUnMergeAndFill));
+            CE.StartTask();
+            try
+            {
+                MergeAreas mergeAreas = new MergeAreas();
+                BackGroundTask backGroundTask = new BackGroundTask(mergeAreas);
+                backGroundTask.Start(new CancelableMethod(mergeAreas.SafelyUnMergeAndFill));
+            }
+            catch (Exception Ex)
+            {
+                System.Windows.Forms.MessageBox.Show(Ex.Message);
+                CE.EndTask();
+            }
         }
 
         private void ButtonVideoLength_Click(object sender, RibbonControlEventArgs e)
         {
-            VideoLength videoLength = new VideoLength();
-            BackGroundTask backGroundTask = new BackGroundTask(videoLength);
-            backGroundTask.Start(new CancelableMethod(videoLength.Start));
+            CE.StartTask();
+            try
+            {
+                VideoLength videoLength = new VideoLength();
+                BackGroundTask backGroundTask = new BackGroundTask(videoLength);
+                backGroundTask.Start(new CancelableMethod(videoLength.Start));
+            }
+            catch (Exception Ex)
+            {
+                System.Windows.Forms.MessageBox.Show(Ex.Message);
+            }
+            finally
+            {
+                CE.EndTask();
+            }
+
         }
         private async void ButtonToEnglish_ClickAsync(object sender, RibbonControlEventArgs e)
         {
-            Translator translator = new Translator(Properties.Resources.AzureCognitiveBaseUrl, Properties.Resources.AzureCognitiveKey);
-            await Main.TranslateSelectionAsync("en", translator);
+            CE.StartTask();
+            try
+            {
+                Translator translator = new Translator(Properties.Resources.AzureCognitiveBaseUrl, Properties.Resources.AzureCognitiveKey);
+                await Main.TranslateSelectionAsync("en", translator);
+            }
+            catch (Exception Ex)
+            {
+                System.Windows.Forms.MessageBox.Show(Ex.Message);
+            }
+            finally
+            {
+                CE.EndTask();
+            }
+
         }
         private void ButtonTranslate_Click(object sender, RibbonControlEventArgs e)
         {

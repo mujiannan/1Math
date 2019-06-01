@@ -21,6 +21,7 @@
                 <TextBlock Text="翻译到" FontSize="36" Margin="10 0 0 0"></TextBlock>
                 <ComboBox Name="ComboBoxToLanguage" FontSize="12" Margin="10 0 0 0" VerticalAlignment="Center" IsReadOnly="True"/>
                 <Button Name="ButtonStartTranslate" Content="开始翻译" Click="ButtonStartTranslate_ClickAsync" FontSize="36" Height="50" Margin="30 0 0 0" HorizontalAlignment="Right"></Button>
+                <TextBlock Name="TextBlockTime" FontSize="36" Margin="10,0,0,0"></TextBlock>
             </StackPanel>
         </StackPanel>
     </Grid>

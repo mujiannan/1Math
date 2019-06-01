@@ -39,10 +39,20 @@ namespace _1Math
         private void SetAcceptLanguages()
         {
             Translator translator = new Translator(Properties.Resources.AzureCognitiveBaseUrl, Properties.Resources.AzureCognitiveKey);
-            List<string> AcceptLanguages = new List<string>();
-            foreach (string code in translator.TranslatableLanguages.Keys)
+            Dictionary<string, Translator.Language> translatableLanguages;
+            try
             {
-                AcceptLanguages.Add(translator.TranslatableLanguages[code].nativeName);
+                translatableLanguages = translator.TranslatableLanguages;
+            }
+            catch (Exception)
+            {
+                System.Windows.Forms.MessageBox.Show("Can't get translableLanguage, perhaps exception on network");
+                return;
+            }
+            List<string> AcceptLanguages = new List<string>();
+            foreach (string code in translatableLanguages.Keys)
+            {
+                AcceptLanguages.Add(translatableLanguages[code].nativeName);
             }
             _fromLanguages.AddRange(AcceptLanguages);
             _toLanguages.AddRange(AcceptLanguages);
@@ -55,19 +65,28 @@ namespace _1Math
 
         private async void ButtonStartTranslate_ClickAsync(object sender, RoutedEventArgs e)
         {
-            Translator translator = new Translator(Properties.Resources.AzureCognitiveBaseUrl, Properties.Resources.AzureCognitiveKey);
-            string toLanguageNativeName = (string)this.ComboBoxToLanguage.SelectedItem;
-            string toLanguageCode = string.Empty;
-            foreach (string code in translator.TranslatableLanguages.Keys)
+            try
             {
-                if (translator.TranslatableLanguages[code].nativeName == toLanguageNativeName)
+                Translator translator = new Translator(Properties.Resources.AzureCognitiveBaseUrl, Properties.Resources.AzureCognitiveKey);
+                string toLanguageNativeName = (string)this.ComboBoxToLanguage.SelectedItem;
+                string toLanguageCode = string.Empty;
+                foreach (string code in translator.TranslatableLanguages.Keys)
                 {
-                    toLanguageCode = code;
-                    break;
+                    if (translator.TranslatableLanguages[code].nativeName == toLanguageNativeName)
+                    {
+                        toLanguageCode = code;
+                        break;
+                    }
                 }
+                translator.ProgressChange += Translator_ProgressChange;
+                await Main.TranslateSelectionAsync(toLanguageCode, translator);
+                this.TextBlockTime.Text = "耗时: " + CE.Elapse + "秒";
             }
-            translator.ProgressChange += Translator_ProgressChange;
-            await Main.TranslateSelectionAsync(toLanguageCode, translator);
+            catch (Exception)
+            {
+                CE.EndTask();
+            }
+
         }
 
        
