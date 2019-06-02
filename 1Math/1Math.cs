@@ -5,8 +5,8 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Media;
 using Excel = Microsoft.Office.Interop.Excel;
+using System.Text.RegularExpressions;
 namespace _1Math
 {
     public static class Test
@@ -90,7 +90,7 @@ namespace _1Math
         public event ChangeProgress ProgressChange;
         protected int _m, _n;
         private volatile int _x = 0, _y = 1;
-        protected object[,] SourceRange { get; }//不需要锁
+        protected object[,] SourceRange { get; set; }//不需要锁
         protected int _Sum;//总任务量
         private volatile int _sum = 0;//完成任务量
         private readonly int[] _noNext = new int[2] { 0, 0 };
@@ -100,14 +100,18 @@ namespace _1Math
             {
                 throw new Exception("SelectionIsn'tExcelRange");
             }
-            if (selection.Count > 1)
+            InitializeSourceRange(selection);
+        }
+        protected void InitializeSourceRange( Excel.Range range)
+        {
+            if (range.Count > 1)
             {
-                SourceRange = selection.Value;
+                SourceRange = range.Value;
             }
             else
             {
                 SourceRange = (object[,])Array.CreateInstance(typeof(object), new int[2] { 1, 1 }, new int[2] { 1, 1 });
-                SourceRange[1, 1] = selection.Cells[1, 1].Value;
+                SourceRange[1, 1] = range.Cells[1, 1].Value;
             }
             _Sum = SourceRange.Length;
             _m = SourceRange.GetLength(0);
@@ -234,7 +238,7 @@ namespace _1Math
             };
         }
     }
-    public class VideoLength : Concurrent
+    public sealed class VideoLength : Concurrent
     {
         private double[,] results;
         public VideoLength()
@@ -275,57 +279,6 @@ namespace _1Math
                 next = GetNext();
             };
             dotNetPlayer.Dispose();
-        }
-    }
-    public class DotNetPlayer : IDisposable
-    {
-        private bool disposed;
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-        ~DotNetPlayer()
-        {
-            Dispose(false);
-        }
-        private void Dispose(bool disposing)
-        {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    //呵呵，暂时还没有啥托管资源需要释放的
-                }
-                mediaPlayer.Close();
-                mediaPlayer = null;
-                disposed = true;
-            }
-
-        }
-        MediaPlayer mediaPlayer;
-        const double timeOut = 5;
-        public DotNetPlayer()
-        {
-            mediaPlayer = new MediaPlayer();
-        }
-        public double GetDuration(Uri uri)
-        {
-            mediaPlayer.Open(uri);
-            double duration = 0;
-            DateTime start = DateTime.Now;
-            TimeSpan timeSpan;
-            do
-            {
-                Thread.Sleep(50);
-                if (mediaPlayer.NaturalDuration.HasTimeSpan)
-                {
-                    duration = mediaPlayer.NaturalDuration.TimeSpan.TotalSeconds;
-                    mediaPlayer.Stop();
-                }
-                timeSpan = DateTime.Now - start;
-            } while (duration == 0 && timeSpan.TotalSeconds < timeOut);
-            return (duration);
         }
     }
     class MergeAreas : IHasStatusReporter//实例化后，直接运行SafelyUnMergedAndFill方法即可。拆分的目标默认为当前Selection。目标区域为Single时，则自动将目标区域更改为整个活动工作表
@@ -451,79 +404,5 @@ namespace _1Math
             MessageChange(this, new MessageEventArgs($"搜寻完毕，共发现{t}处合并区域"));
         }
     }
-    public class Url//这TM写得真够大的
-    {
-        private string str;
-        public void SetReferTo(string value)
-        {
-            if (value != str)
-            {
-                checkStatus = CheckStatus.Null;//这样可以不需要反复实例化就可以验证有效性，不知道会不会节省资源
-                str = value;
-            }
-        }
-        public new string ToString()//假的
-        {
-            return str;
-        }
-        public Url(string url)
-        {
-            str = url;
-        }
-        public Url()
-        {
-        }
-        private enum CheckStatus
-        {
-            Null, Checking, Checked
-        }
-        private Task checkTask;
-        private CheckStatus checkStatus;
-        public void CheckAccessibility()
-        {
-            checkTask = Check();
-        }
-        private async Task Check()
-        {
-            checkStatus = CheckStatus.Checking;
-            HttpClient checkClient = new HttpClient
-            {
-                Timeout = new TimeSpan(0, 0, 1)
-            };
-            try
-            {
-                HttpResponseMessage httpResponseMessage = await checkClient.GetAsync(str, HttpCompletionOption.ResponseHeadersRead);
-                accessibility = httpResponseMessage.IsSuccessStatusCode;
-            }
-            catch (Exception)
-            {
-                accessibility = false;
-            }
-            checkClient.Dispose();
-            checkStatus = CheckStatus.Checked;
-        }
-        private bool accessibility;
-        public bool Accessibility
-        {
-            get
-            {
-                switch (checkStatus)
-                {
-                    case CheckStatus.Null:
-                        CheckAccessibility();
-                        checkTask.Wait();
-                        break;
-                    case CheckStatus.Checking:
-                        checkTask.Wait();
-                        break;
-                    case CheckStatus.Checked:
-                        break;
-                    default:
-                        break;
-                }
-                return accessibility;
-            }
-        }
-
-    }
+   
 }

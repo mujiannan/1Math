@@ -15,7 +15,6 @@ namespace _1Math
         {
             InitializeComponent();
         }
-        private List<string> _toLanguages = new List<string>();
         private void UserControl_Initialized(object sender, EventArgs e)
         {
             Task task = new Task(new Action(SetAcceptLanguages));
@@ -70,9 +69,9 @@ namespace _1Math
                 translator.ProgressChange += Translator_ProgressChange;
                 await Main.TranslateSelectionAsync(toLanguageCode, translator);
             }
-            catch (Exception)
+            catch (Exception Ex)
             {
-                this.Dispatcher.Invoke(new Action(() => this.TextBlockTime.Text = "翻译失败"));
+                System.Windows.Forms.MessageBox.Show(Ex.Message);
             }
             finally
             {

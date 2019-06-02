@@ -15,11 +15,11 @@
         <StackPanel Orientation="Vertical" Grid.Row="1" Margin="10 10 10 10">
             <StackPanel Margin="0 10 0 0" Orientation="Horizontal" VerticalAlignment="Center">
                 <TextBlock Text="从" FontSize="24"></TextBlock>
-                <ComboBox TabIndex="0" Name="ComboBoxFromLanguage" FontSize="24" Margin="10 0 0 0" IsReadOnly="True">
+                <ComboBox TabIndex="0" BorderBrush="AliceBlue" Name="ComboBoxFromLanguage" FontSize="24" Margin="10 0 0 0" IsReadOnly="True">
                 </ComboBox>
                 <TextBlock Text="翻译到" FontSize="24" Margin="10 0 0 0"></TextBlock>
-                <ComboBox TabIndex="1" Name="ComboBoxToLanguage" FontSize="24" Margin="10 0 0 0" IsReadOnly="True" Grid.Row="1"/>
-                <Button TabIndex="2" Name="ButtonStartTranslate" Content="开始翻译" FontSize="24" Margin="30 0 0 0" Click="ButtonStartTranslate_ClickAsync"></Button>
+                <ComboBox TabIndex="1" BorderBrush="AliceBlue" Name="ComboBoxToLanguage" FontSize="24" Margin="10 0 0 0" IsReadOnly="True" Grid.Row="1"/>
+                <Button TabIndex="2" BorderBrush="AliceBlue" Name="ButtonStartTranslate" Content="开始翻译" FontSize="24" Margin="30 0 0 0" Click="ButtonStartTranslate_ClickAsync"></Button>
                 <TextBlock Name="TextBlockTime" FontSize="12" VerticalAlignment="Center"></TextBlock>
             </StackPanel>
             <ProgressBar Name="ProgressBarForTranslation"

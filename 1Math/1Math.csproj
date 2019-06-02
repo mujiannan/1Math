@@ -30,10 +30,10 @@
     <DefineConstants>VSTO40</DefineConstants>
     <IsWebBootstrapper>False</IsWebBootstrapper>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <PublishUrl>D:\OneDrive\MySoftWare\VSTO\1Math1.0.0.21\</PublishUrl>
+    <PublishUrl>D:\OneDrive\MySoftWare\VSTO\1Math1.0.0.22\</PublishUrl>
     <InstallUrl />
     <TargetCulture>zh-chs</TargetCulture>
-    <ApplicationVersion>1.0.0.22</ApplicationVersion>
+    <ApplicationVersion>1.0.0.23</ApplicationVersion>
     <AutoIncrementApplicationRevision>true</AutoIncrementApplicationRevision>
     <UpdateEnabled>true</UpdateEnabled>
     <UpdateInterval>7</UpdateInterval>
@@ -185,6 +185,7 @@
   -->
   <ItemGroup>
     <Compile Include="BackGroudTask.cs" />
+    <Compile Include="DotNetPlayer.cs" />
     <Compile Include="FormWPF.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -210,6 +211,7 @@
     <Compile Include="Ribbon1.Designer.cs">
       <DependentUpon>Ribbon1.cs</DependentUpon>
     </Compile>
+    <Compile Include="Url.cs" />
     <Compile Include="WPFTranslate.xaml.cs">
       <DependentUpon>WPFTranslate.xaml</DependentUpon>
     </Compile>
@@ -232,8 +234,6 @@
     <EmbeddedResource Include="StatusForm.resx">
       <DependentUpon>StatusForm.cs</DependentUpon>
     </EmbeddedResource>
-    <None Include="1Math_1_TemporaryKey.pfx" />
-    <None Include="1Math_2_TemporaryKey.pfx" />
     <None Include="1Math_TemporaryKey.pfx" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
@@ -326,6 +326,12 @@
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>false</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
+  <PropertyGroup>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <!-- Include the build rules for a C# project. -->
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
