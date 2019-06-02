@@ -65,7 +65,7 @@ namespace _1Math
             {
                 for (int j = 0; j < n; j++)
                 {
-                    translator.AddContent(selection[i + 1, j + 1].Value);
+                    translator.AddContent(selection[i + 1, j + 1].Value.ToString());
                 }
             }
             List<string> translation = await translator.TranslateAsync(toLanguageCode);
