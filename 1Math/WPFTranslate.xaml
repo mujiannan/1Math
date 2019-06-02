@@ -5,24 +5,29 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:_1Math"
              mc:Ignorable="d" 
-             d:DesignHeight="200" d:DesignWidth="800" Initialized="UserControl_Initialized">
+             d:DesignHeight="200" d:DesignWidth="600" Initialized="UserControl_Initialized">
     <Grid Background="White">
         <Grid.RowDefinitions>
             <RowDefinition Height="50"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
-        <TextBlock FontSize="32"><Run Text="Bing"/><Run Text="翻译"/></TextBlock>
+        <TextBlock FontSize="28"><Run Text="Bing"/><Run Text="翻译"/></TextBlock>
         <StackPanel Orientation="Vertical" Grid.Row="1" Margin="10 10 10 10">
-            <ProgressBar Name="ProgressBarForTranslation" Grid.Row="1" VerticalAlignment="Center" Height="50" Margin="0 0 0 0" MaxWidth="Infinity"></ProgressBar>
             <StackPanel Margin="0 10 0 0" Orientation="Horizontal" VerticalAlignment="Center">
-                <TextBlock Text="从" FontSize="36"></TextBlock>
-                <ComboBox Name="ComboBoxFromLanguage" FontSize="12" Margin="10 0 0 0" VerticalAlignment="Center" IsReadOnly="True">
+                <TextBlock Text="从" FontSize="24"></TextBlock>
+                <ComboBox TabIndex="0" Name="ComboBoxFromLanguage" FontSize="24" Margin="10 0 0 0" IsReadOnly="True">
                 </ComboBox>
-                <TextBlock Text="翻译到" FontSize="36" Margin="10 0 0 0"></TextBlock>
-                <ComboBox Name="ComboBoxToLanguage" FontSize="12" Margin="10 0 0 0" VerticalAlignment="Center" IsReadOnly="True"/>
-                <Button Name="ButtonStartTranslate" Content="开始翻译" Click="ButtonStartTranslate_ClickAsync" FontSize="36" Height="50" Margin="30 0 0 0" HorizontalAlignment="Right"></Button>
-                <TextBlock Name="TextBlockTime" FontSize="36" Margin="10,0,0,0"></TextBlock>
+                <TextBlock Text="翻译到" FontSize="24" Margin="10 0 0 0"></TextBlock>
+                <ComboBox TabIndex="1" Name="ComboBoxToLanguage" FontSize="24" Margin="10 0 0 0" IsReadOnly="True" Grid.Row="1"/>
+                <Button TabIndex="2" Name="ButtonStartTranslate" Content="开始翻译" FontSize="24" Margin="30 0 0 0" Click="ButtonStartTranslate_ClickAsync"></Button>
+                <TextBlock Name="TextBlockTime" FontSize="12" VerticalAlignment="Center"></TextBlock>
             </StackPanel>
+            <ProgressBar Name="ProgressBarForTranslation"
+                             Grid.Row="1"
+                             VerticalAlignment="Center"
+                             Height="50"
+                             Margin="0 10 0 0"
+                             MaxWidth="Infinity"/>
         </StackPanel>
     </Grid>
 </UserControl>

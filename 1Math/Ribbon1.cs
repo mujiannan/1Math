@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using AzureCognitiveTranslator;
+﻿using AzureCognitiveTranslator;
 using Microsoft.Office.Tools.Ribbon;
+using System;
 
 namespace _1Math
 {
@@ -24,7 +21,7 @@ namespace _1Math
             catch (Exception Ex)
             {
                 System.Windows.Forms.MessageBox.Show(Ex.Message);
-                
+
             }
             finally
             {

@@ -1,20 +1,9 @@
 ﻿using AzureCognitiveTranslator;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using Excel = Microsoft.Office.Interop.Excel;
-
 namespace _1Math
 {
     /// <summary>
@@ -26,13 +15,9 @@ namespace _1Math
         {
             InitializeComponent();
         }
-        private List<string> _fromLanguages = new List<string>();
         private List<string> _toLanguages = new List<string>();
         private void UserControl_Initialized(object sender, EventArgs e)
         {
-            this.ComboBoxFromLanguage.ItemsSource = _fromLanguages;
-            this.ComboBoxToLanguage.ItemsSource = _toLanguages;
-            _fromLanguages.Add("自动检测");
             Task task = new Task(new Action(SetAcceptLanguages));
             task.Start();
         }
@@ -54,17 +39,21 @@ namespace _1Math
             {
                 AcceptLanguages.Add(translatableLanguages[code].nativeName);
             }
-            _fromLanguages.AddRange(AcceptLanguages);
-            _toLanguages.AddRange(AcceptLanguages);
             this.Dispatcher.BeginInvoke(new Action(() =>
             {
+                ComboBoxFromLanguage.Items.Add("自动检测");
                 ComboBoxFromLanguage.SelectedItem = "自动检测";
+                foreach (string code in translatableLanguages.Keys)
+                {
+                    ComboBoxToLanguage.Items.Add(translatableLanguages[code].nativeName);
+                }
                 ComboBoxToLanguage.SelectedItem = "简体中文";
             }));
         }
 
         private async void ButtonStartTranslate_ClickAsync(object sender, RoutedEventArgs e)
         {
+            CE.StartTask();
             try
             {
                 Translator translator = new Translator(Properties.Resources.AzureCognitiveBaseUrl, Properties.Resources.AzureCognitiveKey);
@@ -80,16 +69,20 @@ namespace _1Math
                 }
                 translator.ProgressChange += Translator_ProgressChange;
                 await Main.TranslateSelectionAsync(toLanguageCode, translator);
-                this.TextBlockTime.Text = "耗时: " + CE.Elapse + "秒";
             }
             catch (Exception)
             {
+                this.Dispatcher.Invoke(new Action(() => this.TextBlockTime.Text = "翻译失败"));
+            }
+            finally
+            {
                 CE.EndTask();
             }
+            this.Dispatcher.Invoke(new Action(() => this.TextBlockTime.Text = "耗时: " + CE.Elapse + "秒"));
 
         }
 
-       
+
 
         private void Translator_ProgressChange(object sender, Translator.TranslatingEventArgs translatingEventArgs)
         {
@@ -99,9 +92,9 @@ namespace _1Math
             }
             catch (Exception)
             {
-                
+
             }
-            
+
         }
         private void Translation_ProgressChange(object Sender, ProgressEventArgs progressEventArgs)
         {
