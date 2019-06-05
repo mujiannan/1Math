@@ -68,6 +68,7 @@ namespace _1Math
                 }
                 translator.ProgressChange += Translator_ProgressChange;
                 await Main.TranslateSelectionAsync(toLanguageCode, translator);
+                this.Dispatcher.Invoke(new Action(() => this.TextBlockTime.Text = "耗时: " + CE.Elapse + "秒"));
             }
             catch (Exception Ex)
             {
@@ -77,8 +78,6 @@ namespace _1Math
             {
                 CE.EndTask();
             }
-            this.Dispatcher.Invoke(new Action(() => this.TextBlockTime.Text = "耗时: " + CE.Elapse + "秒"));
-
         }
 
 
