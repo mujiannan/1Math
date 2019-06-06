@@ -40,7 +40,10 @@ namespace _1Math
             catch (Exception Ex)
             {
                 System.Windows.Forms.MessageBox.Show(Ex.Message);
-                CE.EndTask();
+            }
+            finally
+            {
+                CE.EndTask(); 
             }
         }
 

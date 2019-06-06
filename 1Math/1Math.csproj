@@ -125,6 +125,9 @@
   -->
   <ItemGroup>
     <Reference Include="Accessibility" />
+    <Reference Include="AzureCognitiveTranslator, Version=1.0.0.5, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\AzureCognitiveTranslator.1.0.5\lib\netstandard2.0\AzureCognitiveTranslator.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Office.Interop.Excel, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
@@ -306,12 +309,6 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\AzureCognitiveTranslator\AzureCognitiveTranslator.csproj">
-      <Project>{75f0d1f6-c72d-4c45-b9c0-ceb30bc50fbd}</Project>
-      <Name>AzureCognitiveTranslator</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include=".gitattributes" />
     <Content Include=".gitignore" />
   </ItemGroup>
@@ -323,10 +320,11 @@
     <SignManifests>true</SignManifests>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestKeyFile>1Math_TemporaryKey.pfx</ManifestKeyFile>
+    <ManifestKeyFile>
+    </ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>20C8D88A609E4D6DBCA8E06FBCE471D8EF9120F4</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>B48269FD4EBF55093AC3B4E08AF048BB498C6162</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>false</SignAssembly>

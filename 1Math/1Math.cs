@@ -302,13 +302,11 @@ namespace _1Math
         }
         public MergeAreas()
         {
-            CE.StartTask();
             _application = Globals.ThisAddIn.Application;
             _target = _application.Selection;
         }
         public MergeAreas(Excel.Range In)//此重载提供了将这个类用于快速获取合并单元格区域的可能性
         {
-            CE.StartTask();
             _application = In.Application;
             _target = In;
         }
@@ -329,7 +327,6 @@ namespace _1Math
                 await Task.Run(new Action(GetMergedAreas));
                 if (_mergedAreas == null)
                 {
-                    CE.EndTask();
                     MessageChange(this, new MessageEventArgs("找不到合并的单元格"));
                     ProgressChange(this, new ProgressEventArgs(1));
                     return;
@@ -355,7 +352,6 @@ namespace _1Math
                 range.Value = range.Cells[1, 1];//为什么这也能迭代……啥原因呢，不是说foreach不能这么来么
             }
             ProgressChange(this, new ProgressEventArgs(1));
-            CE.EndTask();
             MessageChange(this, new MessageEventArgs($"大功告成，耗时{CE.Elapse}秒！"));
         }
         private void GetMergedAreas()
