@@ -31,7 +31,6 @@ namespace _1Math
                 mediaPlayer = null;
                 disposed = true;
             }
-
         }
         MediaPlayer mediaPlayer;
         const double timeOut = 5;

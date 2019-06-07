@@ -3,14 +3,14 @@ using Microsoft.Office.Tools.Ribbon;
 
 namespace _1Math
 {
-    partial class Ribbon1 : Microsoft.Office.Tools.Ribbon.RibbonBase
+    partial class Ribbon1Math : Microsoft.Office.Tools.Ribbon.RibbonBase
     {
         /// <summary>
         /// 必需的设计器变量。
         /// </summary>
         private System.ComponentModel.IContainer components = null;
 
-        public Ribbon1()
+        public Ribbon1Math()
             : base(Globals.Factory.GetRibbonFactory())
         {
             InitializeComponent();
@@ -37,7 +37,7 @@ namespace _1Math
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Ribbon1));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Ribbon1Math));
             this.Tab1Math = this.Factory.CreateRibbonTab();
             this.GroupNet = this.Factory.CreateRibbonGroup();
             this.ButtonUrlCheck = this.Factory.CreateRibbonButton();
@@ -75,7 +75,7 @@ namespace _1Math
             this.ButtonUrlCheck.Label = "链接有效性";
             this.ButtonUrlCheck.Name = "ButtonUrlCheck";
             this.ButtonUrlCheck.ShowImage = true;
-            this.ButtonUrlCheck.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.ButtonUrlCheck_Click);
+            this.ButtonUrlCheck.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.ButtonUrlCheck_ClickAsync);
             // 
             // buttonVideoLength
             // 
@@ -83,7 +83,7 @@ namespace _1Math
             this.buttonVideoLength.Label = "视频时长";
             this.buttonVideoLength.Name = "buttonVideoLength";
             this.buttonVideoLength.ShowImage = true;
-            this.buttonVideoLength.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.ButtonVideoLength_Click);
+            this.buttonVideoLength.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.ButtonVideoLength_ClickAsync);
             // 
             // GroupDataCleaner
             // 
@@ -97,7 +97,7 @@ namespace _1Math
             this.ButtonAntiMerge.Name = "ButtonAntiMerge";
             this.ButtonAntiMerge.ScreenTip = "取消合并单元格";
             this.ButtonAntiMerge.SuperTip = "批量取消选取中的合并单元格，并相对安全地自动填充。如果你只选中了一个单元格，那么会默认处理整个工作表。";
-            this.ButtonAntiMerge.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.ButtonAntiMerge_Click);
+            this.ButtonAntiMerge.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.ButtonAntiMerge_ClickAsync);
             // 
             // GroupText
             // 
@@ -160,9 +160,9 @@ namespace _1Math
 
     partial class ThisRibbonCollection
     {
-        internal Ribbon1 Ribbon1
+        internal Ribbon1Math Ribbon1
         {
-            get { return this.GetRibbon<Ribbon1>(); }
+            get { return this.GetRibbon<Ribbon1Math>(); }
         }
     }
 }

@@ -1,60 +1,46 @@
 ﻿using AzureCognitiveTranslator;
 using Microsoft.Office.Tools.Ribbon;
 using System;
+using System.Threading;
+using System.Diagnostics;
 
 namespace _1Math
 {
-    public partial class Ribbon1
+    public partial class Ribbon1Math
     {
         private void Ribbon1_Load(object sender, RibbonUIEventArgs e)
         {
         }
-        private void ButtonUrlCheck_Click(object sender, RibbonControlEventArgs e)
+        private async void ButtonUrlCheck_ClickAsync(object sender, RibbonControlEventArgs e)
         {
-            CE.StartTask();
+            ExcelStatic.StartTask();
             try
             {
-                Accessibility accessibility = new Accessibility();
-                BackGroundTask backGroundTask = new BackGroundTask(accessibility);
-                backGroundTask.Start(new CancelableMethod(accessibility.Start));
+                ExcelConcurrentTask excelConcurrent = new ExcelConcurrentTask(new AccessibilityChecker());
+                await excelConcurrent.StartAsync();
             }
             catch (Exception Ex)
             {
                 System.Windows.Forms.MessageBox.Show(Ex.Message);
+            }
+            finally
+            {
+                ExcelStatic.EndTask();
+            }
 
-            }
-            finally
-            {
-                CE.EndTask();
-            }
         }
-        private void ButtonAntiMerge_Click(object sender, RibbonControlEventArgs e)
+        private async void ButtonAntiMerge_ClickAsync(object sender, RibbonControlEventArgs e)
         {
-            CE.StartTask();
-            try
-            {
-                MergeAreas mergeAreas = new MergeAreas();
-                BackGroundTask backGroundTask = new BackGroundTask(mergeAreas);
-                backGroundTask.Start(new CancelableMethod(mergeAreas.SafelyUnMergeAndFill));
-            }
-            catch (Exception Ex)
-            {
-                System.Windows.Forms.MessageBox.Show(Ex.Message);
-            }
-            finally
-            {
-                CE.EndTask(); 
-            }
+
         }
 
-        private void ButtonVideoLength_Click(object sender, RibbonControlEventArgs e)
+        private async void ButtonVideoLength_ClickAsync(object sender, RibbonControlEventArgs e)
         {
-            CE.StartTask();
+            ExcelStatic.StartTask();
             try
             {
-                VideoLength videoLength = new VideoLength();
-                BackGroundTask backGroundTask = new BackGroundTask(videoLength);
-                backGroundTask.Start(new CancelableMethod(videoLength.Start));
+                ExcelConcurrentTask excelConcurrent = new ExcelConcurrentTask(new MediaDurationChecker());
+                await excelConcurrent.StartAsync();
             }
             catch (Exception Ex)
             {
@@ -62,13 +48,13 @@ namespace _1Math
             }
             finally
             {
-                CE.EndTask();
+                ExcelStatic.EndTask();
             }
-
         }
         private async void ButtonToEnglish_ClickAsync(object sender, RibbonControlEventArgs e)
         {
-            CE.StartTask();
+
+            ExcelStatic.StartTask();
             try
             {
                 Translator translator = new Translator(Properties.Resources.AzureCognitiveBaseUrl, Properties.Resources.AzureCognitiveKey);
@@ -80,7 +66,7 @@ namespace _1Math
             }
             finally
             {
-                CE.EndTask();
+                ExcelStatic.EndTask();
             }
 
         }

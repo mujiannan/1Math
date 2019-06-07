@@ -142,6 +142,7 @@
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
     <Reference Include="Microsoft.Office.Tools.Excel.v4.0.Utilities, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+    <Reference Include="netstandard, Version=2.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51" />
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -187,8 +188,9 @@
     can be found.
   -->
   <ItemGroup>
-    <Compile Include="BackGroudTask.cs" />
+    <Compile Include="MergeAreas.cs" />
     <Compile Include="DotNetPlayer.cs" />
+    <Compile Include="ExcelConcurrent.cs" />
     <Compile Include="FormWPF.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -208,13 +210,12 @@
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Ribbon1.cs">
+    <Compile Include="Ribbon1Math.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Ribbon1.Designer.cs">
-      <DependentUpon>Ribbon1.cs</DependentUpon>
+    <Compile Include="Ribbon1Math.Designer.cs">
+      <DependentUpon>Ribbon1Math.cs</DependentUpon>
     </Compile>
-    <Compile Include="Url.cs" />
     <Compile Include="WPFTranslate.xaml.cs">
       <DependentUpon>WPFTranslate.xaml</DependentUpon>
     </Compile>
@@ -231,8 +232,8 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <EmbeddedResource Include="Ribbon1.resx">
-      <DependentUpon>Ribbon1.cs</DependentUpon>
+    <EmbeddedResource Include="Ribbon1Math.resx">
+      <DependentUpon>Ribbon1Math.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="StatusForm.resx">
       <DependentUpon>StatusForm.cs</DependentUpon>
@@ -320,11 +321,10 @@
     <SignManifests>true</SignManifests>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestKeyFile>
-    </ManifestKeyFile>
+    <ManifestKeyFile>1Math_TemporaryKey.pfx</ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>B48269FD4EBF55093AC3B4E08AF048BB498C6162</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>20C8D88A609E4D6DBCA8E06FBCE471D8EF9120F4</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>false</SignAssembly>

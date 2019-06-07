@@ -52,7 +52,8 @@ namespace _1Math
 
         private async void ButtonStartTranslate_ClickAsync(object sender, RoutedEventArgs e)
         {
-            CE.StartTask();
+            System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
+            ExcelStatic.StartTask();
             try
             {
                 Translator translator = new Translator(Properties.Resources.AzureCognitiveBaseUrl, Properties.Resources.AzureCognitiveKey);
@@ -68,7 +69,7 @@ namespace _1Math
                 }
                 translator.ProgressChange += Translator_ProgressChange;
                 await Main.TranslateSelectionAsync(toLanguageCode, translator);
-                this.Dispatcher.Invoke(new Action(() => this.TextBlockTime.Text = "耗时: " + CE.Elapse + "秒"));
+                this.Dispatcher.Invoke(new Action(() => this.TextBlockTime.Text = "耗时: " + stopwatch.Elapsed.TotalSeconds + "秒"));
             }
             catch (Exception Ex)
             {
@@ -76,7 +77,8 @@ namespace _1Math
             }
             finally
             {
-                CE.EndTask();
+                ExcelStatic.EndTask();
+                stopwatch.Stop();
             }
         }
 
