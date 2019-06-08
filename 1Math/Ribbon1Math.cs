@@ -3,6 +3,7 @@ using Microsoft.Office.Tools.Ribbon;
 using System;
 using System.Threading;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace _1Math
 {
@@ -31,7 +32,36 @@ namespace _1Math
         }
         private async void ButtonAntiMerge_ClickAsync(object sender, RibbonControlEventArgs e)
         {
-
+#if DEBUG
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+#endif
+            ExcelStatic.StartTask();
+            MergeAreas mergeAreas = new MergeAreas();
+            StatusForm statusForm = new StatusForm();
+            statusForm.Show();
+            mergeAreas.Reportor.MessageChange += statusForm.MessageLabel_TextChange;
+            mergeAreas.Reportor.ProgressChange += statusForm.ProgressBar_ValueChange;
+            CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+            statusForm.FormClosing += delegate
+            {
+                cancellationTokenSource.Cancel();
+            };
+            try
+            {
+                await mergeAreas.SafelyUnMergeAndFill(cancellationTokenSource.Token);
+            }
+            catch (Exception Ex)
+            {
+                System.Windows.Forms.MessageBox.Show(Ex.Message);
+            }
+            finally
+            {
+                ExcelStatic.EndTask();
+            }
+#if DEBUG
+            System.Windows.Forms.MessageBox.Show($"耗时{stopwatch.Elapsed.TotalSeconds.ToString()}秒");
+#endif
         }
 
         private async void ButtonVideoLength_ClickAsync(object sender, RibbonControlEventArgs e)

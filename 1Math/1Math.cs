@@ -65,6 +65,7 @@ namespace _1Math
         public static async Task TranslateSelectionAsync(string toLanguageCode, Translator translator)
         {
             Excel.Range selection = ExcelStatic.GetSelectionAsRange();
+
             int m = selection.Rows.Count, n = selection.Columns.Count;
             for (int i = 0; i < m; i++)
             {
@@ -86,7 +87,6 @@ namespace _1Math
             }
             selection.Offset[0, n].Value = translationArr;
         }
-
     }
     internal class ExcelConcurrentTask
     {
@@ -102,8 +102,8 @@ namespace _1Math
             CancellationToken cancellationToken = _cancellationTokenSource.Token;
             StatusForm statusForm = new StatusForm();
             statusForm.Show();
-            _excelConcurrent.MessageChange += statusForm.MessageLabel_TextChange;
-            _excelConcurrent.ProgressChange += statusForm.ProgressBar_ValueChange;
+            _excelConcurrent.Reportor.MessageChange += statusForm.MessageLabel_TextChange;
+            _excelConcurrent.Reportor.ProgressChange += statusForm.ProgressBar_ValueChange;
             statusForm.FormClosing += StatusForm_FormClosing;
             await _excelConcurrent.StartAsync(cancellationToken);
         }

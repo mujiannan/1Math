@@ -96,7 +96,7 @@ namespace _1Math
             }
 
         }
-        private void Translation_ProgressChange(object Sender, ProgressEventArgs progressEventArgs)
+        private void Translation_ProgressChange(object Sender, Reportor.ProgressEventArgs progressEventArgs)
         {
             try
             {

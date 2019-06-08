@@ -30,10 +30,10 @@
     <DefineConstants>VSTO40</DefineConstants>
     <IsWebBootstrapper>False</IsWebBootstrapper>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <PublishUrl>D:\OneDrive\MySoftWare\VSTO\1Math1.0.0.22\</PublishUrl>
+    <PublishUrl>D:\OneDrive\MySoftWare\VSTO\1Math1.0.0.23\</PublishUrl>
     <InstallUrl />
     <TargetCulture>zh-chs</TargetCulture>
-    <ApplicationVersion>1.0.0.23</ApplicationVersion>
+    <ApplicationVersion>1.0.0.24</ApplicationVersion>
     <AutoIncrementApplicationRevision>true</AutoIncrementApplicationRevision>
     <UpdateEnabled>true</UpdateEnabled>
     <UpdateInterval>7</UpdateInterval>
@@ -188,8 +188,8 @@
     can be found.
   -->
   <ItemGroup>
+    <Compile Include="IHasReportor.cs" />
     <Compile Include="MergeAreas.cs" />
-    <Compile Include="DotNetPlayer.cs" />
     <Compile Include="ExcelConcurrent.cs" />
     <Compile Include="FormWPF.cs">
       <SubType>Form</SubType>
@@ -197,7 +197,6 @@
     <Compile Include="FormWPF.Designer.cs">
       <DependentUpon>FormWPF.cs</DependentUpon>
     </Compile>
-    <Compile Include="IStatusReportable.cs" />
     <Compile Include="Ribbon.cs">
       <XmlRibbon>true</XmlRibbon>
     </Compile>

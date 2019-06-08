@@ -19,7 +19,7 @@ namespace _1Math
         {
 
         }
-        public void MessageLabel_TextChange(object Sender, MessageEventArgs messageEventArgs)
+        public void MessageLabel_TextChange(object Sender, Reportor.MessageEventArgs messageEventArgs)
         {
             if (this.IsDisposed)
             {
@@ -34,7 +34,7 @@ namespace _1Math
                 MessageLabel.Text = messageEventArgs.NewMessage;
             }
         }
-        public void ProgressBar_ValueChange(object Sender, ProgressEventArgs progressEventArgs)
+        public void ProgressBar_ValueChange(object Sender, Reportor.ProgressEventArgs progressEventArgs)
         {
             int value = (int)(100 * progressEventArgs.NewProgress);
             if (this.IsDisposed)
