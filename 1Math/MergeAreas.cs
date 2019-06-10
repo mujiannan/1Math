@@ -18,12 +18,20 @@ namespace _1Math
         public Reportor Reportor { get; private set; }
         private void Initialize()
         {
+            if (_target==null)
+            {
+                throw new Exception("PleaseGiveMeAnExcelRange");
+            }
+            if (_target.Areas.Count > 1)
+            {
+                throw new Exception("DiscontinuousExcelRange");
+            }
             _application = _target.Application;
             Reportor = new Reportor(this);
         }
         public MergeAreas()
         {
-            _target = Globals.ThisAddIn.Application.Selection;//默认的当然是Selection
+            _target = Globals.ThisAddIn.Application.Selection as Excel.Range;//默认的当然是Selection
             Initialize();
         }
         public MergeAreas(Excel.Range In)

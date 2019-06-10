@@ -59,6 +59,7 @@ namespace _1Math
         {
             Globals.ThisAddIn.Application.ScreenUpdating = true;
         }
+        public static int[] ResultOffset { get; set; }
     }
     public static class Main
     {
@@ -85,7 +86,7 @@ namespace _1Math
                     t++;
                 }
             }
-            selection.Offset[0, n].Value = translationArr;
+            selection.Offset[m*ExcelStatic.ResultOffset[0], n*ExcelStatic.ResultOffset[1]].Value = translationArr;
         }
     }
     internal class ExcelConcurrentTask

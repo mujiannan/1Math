@@ -38,6 +38,8 @@ namespace _1Math
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Ribbon1Math));
+            Microsoft.Office.Tools.Ribbon.RibbonDropDownItem ribbonDropDownItemImpl1 = this.Factory.CreateRibbonDropDownItem();
+            Microsoft.Office.Tools.Ribbon.RibbonDropDownItem ribbonDropDownItemImpl2 = this.Factory.CreateRibbonDropDownItem();
             this.Tab1Math = this.Factory.CreateRibbonTab();
             this.GroupNet = this.Factory.CreateRibbonGroup();
             this.ButtonUrlCheck = this.Factory.CreateRibbonButton();
@@ -47,10 +49,17 @@ namespace _1Math
             this.GroupText = this.Factory.CreateRibbonGroup();
             this.ButtonToEnglish = this.Factory.CreateRibbonSplitButton();
             this.ButtonTranslate = this.Factory.CreateRibbonButton();
+            this.GroupOffSet = this.Factory.CreateRibbonGroup();
+            this.ToggleButtonAutoOffSet = this.Factory.CreateRibbonToggleButton();
+            this.BoxOffSet = this.Factory.CreateRibbonBox();
+            this.DropDownOffSet = this.Factory.CreateRibbonDropDown();
+            this.editBoxFactor = this.Factory.CreateRibbonEditBox();
             this.Tab1Math.SuspendLayout();
             this.GroupNet.SuspendLayout();
             this.GroupDataCleaner.SuspendLayout();
             this.GroupText.SuspendLayout();
+            this.GroupOffSet.SuspendLayout();
+            this.BoxOffSet.SuspendLayout();
             this.SuspendLayout();
             // 
             // Tab1Math
@@ -58,6 +67,7 @@ namespace _1Math
             this.Tab1Math.Groups.Add(this.GroupNet);
             this.Tab1Math.Groups.Add(this.GroupDataCleaner);
             this.Tab1Math.Groups.Add(this.GroupText);
+            this.Tab1Math.Groups.Add(this.GroupOffSet);
             this.Tab1Math.Label = "1Math";
             this.Tab1Math.Name = "Tab1Math";
             this.Tab1Math.Position = this.Factory.RibbonPosition.AfterOfficeId("TabHome");
@@ -122,9 +132,52 @@ namespace _1Math
             this.ButtonTranslate.ShowImage = true;
             this.ButtonTranslate.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.ButtonTranslate_Click);
             // 
-            // Ribbon1
+            // GroupOffSet
             // 
-            this.Name = "Ribbon1";
+            this.GroupOffSet.Items.Add(this.ToggleButtonAutoOffSet);
+            this.GroupOffSet.Items.Add(this.BoxOffSet);
+            this.GroupOffSet.Label = "设置";
+            this.GroupOffSet.Name = "GroupOffSet";
+            // 
+            // ToggleButtonAutoOffSet
+            // 
+            this.ToggleButtonAutoOffSet.Label = "自动输出偏移：右1*n";
+            this.ToggleButtonAutoOffSet.Name = "ToggleButtonAutoOffSet";
+            this.ToggleButtonAutoOffSet.ScreenTip = "指示数据输出的位置";
+            this.ToggleButtonAutoOffSet.ShowImage = true;
+            this.ToggleButtonAutoOffSet.SuperTip = "在工作表上读取数据并回写Excel时的“结果”相对于“数据源”的偏移量";
+            this.ToggleButtonAutoOffSet.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.ToggleButtonAutoOffSet_Click);
+            // 
+            // BoxOffSet
+            // 
+            this.BoxOffSet.Items.Add(this.DropDownOffSet);
+            this.BoxOffSet.Items.Add(this.editBoxFactor);
+            this.BoxOffSet.Name = "BoxOffSet";
+            this.BoxOffSet.Visible = false;
+            // 
+            // DropDownOffSet
+            // 
+            ribbonDropDownItemImpl1.Label = "右";
+            ribbonDropDownItemImpl2.Label = "左";
+            this.DropDownOffSet.Items.Add(ribbonDropDownItemImpl1);
+            this.DropDownOffSet.Items.Add(ribbonDropDownItemImpl2);
+            this.DropDownOffSet.Label = "方向：";
+            this.DropDownOffSet.Name = "DropDownOffSet";
+            this.DropDownOffSet.ScreenTip = "偏移方向（左右）";
+            this.DropDownOffSet.SelectionChanged += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.DropDownOffSet_SelectionChanged);
+            // 
+            // editBoxFactor
+            // 
+            this.editBoxFactor.Label = "倍率：";
+            this.editBoxFactor.Name = "editBoxFactor";
+            this.editBoxFactor.ScreenTip = "偏移倍率值（数字）";
+            this.editBoxFactor.SuperTip = "将以源数据的列数乘以次数值作为偏移量，例如，源数据共三列，你在此处输入“2”，则偏移量为2×3=6.";
+            this.editBoxFactor.Text = "2";
+            this.editBoxFactor.TextChanged += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.EditBoxFactor_TextChanged);
+            // 
+            // Ribbon1Math
+            // 
+            this.Name = "Ribbon1Math";
             this.RibbonType = "Microsoft.Excel.Workbook";
             this.Tabs.Add(this.Tab1Math);
             this.Load += new Microsoft.Office.Tools.Ribbon.RibbonUIEventHandler(this.Ribbon1_Load);
@@ -136,6 +189,10 @@ namespace _1Math
             this.GroupDataCleaner.PerformLayout();
             this.GroupText.ResumeLayout(false);
             this.GroupText.PerformLayout();
+            this.GroupOffSet.ResumeLayout(false);
+            this.GroupOffSet.PerformLayout();
+            this.BoxOffSet.ResumeLayout(false);
+            this.BoxOffSet.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -156,6 +213,11 @@ namespace _1Math
         internal RibbonGroup GroupText;
         internal RibbonSplitButton ButtonToEnglish;
         internal RibbonButton ButtonTranslate;
+        internal RibbonGroup GroupOffSet;
+        internal RibbonToggleButton ToggleButtonAutoOffSet;
+        internal RibbonDropDown DropDownOffSet;
+        internal RibbonBox BoxOffSet;
+        internal RibbonEditBox editBoxFactor;
     }
 
     partial class ThisRibbonCollection

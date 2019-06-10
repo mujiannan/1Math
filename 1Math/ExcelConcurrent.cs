@@ -18,6 +18,7 @@ namespace _1Math
         private int _m;
         private int _n;
         private dynamic[] _results;
+        public int[] ResultOffSet { get; set; } = new int[2]{0,1};
 
         //concurrent controller and progress reportor
         int _maxConcurrent = 2;
@@ -128,7 +129,7 @@ namespace _1Math
 #endif
             if (!cancellationToken.IsCancellationRequested)
             {
-                _sourcesRange.Offset[0, _n].Value = results;
+                _sourcesRange.Offset[_m*ResultOffSet[0],_n*ResultOffSet[1]].Value = results;
             }
             stopwatch.Stop();
             Reportor.Report($"耗时{stopwatch.Elapsed.TotalSeconds}秒，{_completedCount}/{_totalCount}");

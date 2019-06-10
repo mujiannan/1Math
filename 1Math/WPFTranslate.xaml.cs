@@ -53,6 +53,7 @@ namespace _1Math
         private async void ButtonStartTranslate_ClickAsync(object sender, RoutedEventArgs e)
         {
             System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
+            stopwatch.Start();
             ExcelStatic.StartTask();
             try
             {
@@ -69,7 +70,7 @@ namespace _1Math
                 }
                 translator.ProgressChange += Translator_ProgressChange;
                 await Main.TranslateSelectionAsync(toLanguageCode, translator);
-                this.Dispatcher.Invoke(new Action(() => this.TextBlockTime.Text = "耗时: " + stopwatch.Elapsed.TotalSeconds + "秒"));
+                this.Dispatcher.Invoke(() => this.TextBlockTime.Text = "耗时: " + stopwatch.Elapsed.TotalSeconds + "秒");
             }
             catch (Exception Ex)
             {
