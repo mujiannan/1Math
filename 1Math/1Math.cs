@@ -59,7 +59,7 @@ namespace _1Math
         {
             Globals.ThisAddIn.Application.ScreenUpdating = true;
         }
-        public static int[] ResultOffset { get; set; }
+        public static int[] ResultOffset { get; set; } = new int[2] { 0, 1 };
     }
     public static class Main
     {

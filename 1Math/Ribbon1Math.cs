@@ -165,5 +165,32 @@ namespace _1Math
             }
             ExcelStatic.ResultOffset = OffSet;
         }
+
+        private async void ButtonQRAsync_Click(object sender, RibbonControlEventArgs e)
+        {
+            string selectedPath;
+            using (System.Windows.Forms.FolderBrowserDialog folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog())
+            {
+                folderBrowserDialog.Description = "请选择二维码的保存位置：";
+                if (folderBrowserDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                    selectedPath = folderBrowserDialog.SelectedPath;
+                }
+                else
+                {
+                    return;
+                }
+            }
+            try
+            {
+                QRGenerator qRGenerator = new QRGenerator(selectedPath);
+                ExcelConcurrentTask task = new ExcelConcurrentTask(qRGenerator);
+                await task.StartAsync();
+            }
+            catch (Exception Ex)
+            {
+                System.Windows.Forms.MessageBox.Show(Ex.Message);
+            }
+        }
     }
 }

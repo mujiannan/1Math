@@ -7,7 +7,7 @@ using Excel = Microsoft.Office.Interop.Excel;
 using System.Threading;
 using System.Net.Http;
 using System.Windows.Media;
-
+using QRCoder;
 namespace _1Math
 {
     internal abstract class ExcelConcurrent : IHasReportor//定位：用于批量执行针对Excel.Range的任务
@@ -127,15 +127,24 @@ namespace _1Math
 #if DEBUG
             string t4 = stopwatch.Elapsed.TotalSeconds.ToString();
 #endif
-            if (!cancellationToken.IsCancellationRequested)
-            {
-                _sourcesRange.Offset[_m*ResultOffSet[0],_n*ResultOffSet[1]].Value = results;
-            }
+            await WriteBackAsync(results,cancellationToken);
             stopwatch.Stop();
             Reportor.Report($"耗时{stopwatch.Elapsed.TotalSeconds}秒，{_completedCount}/{_totalCount}");
 #if DEBUG
-            System.Windows.Forms.MessageBox.Show($"从Excel读数据{t1} 构建任务{t2} 执行任务{t3} 回写Excel{t4}");
+            System.Windows.Forms.MessageBox.Show($"从Excel读完数据{t1} 构建完任务{t2} 执行完任务{t3} 回写完Excel{t4}");
 #endif
+        }
+
+        //2019年6月12日 为了兼容多功能，拆分出回写方法并使之可覆盖
+        protected virtual async Task WriteBackAsync(dynamic[,] results,CancellationToken cancellationToken)//等着覆盖
+        {
+            await Task.Run(() =>
+            {
+                if (!cancellationToken.IsCancellationRequested)
+                {
+                    _sourcesRange.Offset[_m * ResultOffSet[0], _n * ResultOffSet[1]].Value = results;
+                }
+            });
         }
 
         //任务分配
@@ -222,6 +231,38 @@ namespace _1Math
                 return (result);
             });
             return duration;
+        }
+    }
+    internal sealed class QRGenerator : ExcelConcurrent
+    {
+        internal QRGenerator(string path)
+        {
+            _path = path;
+        }
+        private string _path;
+        private volatile int _id=0;
+        protected override async Task<dynamic> WorkAsync(string source, CancellationToken cancellationToken)
+        {
+            System.Drawing.Bitmap bitmap;
+            Task<System.Drawing.Bitmap> task = Task.Run(()=>
+             {
+                 using (QRCodeGenerator qRCodeGenerator = new QRCodeGenerator())
+                 {
+                     using (QRCodeData qRCodeData = qRCodeGenerator.CreateQrCode(source, QRCodeGenerator.ECCLevel.H))
+                     {
+                         using(QRCode qRCode = new QRCode(qRCodeData))
+                         {
+                             return qRCode.GetGraphic(20);
+                         }
+                     }
+                 }
+             });
+            bitmap =await task;
+            int ID = ++_id;
+            string path = _path + "\\" +ID+ ".jpeg";
+            bitmap.Save(path, System.Drawing.Imaging.ImageFormat.Jpeg);
+            bitmap.Dispose();
+            return ID.ToString();
         }
     }
 }

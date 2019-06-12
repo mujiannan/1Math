@@ -54,6 +54,7 @@ namespace _1Math
             this.BoxOffSet = this.Factory.CreateRibbonBox();
             this.DropDownOffSet = this.Factory.CreateRibbonDropDown();
             this.editBoxFactor = this.Factory.CreateRibbonEditBox();
+            this.buttonQR = this.Factory.CreateRibbonButton();
             this.Tab1Math.SuspendLayout();
             this.GroupNet.SuspendLayout();
             this.GroupDataCleaner.SuspendLayout();
@@ -112,6 +113,7 @@ namespace _1Math
             // GroupText
             // 
             this.GroupText.Items.Add(this.ButtonToEnglish);
+            this.GroupText.Items.Add(this.buttonQR);
             this.GroupText.Label = "文本处理";
             this.GroupText.Name = "GroupText";
             // 
@@ -175,6 +177,13 @@ namespace _1Math
             this.editBoxFactor.Text = "2";
             this.editBoxFactor.TextChanged += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.EditBoxFactor_TextChanged);
             // 
+            // buttonQR
+            // 
+            this.buttonQR.Label = "生成二维码";
+            this.buttonQR.Name = "buttonQR";
+            this.buttonQR.ScreenTip = "批量生成二维码";
+            this.buttonQR.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.ButtonQRAsync_Click);
+            // 
             // Ribbon1Math
             // 
             this.Name = "Ribbon1Math";
@@ -218,6 +227,7 @@ namespace _1Math
         internal RibbonDropDown DropDownOffSet;
         internal RibbonBox BoxOffSet;
         internal RibbonEditBox editBoxFactor;
+        internal RibbonButton buttonQR;
     }
 
     partial class ThisRibbonCollection
