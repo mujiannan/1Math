@@ -2,7 +2,7 @@
 
 namespace _1Math
 {
-    public interface IHasReportor
+    public interface IReportor
     {
         Reportor Reportor { get; }
     }

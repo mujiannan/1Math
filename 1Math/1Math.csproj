@@ -194,7 +194,7 @@
     can be found.
   -->
   <ItemGroup>
-    <Compile Include="IHasReportor.cs" />
+    <Compile Include="IReportor.cs" />
     <Compile Include="MergeAreas.cs" />
     <Compile Include="ExcelConcurrent.cs" />
     <Compile Include="FormWPF.cs">
@@ -244,6 +244,7 @@
       <DependentUpon>StatusForm.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="1Math_TemporaryKey.pfx" />
+    <None Include="app.config" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -313,10 +314,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include=".gitattributes" />
-    <Content Include=".gitignore" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

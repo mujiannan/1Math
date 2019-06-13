@@ -10,7 +10,7 @@ using System.Windows.Media;
 using QRCoder;
 namespace _1Math
 {
-    internal abstract class ExcelConcurrent : IHasReportor//定位：用于批量执行针对Excel.Range的任务
+    internal abstract class ExcelConcurrent : IReportor//定位：用于批量执行针对Excel.Range的任务
     {
         //source and results
         private Excel.Range _sourcesRange;
