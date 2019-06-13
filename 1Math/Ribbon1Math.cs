@@ -93,7 +93,7 @@ namespace _1Math
             ExcelStatic.StartTask();
             try
             {
-                Translator translator = new Translator(Properties.Resources.AzureCognitiveBaseUrl, Properties.Resources.AzureCognitiveKey);
+                Translator translator = new Translator(Properties.Resources.AzureCognitiveBaseUrl, Secret.AzureCognitiveKey);
                 await Main.TranslateSelectionAsync("en", translator);
             }
             catch (Exception Ex)

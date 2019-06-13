@@ -57,7 +57,7 @@ namespace _1Math
             ExcelStatic.StartTask();
             try
             {
-                Translator translator = new Translator(Properties.Resources.AzureCognitiveBaseUrl, Properties.Resources.AzureCognitiveKey);
+                Translator translator = new Translator(Properties.Resources.AzureCognitiveBaseUrl, Secret.AzureCognitiveKey);
                 string toLanguageNativeName = (string)this.ComboBoxToLanguage.SelectedItem;
                 string toLanguageCode = string.Empty;
                 foreach (string code in translator.TranslatableLanguages.Keys)
