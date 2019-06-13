@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<customUI onLoad="Ribbon_Load" xmlns="http://schemas.microsoft.com/office/2006/01/customui">
+    <ribbon>
+        <tabs>
+            <tab id="Tab1Math" insertAfterMso="TabHome" label="1Math">
+                <group id="GroupNet" label="网络">
+                    <button id="ButtonUrlCheck" onAction="ButtonUrlCheck_Click" label="链接有效性" />
+                    <button id="buttonVideoLength" onAction="ButtonVideoLength_Click" label="视频时长" />
+                </group>
+                <group id="GroupDataCleaner" label="数据清洗">
+                    <button id="ButtonAntiMerge" onAction="ButtonAntiMerge_Click" screentip="取消合并单元格" supertip="批量取消选取中的合并单元格，并相对安全地自动填充。如果你只选中了一个单元格，那么会默认处理整个工作表。" label="取消合并" showImage="false" />
+                </group>
+                <group id="GroupText" label="文本处理">
+                    <button id="ButtonToEnglish" onAction="ButtonToEnglish_Click" screentip="批量中译英" supertip="选中一块含有有效文本的连续单元格，点击按钮，译文将自动置于选区右侧。作者太懒，连个字段都不想加……所以就只放了需要用到的中译英" label="译" showImage="false" />
+                    <comboBox id="comboBoxFromLanguage" label="自" showLabel="false" showImage="false" />
+                </group>
+            </tab>
+        </tabs>
+    </ribbon>
+</customUI>
