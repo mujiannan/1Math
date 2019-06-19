@@ -176,26 +176,29 @@ namespace _1Math
                     return;
                 }
                 string source = _sources[next];
-                _results[next] = await WorkAsync(source, cancellationToken);
+                _results[next] = await WorkAsync(source,next,cancellationToken);
                 CompleteOneTask();
                 next = GetNext();//2019年6月7日脑残了，忘了加这句……
             }
         }
-        protected abstract Task<dynamic> WorkAsync(string source, CancellationToken cancellationToken);
+        protected abstract Task<dynamic> WorkAsync(string source, int sourceID,CancellationToken cancellationToken);
     }
     internal sealed class AccessibilityChecker:ExcelConcurrent
     {
-        protected override async Task<dynamic> WorkAsync(string source, CancellationToken cancellationToken)
+        public AccessibilityChecker() : base(null, Environment.ProcessorCount * 4) { }
+        protected override async Task<dynamic> WorkAsync(string source,int sourceID ,CancellationToken cancellationToken)
         {
             string url =(string)source;
             string accessibility;
             using (HttpClient checkClient = new HttpClient())
             {
                 checkClient.Timeout = new TimeSpan(0, 0, 10);
+                HttpResponseMessage response;
                 try
                 {
-                    var response = await checkClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+                    response = await checkClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
                     accessibility = response.IsSuccessStatusCode.ToString();
+                    response.Dispose();//Must dispose it, otherwise the internet will run out of bandwidth
                 }
                 catch (Exception Ex)
                 {
@@ -207,7 +210,7 @@ namespace _1Math
     }
     internal sealed class MediaDurationChecker : ExcelConcurrent
     {
-        protected override async Task<dynamic> WorkAsync(string source, CancellationToken cancellationToken)
+        protected override async Task<dynamic> WorkAsync(string source,int sourceID, CancellationToken cancellationToken)
         {
             double duration;
             duration = await Task.Run(()=>
@@ -240,8 +243,7 @@ namespace _1Math
             _path = path;
         }
         private string _path;
-        private volatile int _id=0;
-        protected override async Task<dynamic> WorkAsync(string source, CancellationToken cancellationToken)
+        protected override async Task<dynamic> WorkAsync(string source,int sourceID, CancellationToken cancellationToken)
         {
             System.Drawing.Bitmap bitmap;
             Task<System.Drawing.Bitmap> task = Task.Run(()=>
@@ -258,11 +260,10 @@ namespace _1Math
                  }
              });
             bitmap =await task;
-            int ID = ++_id;
-            string path = _path + "\\" +ID+ ".jpeg";
-            bitmap.Save(path, System.Drawing.Imaging.ImageFormat.Jpeg);
+            string fullName = _path + "\\" +sourceID+ ".jpeg";
+            bitmap.Save(fullName, System.Drawing.Imaging.ImageFormat.Jpeg);
             bitmap.Dispose();
-            return ID.ToString();
+            return fullName;
         }
     }
 }

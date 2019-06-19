@@ -22,7 +22,7 @@ namespace _1Math
         }
         private void SetAcceptLanguages()
         {
-            Translator translator = new Translator(Properties.Resources.AzureCognitiveBaseUrl, Properties.Resources.AzureCognitiveKey);
+            Translator translator = new Translator(Properties.Resources.AzureCognitiveBaseUrl, Secret.AzureCognitiveKey);
             Dictionary<string, Translator.Language> translatableLanguages;
             try
             {
