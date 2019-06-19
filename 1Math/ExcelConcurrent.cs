@@ -185,13 +185,14 @@ namespace _1Math
     }
     internal sealed class AccessibilityChecker:ExcelConcurrent
     {
-        public AccessibilityChecker() : base(null, Environment.ProcessorCount*4) { }
+        public AccessibilityChecker() : base(null, Environment.ProcessorCount * 4) { }
         protected override async Task<dynamic> WorkAsync(string source,int sourceID ,CancellationToken cancellationToken)
         {
             string url =(string)source;
             string accessibility;
             using (HttpClient checkClient = new HttpClient())
             {
+                checkClient.Timeout = new TimeSpan(0, 0, 10);
                 HttpResponseMessage response;
                 try
                 {
