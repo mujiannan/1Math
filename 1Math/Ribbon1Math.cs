@@ -46,8 +46,15 @@ namespace _1Math
             {
                 ExcelStatic.StartTask();
                 MergeAreas mergeAreas = new MergeAreas();
-
+                StatusForm statusForm = new StatusForm();
+                statusForm.Show();
+                mergeAreas.Reportor.MessageChange += statusForm.MessageLabel_TextChange;
+                mergeAreas.Reportor.ProgressChange += statusForm.ProgressBar_ValueChange;
                 CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+                statusForm.FormClosing += delegate
+                {
+                    cancellationTokenSource.Cancel();
+                };
                 await mergeAreas.SafelyUnMergeAndFill(cancellationTokenSource.Token);
             }
             catch (Exception Ex)
@@ -62,6 +69,24 @@ namespace _1Math
             System.Windows.Forms.MessageBox.Show($"耗时{stopwatch.Elapsed.TotalSeconds.ToString()}秒");
 #endif
         }
+
+        private async void ButtonVideoLength_ClickAsync(object sender, RibbonControlEventArgs e)
+        {
+            ExcelStatic.StartTask();
+            try
+            {
+                ExcelConcurrentTask excelConcurrent = new ExcelConcurrentTask(new MediaDurationChecker() { ResultOffSet = this.OffSet });
+                await excelConcurrent.StartAsync();
+            }
+            catch (Exception Ex)
+            {
+                System.Windows.Forms.MessageBox.Show(Ex.Message);
+            }
+            finally
+            {
+                ExcelStatic.EndTask();
+            }
+        }
         private async void ButtonToEnglish_ClickAsync(object sender, RibbonControlEventArgs e)
         {
 
@@ -69,7 +94,7 @@ namespace _1Math
             try
             {
                 Translator translator = new Translator(Properties.Resources.AzureCognitiveBaseUrl, Secret.AzureCognitiveKey);
-                await MainController.TranslateSelectionAsync("en", translator);
+                await Main.TranslateSelectionAsync("en", translator);
             }
             catch (Exception Ex)
             {
@@ -83,8 +108,8 @@ namespace _1Math
         }
         private void ButtonTranslate_Click(object sender, RibbonControlEventArgs e)
         {
-            TranslatorSettingsForm translatorSettingsWPF = new TranslatorSettingsForm();
-            translatorSettingsWPF.Show();
+            FormWPF formWPF = new FormWPF();
+            formWPF.Show();
         }
 
         private void ToggleButtonAutoOffSet_Click(object sender, RibbonControlEventArgs e)
@@ -165,32 +190,6 @@ namespace _1Math
             catch (Exception Ex)
             {
                 System.Windows.Forms.MessageBox.Show(Ex.Message);
-            }
-        }
-
-        private async void SplitButtonMediaDurationAsync_Click(object sender, RibbonControlEventArgs e)
-        {
-            ExcelStatic.StartTask();
-            try
-            {
-                MediaDurationChecker mediaDurationChecker = new MediaDurationChecker
-                {
-                    ResultOffSet = this.OffSet,
-                    CheckDuration = true
-                };
-                ExcelConcurrentTask excelConcurrent = new ExcelConcurrentTask(mediaDurationChecker);
-                StatusForm statusForm = new StatusForm();
-                statusForm.Show();
-                statusForm.progressBar1.bin
-                await excelConcurrent.StartAsync();
-            }
-            catch (Exception Ex)
-            {
-                System.Windows.Forms.MessageBox.Show(Ex.Message);
-            }
-            finally
-            {
-                ExcelStatic.EndTask();
             }
         }
     }

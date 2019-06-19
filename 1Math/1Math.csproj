@@ -28,12 +28,12 @@
     <AssemblyName>1Math</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <DefineConstants>VSTO40</DefineConstants>
-    <IsWebBootstrapper>True</IsWebBootstrapper>
+    <IsWebBootstrapper>False</IsWebBootstrapper>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <PublishUrl>ftp://13.88.14.236/Public/1Math/</PublishUrl>
-    <InstallUrl>http://public.mujiannan.me/1Math/</InstallUrl>
+    <PublishUrl>D:\OneDrive\MySoftWare\VSTO\1Math\</PublishUrl>
+    <InstallUrl />
     <TargetCulture>zh-chs</TargetCulture>
-    <ApplicationVersion>1.0.0.35</ApplicationVersion>
+    <ApplicationVersion>1.0.0.33</ApplicationVersion>
     <AutoIncrementApplicationRevision>true</AutoIncrementApplicationRevision>
     <UpdateEnabled>true</UpdateEnabled>
     <UpdateInterval>7</UpdateInterval>
@@ -197,17 +197,11 @@
     <Compile Include="IReportor.cs" />
     <Compile Include="MergeAreas.cs" />
     <Compile Include="ExcelConcurrent.cs" />
-    <Compile Include="StatusForm.cs">
+    <Compile Include="FormWPF.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="StatusForm.Designer.cs">
-      <DependentUpon>StatusForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="TranslatorSettingsForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="TranslatorSettingsForm.Designer.cs">
-      <DependentUpon>TranslatorSettingsForm.cs</DependentUpon>
+    <Compile Include="FormWPF.Designer.cs">
+      <DependentUpon>FormWPF.cs</DependentUpon>
     </Compile>
     <Compile Include="Properties\Resources.Designer.cs">
       <DependentUpon>Resources.resx</DependentUpon>
@@ -218,6 +212,12 @@
       <XmlRibbon>true</XmlRibbon>
     </Compile>
     <Compile Include="Secret.cs" />
+    <Compile Include="StatusForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="StatusForm.Designer.cs">
+      <DependentUpon>StatusForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -227,25 +227,22 @@
     <Compile Include="Ribbon1Math.Designer.cs">
       <DependentUpon>Ribbon1Math.cs</DependentUpon>
     </Compile>
-    <Compile Include="StatusWPF.xaml.cs">
-      <DependentUpon>StatusWPF.xaml</DependentUpon>
-    </Compile>
     <Compile Include="WPFTranslate.xaml.cs">
       <DependentUpon>WPFTranslate.xaml</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="StatusForm.resx">
-      <DependentUpon>StatusForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="TranslatorSettingsForm.resx">
-      <DependentUpon>TranslatorSettingsForm.cs</DependentUpon>
+    <EmbeddedResource Include="FormWPF.resx">
+      <DependentUpon>FormWPF.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <SubType>Designer</SubType>
-      <Generator>PublicResXFileCodeGenerator</Generator>
+      <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Include="Ribbon1Math.resx">
       <DependentUpon>Ribbon1Math.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="StatusForm.resx">
+      <DependentUpon>StatusForm.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="1Math_TemporaryKey.pfx" />
     <None Include="app.config" />
@@ -314,23 +311,10 @@
     <EmbeddedResource Include="Ribbon.xml" />
   </ItemGroup>
   <ItemGroup>
-    <Page Include="StatusWPF.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="WPFTranslate.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\链接.jpg" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\秒表.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\链接.png" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

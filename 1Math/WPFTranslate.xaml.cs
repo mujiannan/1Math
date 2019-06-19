@@ -69,7 +69,7 @@ namespace _1Math
                     }
                 }
                 translator.ProgressChange += Translator_ProgressChange;
-                await MainController.TranslateSelectionAsync(toLanguageCode, translator);
+                await Main.TranslateSelectionAsync(toLanguageCode, translator);
                 this.Dispatcher.Invoke(() => this.TextBlockTime.Text = "耗时: " + stopwatch.Elapsed.TotalSeconds + "秒");
             }
             catch (Exception Ex)
