@@ -61,7 +61,7 @@ namespace _1Math
         }
         public static int[] ResultOffset { get; set; } = new int[2] { 0, 1 };
     }
-    public static class Main
+    public static class MainController
     {
         public static async Task TranslateSelectionAsync(string toLanguageCode, Translator translator)
         {
@@ -89,29 +89,34 @@ namespace _1Math
             selection.Offset[m*ExcelStatic.ResultOffset[0], n*ExcelStatic.ResultOffset[1]].Value = translationArr;
         }
     }
-    internal class ExcelConcurrentTask
+    internal class ExcelConcurrentTask//VM层
     {
+        double Progress { get; set; }
+        string Message { get; set; }
         CancellationTokenSource _cancellationTokenSource;
         ExcelConcurrent _excelConcurrent;
         internal ExcelConcurrentTask(ExcelConcurrent excelConcurrent)
         {
             _excelConcurrent = excelConcurrent;
+            _excelConcurrent.Reportor.ProgressChange += Reportor_ProgressChange;
+            _excelConcurrent.Reportor.MessageChange += Reportor_MessageChange;
         }
+
+        private void Reportor_MessageChange(object sender, Reportor.MessageEventArgs e)
+        {
+            Message = e.NewMessage;
+        }
+
+        private void Reportor_ProgressChange(object sender, Reportor.ProgressEventArgs e)
+        {
+            Progress = e.NewProgress;
+        }
+
         internal async Task StartAsync()
         {
             _cancellationTokenSource = new CancellationTokenSource();
             CancellationToken cancellationToken = _cancellationTokenSource.Token;
-            StatusForm statusForm = new StatusForm();
-            statusForm.Show();
-            _excelConcurrent.Reportor.MessageChange += statusForm.MessageLabel_TextChange;
-            _excelConcurrent.Reportor.ProgressChange += statusForm.ProgressBar_ValueChange;
-            statusForm.FormClosing += StatusForm_FormClosing;
             await _excelConcurrent.StartAsync(cancellationToken);
-        }
-
-        private void StatusForm_FormClosing(object sender, System.Windows.Forms.FormClosingEventArgs e)
-        {
-            _cancellationTokenSource.Cancel();
         }
     }
    

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace _1Math
+﻿namespace _1Math
 {
     partial class StatusForm
     {
@@ -30,45 +28,30 @@ namespace _1Math
         /// </summary>
         private void InitializeComponent()
         {
-            this.MessageLabel = new System.Windows.Forms.Label();
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.SuspendLayout();
             // 
-            // MessageLabel
-            // 
-            this.MessageLabel.AutoSize = true;
-            this.MessageLabel.Location = new System.Drawing.Point(19, 14);
-            this.MessageLabel.Name = "MessageLabel";
-            this.MessageLabel.Size = new System.Drawing.Size(0, 12);
-            this.MessageLabel.TabIndex = 0;
-            // 
             // progressBar1
             // 
-            this.progressBar1.Location = new System.Drawing.Point(35, 44);
+            this.progressBar1.Location = new System.Drawing.Point(149, 79);
             this.progressBar1.Name = "progressBar1";
-            this.progressBar1.Size = new System.Drawing.Size(513, 23);
-            this.progressBar1.TabIndex = 1;
-            this.progressBar1.Click += new System.EventHandler(this.ProgressBar1_Click);
+            this.progressBar1.Size = new System.Drawing.Size(100, 23);
+            this.progressBar1.TabIndex = 0;
             // 
             // StatusForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(584, 91);
+            this.ClientSize = new System.Drawing.Size(597, 129);
             this.Controls.Add(this.progressBar1);
-            this.Controls.Add(this.MessageLabel);
             this.Name = "StatusForm";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "处理状态";
-            this.TopMost = true;
-            this.Load += new System.EventHandler(this.StatusForm_Load);
+            this.Text = "StatusForm";
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
         #endregion
-        public System.Windows.Forms.Label MessageLabel;
+
         public System.Windows.Forms.ProgressBar progressBar1;
     }
 }

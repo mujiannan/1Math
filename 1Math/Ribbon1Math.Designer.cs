@@ -37,24 +37,24 @@ namespace _1Math
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Ribbon1Math));
             Microsoft.Office.Tools.Ribbon.RibbonDropDownItem ribbonDropDownItemImpl1 = this.Factory.CreateRibbonDropDownItem();
             Microsoft.Office.Tools.Ribbon.RibbonDropDownItem ribbonDropDownItemImpl2 = this.Factory.CreateRibbonDropDownItem();
             this.Tab1Math = this.Factory.CreateRibbonTab();
             this.GroupNet = this.Factory.CreateRibbonGroup();
             this.ButtonUrlCheck = this.Factory.CreateRibbonButton();
-            this.buttonVideoLength = this.Factory.CreateRibbonButton();
+            this.splitButtonMediaDuration = this.Factory.CreateRibbonSplitButton();
             this.GroupDataCleaner = this.Factory.CreateRibbonGroup();
             this.ButtonAntiMerge = this.Factory.CreateRibbonButton();
             this.GroupText = this.Factory.CreateRibbonGroup();
             this.ButtonToEnglish = this.Factory.CreateRibbonSplitButton();
             this.ButtonTranslate = this.Factory.CreateRibbonButton();
+            this.buttonQR = this.Factory.CreateRibbonButton();
             this.GroupOffSet = this.Factory.CreateRibbonGroup();
             this.ToggleButtonAutoOffSet = this.Factory.CreateRibbonToggleButton();
             this.BoxOffSet = this.Factory.CreateRibbonBox();
             this.DropDownOffSet = this.Factory.CreateRibbonDropDown();
             this.editBoxFactor = this.Factory.CreateRibbonEditBox();
-            this.buttonQR = this.Factory.CreateRibbonButton();
+            this.buttonMediaCheckSet = this.Factory.CreateRibbonButton();
             this.Tab1Math.SuspendLayout();
             this.GroupNet.SuspendLayout();
             this.GroupDataCleaner.SuspendLayout();
@@ -76,25 +76,27 @@ namespace _1Math
             // GroupNet
             // 
             this.GroupNet.Items.Add(this.ButtonUrlCheck);
-            this.GroupNet.Items.Add(this.buttonVideoLength);
+            this.GroupNet.Items.Add(this.splitButtonMediaDuration);
             this.GroupNet.Label = "网络";
             this.GroupNet.Name = "GroupNet";
             // 
             // ButtonUrlCheck
             // 
-            this.ButtonUrlCheck.Image = ((System.Drawing.Image)(resources.GetObject("ButtonUrlCheck.Image")));
+            this.ButtonUrlCheck.Image = global::_1Math.Properties.Resources.链接1;
             this.ButtonUrlCheck.Label = "链接有效性";
             this.ButtonUrlCheck.Name = "ButtonUrlCheck";
             this.ButtonUrlCheck.ShowImage = true;
             this.ButtonUrlCheck.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.ButtonUrlCheck_ClickAsync);
             // 
-            // buttonVideoLength
+            // splitButtonMediaDuration
             // 
-            this.buttonVideoLength.Image = ((System.Drawing.Image)(resources.GetObject("buttonVideoLength.Image")));
-            this.buttonVideoLength.Label = "视频时长";
-            this.buttonVideoLength.Name = "buttonVideoLength";
-            this.buttonVideoLength.ShowImage = true;
-            this.buttonVideoLength.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.ButtonVideoLength_ClickAsync);
+            this.splitButtonMediaDuration.Image = global::_1Math.Properties.Resources.秒表;
+            this.splitButtonMediaDuration.Items.Add(this.buttonMediaCheckSet);
+            this.splitButtonMediaDuration.Label = "媒体时长";
+            this.splitButtonMediaDuration.Name = "splitButtonMediaDuration";
+            this.splitButtonMediaDuration.ScreenTip = "检测媒体时长";
+            this.splitButtonMediaDuration.SuperTip = "先选中一块连续区域（包含有效媒体链接），点击后，将在设置的偏移位置显示媒体时长，单位：（秒）";
+            this.splitButtonMediaDuration.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.SplitButtonMediaDurationAsync_Click);
             // 
             // GroupDataCleaner
             // 
@@ -133,6 +135,13 @@ namespace _1Math
             this.ButtonTranslate.ScreenTip = "进行有更多详细设置的批量翻译";
             this.ButtonTranslate.ShowImage = true;
             this.ButtonTranslate.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.ButtonTranslate_Click);
+            // 
+            // buttonQR
+            // 
+            this.buttonQR.Label = "生成二维码";
+            this.buttonQR.Name = "buttonQR";
+            this.buttonQR.ScreenTip = "批量生成二维码";
+            this.buttonQR.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.ButtonQRAsync_Click);
             // 
             // GroupOffSet
             // 
@@ -177,12 +186,13 @@ namespace _1Math
             this.editBoxFactor.Text = "2";
             this.editBoxFactor.TextChanged += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.EditBoxFactor_TextChanged);
             // 
-            // buttonQR
+            // buttonMediaCheckSet
             // 
-            this.buttonQR.Label = "生成二维码";
-            this.buttonQR.Name = "buttonQR";
-            this.buttonQR.ScreenTip = "批量生成二维码";
-            this.buttonQR.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.ButtonQRAsync_Click);
+            this.buttonMediaCheckSet.Label = "媒体信息检测";
+            this.buttonMediaCheckSet.Name = "buttonMediaCheckSet";
+            this.buttonMediaCheckSet.ScreenTip = "更多设置";
+            this.buttonMediaCheckSet.ShowImage = true;
+            this.buttonMediaCheckSet.SuperTip = "可以获取更多媒体信息，包括时长、是否具有视频、是否有音频、分辨率";
             // 
             // Ribbon1Math
             // 
@@ -216,7 +226,6 @@ namespace _1Math
         internal Microsoft.Office.Tools.Ribbon.RibbonTab Tab1Math;
         internal Microsoft.Office.Tools.Ribbon.RibbonGroup GroupNet;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton ButtonUrlCheck;
-        internal Microsoft.Office.Tools.Ribbon.RibbonButton buttonVideoLength;
         internal RibbonGroup GroupDataCleaner;
         internal RibbonButton ButtonAntiMerge;
         internal RibbonGroup GroupText;
@@ -228,6 +237,8 @@ namespace _1Math
         internal RibbonBox BoxOffSet;
         internal RibbonEditBox editBoxFactor;
         internal RibbonButton buttonQR;
+        internal RibbonSplitButton splitButtonMediaDuration;
+        internal RibbonButton buttonMediaCheckSet;
     }
 
     partial class ThisRibbonCollection

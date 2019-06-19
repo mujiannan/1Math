@@ -209,14 +209,38 @@ namespace _1Math
     }
     internal sealed class MediaDurationChecker : ExcelConcurrent
     {
+        public bool CheckDuration { get; set; } = false;
+        public bool CheckHasVideo { get; set; } = false;
+        public bool CheckHasAudio { get; set; } = false;
+        public bool CheckResolution { get; set; } = false;
+        private byte CheckItemsCount
+        {
+            get
+            {
+                byte count = 0;
+                if (CheckDuration) count++;
+                if (CheckHasVideo) count++;
+                if (CheckHasAudio) count++;
+                if (CheckResolution) count++;
+                return count;
+            }
+        }
+
+
         protected override async Task<dynamic> WorkAsync(string source,int sourceID, CancellationToken cancellationToken)
         {
-            double duration;
-            duration = await Task.Run(()=>
+            if (CheckItemsCount==0)
+            {
+                throw new Exception("CheckItemsCount==0");
+            }
+            double duration=0;
+            bool hasVideo=false;
+            bool hasAudio=false;
+            string resolution=string.Empty;
+            await Task.Run(()=>
             {
                 MediaPlayer mediaPlayer = new MediaPlayer();
                 mediaPlayer.Open(new Uri(source));
-                double result=0;
                 DateTime start = DateTime.Now;
                 TimeSpan timeSpan;
                 do
@@ -224,15 +248,52 @@ namespace _1Math
                     Thread.Sleep(50);
                     if (mediaPlayer.NaturalDuration.HasTimeSpan)
                     {
-                        result = mediaPlayer.NaturalDuration.TimeSpan.TotalSeconds;
+                        duration = mediaPlayer.NaturalDuration.TimeSpan.TotalSeconds;
+                        hasVideo = mediaPlayer.HasVideo;
+                        hasAudio = mediaPlayer.HasAudio;
+                        resolution = mediaPlayer.NaturalVideoWidth.ToString() + "*"+ mediaPlayer.NaturalVideoHeight.ToString();
                         mediaPlayer.Stop();
                         mediaPlayer.Close();
                     }
                     timeSpan = DateTime.Now - start;
-                } while (result == 0 && timeSpan.TotalSeconds < 10);
-                return (result);
+                } while (duration == 0 && timeSpan.TotalSeconds < 10);
             });
-            return duration;
+            StringBuilder result = new StringBuilder(16);
+            if (CheckDuration)
+            {
+                result.Append(duration);
+            }
+            if (CheckHasVideo)
+            {
+                if (result.Length>0) result.Append(",");
+                if (hasVideo)
+                {
+                    result.Append("HasVideo");
+                }
+                else
+                {
+                    result.Append("NoVideo");
+                }
+            }
+            if (CheckHasAudio)
+            {
+                if (result.Length > 0) result.Append(",");
+
+                if (hasAudio)
+                {
+                    result.Append(hasAudio);
+                }
+                else
+                {
+                    result.Append("noAudio");
+                }
+            }
+            if (CheckResolution)
+            {
+                if (result.Length>0) result.Append(",");
+                result.Append(resolution);
+            }
+            return result.ToString();
         }
     }
     internal sealed class QRGenerator : ExcelConcurrent
