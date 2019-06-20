@@ -49,7 +49,7 @@ namespace _1Math
                 ComboBoxToLanguage.SelectedItem = "简体中文";
             }));
         }
-
+        private System.Threading.CancellationTokenSource _cancellationTokenSource = new System.Threading.CancellationTokenSource();
         private async void ButtonStartTranslate_ClickAsync(object sender, RoutedEventArgs e)
         {
             System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();

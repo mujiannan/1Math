@@ -18,7 +18,7 @@ namespace _1Math
         private int _m;
         private int _n;
         private dynamic[] _results;
-        public int[] ResultOffSet { get; set; } = new int[2]{0,1};
+        public int[] ResultOffSet { get; set; } = new int[2] { 0, 1 };
 
         //concurrent controller and progress reportor
         int _maxConcurrent = 2;
@@ -97,7 +97,7 @@ namespace _1Math
 #endif
             //Build tasks
             _results = new dynamic[_totalCount];
-            
+
             Task[] tasks = new Task[_maxConcurrent];
             for (int i = 0; i < _maxConcurrent; i++)
             {
@@ -127,16 +127,23 @@ namespace _1Math
 #if DEBUG
             string t4 = stopwatch.Elapsed.TotalSeconds.ToString();
 #endif
-            await WriteBackAsync(results,cancellationToken);
+            await WriteBackAsync(results, cancellationToken);
             stopwatch.Stop();
             Reportor.Report($"耗时{stopwatch.Elapsed.TotalSeconds}秒，{_completedCount}/{_totalCount}");
 #if DEBUG
-            System.Windows.Forms.MessageBox.Show($"从Excel读完数据{t1} 构建完任务{t2} 执行完任务{t3} 回写完Excel{t4}");
+            if (cancellationToken.IsCancellationRequested)
+            {
+                System.Windows.Forms.MessageBox.Show($"已取消，耗时{t4}");
+            }
+            else
+            {
+                System.Windows.Forms.MessageBox.Show($"从Excel读完数据{t1} 构建完任务{t2} 执行完任务{t3} 回写完Excel{t4}");
+            }
 #endif
         }
 
         //2019年6月12日 为了兼容多功能，拆分出回写方法并使之可覆盖
-        protected virtual async Task WriteBackAsync(dynamic[,] results,CancellationToken cancellationToken)//等着覆盖
+        protected virtual async Task WriteBackAsync(dynamic[,] results, CancellationToken cancellationToken)//等着覆盖
         {
             await Task.Run(() =>
             {
@@ -176,19 +183,19 @@ namespace _1Math
                     return;
                 }
                 string source = _sources[next];
-                _results[next] = await WorkAsync(source,next,cancellationToken);
+                _results[next] = await WorkAsync(source, next, cancellationToken);
                 CompleteOneTask();
                 next = GetNext();//2019年6月7日脑残了，忘了加这句……
             }
         }
-        protected abstract Task<dynamic> WorkAsync(string source, int sourceID,CancellationToken cancellationToken);
+        protected abstract Task<dynamic> WorkAsync(string source, int sourceID, CancellationToken cancellationToken);
     }
-    internal sealed class AccessibilityChecker:ExcelConcurrent
+    internal sealed class AccessibilityChecker : ExcelConcurrent
     {
-        public AccessibilityChecker() : base(null, Environment.ProcessorCount*4) { }
-        protected override async Task<dynamic> WorkAsync(string source,int sourceID ,CancellationToken cancellationToken)
+        public AccessibilityChecker() : base(null, Environment.ProcessorCount * 4) { }
+        protected override async Task<dynamic> WorkAsync(string source, int sourceID, CancellationToken cancellationToken)
         {
-            string url =(string)source;
+            string url = (string)source;
             string accessibility;
             using (HttpClient checkClient = new HttpClient())
             {
@@ -207,16 +214,40 @@ namespace _1Math
             return accessibility;
         }
     }
-    internal sealed class MediaDurationChecker : ExcelConcurrent
+    internal sealed class MediaInfoChecker : ExcelConcurrent
     {
-        protected override async Task<dynamic> WorkAsync(string source,int sourceID, CancellationToken cancellationToken)
+        public bool CheckDuration { get; set; } = false;
+        public bool CheckHasVideo { get; set; } = false;
+        public bool CheckHasAudio { get; set; } = false;
+        public bool CheckResolution { get; set; } = false;
+        private byte CheckItemsCount
         {
-            double duration;
-            duration = await Task.Run(()=>
+            get
+            {
+                byte count = 0;
+                if (CheckDuration) count++;
+                if (CheckHasVideo) count++;
+                if (CheckHasAudio) count++;
+                if (CheckResolution) count++;
+                return count;
+            }
+        }
+
+
+        protected override async Task<dynamic> WorkAsync(string source, int sourceID, CancellationToken cancellationToken)
+        {
+            if (CheckItemsCount == 0)
+            {
+                throw new Exception("CheckItemsCount==0");
+            }
+            double duration = 0;
+            bool hasVideo = false;
+            bool hasAudio = false;
+            string resolution = string.Empty;
+            await Task.Run(() =>
             {
                 MediaPlayer mediaPlayer = new MediaPlayer();
-                mediaPlayer.Open(new Uri(source));
-                double result=0;
+                mediaPlayer.Open(new Uri(source));//胡乱输入的话，Debug阶段会有异常，Release版本没问题，最外层会处理好
                 DateTime start = DateTime.Now;
                 TimeSpan timeSpan;
                 do
@@ -224,15 +255,52 @@ namespace _1Math
                     Thread.Sleep(50);
                     if (mediaPlayer.NaturalDuration.HasTimeSpan)
                     {
-                        result = mediaPlayer.NaturalDuration.TimeSpan.TotalSeconds;
+                        duration = mediaPlayer.NaturalDuration.TimeSpan.TotalSeconds;
+                        hasVideo = mediaPlayer.HasVideo;
+                        hasAudio = mediaPlayer.HasAudio;
+                        resolution = mediaPlayer.NaturalVideoWidth.ToString() + "*" + mediaPlayer.NaturalVideoHeight.ToString();
                         mediaPlayer.Stop();
                         mediaPlayer.Close();
                     }
                     timeSpan = DateTime.Now - start;
-                } while (result == 0 && timeSpan.TotalSeconds < 10);
-                return (result);
+                } while (duration == 0 && timeSpan.TotalSeconds < 10);
             });
-            return duration;
+            StringBuilder result = new StringBuilder(16);
+            if (CheckDuration)
+            {
+                result.Append(duration);
+            }
+            if (CheckHasVideo)
+            {
+                if (result.Length > 0) result.Append(",");
+                if (hasVideo)
+                {
+                    result.Append("HasVideo");
+                }
+                else
+                {
+                    result.Append("NoVideo");
+                }
+            }
+            if (CheckHasAudio)
+            {
+                if (result.Length > 0) result.Append(",");
+
+                if (hasAudio)
+                {
+                    result.Append("HasAudio");
+                }
+                else
+                {
+                    result.Append("NoAudio");
+                }
+            }
+            if (CheckResolution)
+            {
+                if (result.Length > 0) result.Append(",");
+                result.Append(resolution);
+            }
+            return result.ToString();
         }
     }
     internal sealed class QRGenerator : ExcelConcurrent
@@ -242,24 +310,24 @@ namespace _1Math
             _path = path;
         }
         private string _path;
-        protected override async Task<dynamic> WorkAsync(string source,int sourceID, CancellationToken cancellationToken)
+        protected override async Task<dynamic> WorkAsync(string source, int sourceID, CancellationToken cancellationToken)
         {
             System.Drawing.Bitmap bitmap;
-            Task<System.Drawing.Bitmap> task = Task.Run(()=>
-             {
-                 using (QRCodeGenerator qRCodeGenerator = new QRCodeGenerator())
-                 {
-                     using (QRCodeData qRCodeData = qRCodeGenerator.CreateQrCode(source, QRCodeGenerator.ECCLevel.H))
-                     {
-                         using(QRCode qRCode = new QRCode(qRCodeData))
-                         {
-                             return qRCode.GetGraphic(20);
-                         }
-                     }
-                 }
-             });
-            bitmap =await task;
-            string fullName = _path + "\\" +sourceID+ ".jpeg";
+            Task<System.Drawing.Bitmap> task = Task.Run(() =>
+            {
+                using (QRCodeGenerator qRCodeGenerator = new QRCodeGenerator())
+                {
+                    using (QRCodeData qRCodeData = qRCodeGenerator.CreateQrCode(source, QRCodeGenerator.ECCLevel.H))
+                    {
+                        using (QRCode qRCode = new QRCode(qRCodeData))
+                        {
+                            return qRCode.GetGraphic(20);
+                        }
+                    }
+                }
+            });
+            bitmap = await task;
+            string fullName = _path + "\\" + sourceID + ".jpeg";
             bitmap.Save(fullName, System.Drawing.Imaging.ImageFormat.Jpeg);
             bitmap.Dispose();
             return fullName;

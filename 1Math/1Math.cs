@@ -66,7 +66,6 @@ namespace _1Math
         public static async Task TranslateSelectionAsync(string toLanguageCode, Translator translator)
         {
             Excel.Range selection = ExcelStatic.GetSelectionAsRange();
-
             int m = selection.Rows.Count, n = selection.Columns.Count;
             for (int i = 0; i < m; i++)
             {

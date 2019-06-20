@@ -69,24 +69,6 @@ namespace _1Math
             System.Windows.Forms.MessageBox.Show($"耗时{stopwatch.Elapsed.TotalSeconds.ToString()}秒");
 #endif
         }
-
-        private async void ButtonVideoLength_ClickAsync(object sender, RibbonControlEventArgs e)
-        {
-            ExcelStatic.StartTask();
-            try
-            {
-                ExcelConcurrentTask excelConcurrent = new ExcelConcurrentTask(new MediaDurationChecker() { ResultOffSet = this.OffSet });
-                await excelConcurrent.StartAsync();
-            }
-            catch (Exception Ex)
-            {
-                System.Windows.Forms.MessageBox.Show(Ex.Message);
-            }
-            finally
-            {
-                ExcelStatic.EndTask();
-            }
-        }
         private async void ButtonToEnglish_ClickAsync(object sender, RibbonControlEventArgs e)
         {
 
@@ -108,7 +90,7 @@ namespace _1Math
         }
         private void ButtonTranslate_Click(object sender, RibbonControlEventArgs e)
         {
-            FormWPF formWPF = new FormWPF();
+            FormTranslator formWPF = new FormTranslator();
             formWPF.Show();
         }
 
@@ -144,6 +126,7 @@ namespace _1Math
                     bool xIsInt = int.TryParse(this.editBoxFactor.Text,out x);
                     if (!xIsInt)
                     {
+                        this.editBoxFactor.Text = "1";
                         x = 1;
                     }
                 }
@@ -157,12 +140,6 @@ namespace _1Math
 
         private void EditBoxFactor_TextChanged(object sender, RibbonControlEventArgs e)
         {
-            int num;
-            bool inputIsNum = int.TryParse(this.editBoxFactor.Text,out num);
-            if (!inputIsNum)
-            {
-                this.editBoxFactor.Text = "";
-            }
             ExcelStatic.ResultOffset = OffSet;
         }
 
@@ -191,6 +168,35 @@ namespace _1Math
             {
                 System.Windows.Forms.MessageBox.Show(Ex.Message);
             }
+        }
+
+        private async void SplitButtonMediaDurationAsync_Click(object sender, RibbonControlEventArgs e)
+        {
+            ExcelStatic.StartTask();
+            try
+            {
+                MediaInfoChecker mediaDurationChecker=new MediaInfoChecker()
+                {
+                    ResultOffSet = this.OffSet,
+                    CheckDuration = true
+                };
+                ExcelConcurrentTask excelConcurrent = new ExcelConcurrentTask(mediaDurationChecker);
+                await excelConcurrent.StartAsync();
+            }
+            catch (Exception Ex)
+            {
+                System.Windows.Forms.MessageBox.Show(Ex.Message);
+            }
+            finally
+            {
+                ExcelStatic.EndTask();
+            }
+        }
+
+        private void ButtonMoreMediaInfo_Click(object sender, RibbonControlEventArgs e)
+        {
+            FormCheckMediaInfo formCheckMediaInfo = new FormCheckMediaInfo();
+            formCheckMediaInfo.Show();
         }
     }
 }

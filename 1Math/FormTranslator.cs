@@ -2,9 +2,9 @@
 
 namespace _1Math
 {
-    public partial class FormWPF : Form
+    public partial class FormTranslator : Form
     {
-        public FormWPF()
+        public FormTranslator()
         {
             InitializeComponent();
         }

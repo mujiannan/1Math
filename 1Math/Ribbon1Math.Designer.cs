@@ -43,18 +43,19 @@ namespace _1Math
             this.Tab1Math = this.Factory.CreateRibbonTab();
             this.GroupNet = this.Factory.CreateRibbonGroup();
             this.ButtonUrlCheck = this.Factory.CreateRibbonButton();
-            this.buttonVideoLength = this.Factory.CreateRibbonButton();
+            this.splitButtonMediaDuration = this.Factory.CreateRibbonSplitButton();
+            this.buttonMoreMediaInfo = this.Factory.CreateRibbonButton();
             this.GroupDataCleaner = this.Factory.CreateRibbonGroup();
             this.ButtonAntiMerge = this.Factory.CreateRibbonButton();
             this.GroupText = this.Factory.CreateRibbonGroup();
             this.ButtonToEnglish = this.Factory.CreateRibbonSplitButton();
             this.ButtonTranslate = this.Factory.CreateRibbonButton();
+            this.buttonQR = this.Factory.CreateRibbonButton();
             this.GroupOffSet = this.Factory.CreateRibbonGroup();
             this.ToggleButtonAutoOffSet = this.Factory.CreateRibbonToggleButton();
             this.BoxOffSet = this.Factory.CreateRibbonBox();
             this.DropDownOffSet = this.Factory.CreateRibbonDropDown();
             this.editBoxFactor = this.Factory.CreateRibbonEditBox();
-            this.buttonQR = this.Factory.CreateRibbonButton();
             this.Tab1Math.SuspendLayout();
             this.GroupNet.SuspendLayout();
             this.GroupDataCleaner.SuspendLayout();
@@ -76,7 +77,7 @@ namespace _1Math
             // GroupNet
             // 
             this.GroupNet.Items.Add(this.ButtonUrlCheck);
-            this.GroupNet.Items.Add(this.buttonVideoLength);
+            this.GroupNet.Items.Add(this.splitButtonMediaDuration);
             this.GroupNet.Label = "网络";
             this.GroupNet.Name = "GroupNet";
             // 
@@ -88,13 +89,22 @@ namespace _1Math
             this.ButtonUrlCheck.ShowImage = true;
             this.ButtonUrlCheck.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.ButtonUrlCheck_ClickAsync);
             // 
-            // buttonVideoLength
+            // splitButtonMediaDuration
             // 
-            this.buttonVideoLength.Image = ((System.Drawing.Image)(resources.GetObject("buttonVideoLength.Image")));
-            this.buttonVideoLength.Label = "视频时长";
-            this.buttonVideoLength.Name = "buttonVideoLength";
-            this.buttonVideoLength.ShowImage = true;
-            this.buttonVideoLength.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.ButtonVideoLength_ClickAsync);
+            this.splitButtonMediaDuration.Image = global::_1Math.Properties.Resources.秒表;
+            this.splitButtonMediaDuration.Items.Add(this.buttonMoreMediaInfo);
+            this.splitButtonMediaDuration.Label = "媒体时长";
+            this.splitButtonMediaDuration.Name = "splitButtonMediaDuration";
+            this.splitButtonMediaDuration.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.SplitButtonMediaDurationAsync_Click);
+            // 
+            // buttonMoreMediaInfo
+            // 
+            this.buttonMoreMediaInfo.Label = "更多检测";
+            this.buttonMoreMediaInfo.Name = "buttonMoreMediaInfo";
+            this.buttonMoreMediaInfo.ScreenTip = "其它检测选项";
+            this.buttonMoreMediaInfo.ShowImage = true;
+            this.buttonMoreMediaInfo.SuperTip = "包括是否含有视频、是否含有音频、分辨率等";
+            this.buttonMoreMediaInfo.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.ButtonMoreMediaInfo_Click);
             // 
             // GroupDataCleaner
             // 
@@ -133,6 +143,13 @@ namespace _1Math
             this.ButtonTranslate.ScreenTip = "进行有更多详细设置的批量翻译";
             this.ButtonTranslate.ShowImage = true;
             this.ButtonTranslate.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.ButtonTranslate_Click);
+            // 
+            // buttonQR
+            // 
+            this.buttonQR.Label = "生成二维码";
+            this.buttonQR.Name = "buttonQR";
+            this.buttonQR.ScreenTip = "批量生成二维码";
+            this.buttonQR.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.ButtonQRAsync_Click);
             // 
             // GroupOffSet
             // 
@@ -177,13 +194,6 @@ namespace _1Math
             this.editBoxFactor.Text = "2";
             this.editBoxFactor.TextChanged += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.EditBoxFactor_TextChanged);
             // 
-            // buttonQR
-            // 
-            this.buttonQR.Label = "生成二维码";
-            this.buttonQR.Name = "buttonQR";
-            this.buttonQR.ScreenTip = "批量生成二维码";
-            this.buttonQR.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.ButtonQRAsync_Click);
-            // 
             // Ribbon1Math
             // 
             this.Name = "Ribbon1Math";
@@ -216,7 +226,6 @@ namespace _1Math
         internal Microsoft.Office.Tools.Ribbon.RibbonTab Tab1Math;
         internal Microsoft.Office.Tools.Ribbon.RibbonGroup GroupNet;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton ButtonUrlCheck;
-        internal Microsoft.Office.Tools.Ribbon.RibbonButton buttonVideoLength;
         internal RibbonGroup GroupDataCleaner;
         internal RibbonButton ButtonAntiMerge;
         internal RibbonGroup GroupText;
@@ -228,6 +237,8 @@ namespace _1Math
         internal RibbonBox BoxOffSet;
         internal RibbonEditBox editBoxFactor;
         internal RibbonButton buttonQR;
+        internal RibbonSplitButton splitButtonMediaDuration;
+        internal RibbonButton buttonMoreMediaInfo;
     }
 
     partial class ThisRibbonCollection

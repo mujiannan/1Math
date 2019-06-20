@@ -194,14 +194,20 @@
     can be found.
   -->
   <ItemGroup>
+    <Compile Include="FormCheckMediaInfo.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormCheckMediaInfo.Designer.cs">
+      <DependentUpon>FormCheckMediaInfo.cs</DependentUpon>
+    </Compile>
     <Compile Include="IReportor.cs" />
     <Compile Include="MergeAreas.cs" />
     <Compile Include="ExcelConcurrent.cs" />
-    <Compile Include="FormWPF.cs">
+    <Compile Include="FormTranslator.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FormWPF.Designer.cs">
-      <DependentUpon>FormWPF.cs</DependentUpon>
+    <Compile Include="FormTranslator.Designer.cs">
+      <DependentUpon>FormTranslator.cs</DependentUpon>
     </Compile>
     <Compile Include="Properties\Resources.Designer.cs">
       <DependentUpon>Resources.resx</DependentUpon>
@@ -227,11 +233,17 @@
     <Compile Include="Ribbon1Math.Designer.cs">
       <DependentUpon>Ribbon1Math.cs</DependentUpon>
     </Compile>
+    <Compile Include="WPFCheckMediaInfo.xaml.cs">
+      <DependentUpon>WPFCheckMediaInfo.xaml</DependentUpon>
+    </Compile>
     <Compile Include="WPFTranslate.xaml.cs">
       <DependentUpon>WPFTranslate.xaml</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="FormWPF.resx">
-      <DependentUpon>FormWPF.cs</DependentUpon>
+    <EmbeddedResource Include="FormCheckMediaInfo.resx">
+      <DependentUpon>FormCheckMediaInfo.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormTranslator.resx">
+      <DependentUpon>FormTranslator.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <SubType>Designer</SubType>
@@ -311,10 +323,20 @@
     <EmbeddedResource Include="Ribbon.xml" />
   </ItemGroup>
   <ItemGroup>
+    <Page Include="WPFCheckMediaInfo.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="WPFTranslate.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\链接.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\秒表.png" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

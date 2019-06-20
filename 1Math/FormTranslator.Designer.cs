@@ -1,6 +1,6 @@
 ﻿namespace _1Math
 {
-    partial class FormWPF
+    partial class FormTranslator
     {
         /// <summary>
         /// Required designer variable.
