@@ -29,20 +29,24 @@ namespace _1Math
         private async void CheckAsync_Click(object sender, RoutedEventArgs e)
         {
             ExcelStatic.StartTask();
+            MediaInfoChecker mediaDurationChecker = new MediaInfoChecker()
+            {
+                ResultOffSet = ExcelStatic.ResultOffset,
+                CheckDuration = this.CheckDuration.IsChecked.HasValue ? (bool)this.CheckDuration.IsChecked : false,
+                CheckHasVideo = this.CheckHasVideo.IsChecked.HasValue ? (bool)this.CheckHasVideo.IsChecked : false,
+                CheckHasAudio = this.CheckHasAudio.IsChecked.HasValue ? (bool)this.CheckHasAudio.IsChecked : false,
+                CheckResolution = this.CheckResolution.IsChecked.HasValue ? (bool)this.CheckResolution.IsChecked : false
+            };
+            mediaDurationChecker.Reportor.ProgressChange += Reportor_ProgressChange;
+            mediaDurationChecker.Reportor.MessageChange += Reportor_MessageChange;
+            CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+            this.Unloaded += (object s, System.Windows.RoutedEventArgs routedEventArgs) =>
+            {
+                cancellationTokenSource.Cancel();
+            };
             try
             {
-                MediaInfoChecker mediaDurationChecker = new MediaInfoChecker()
-                {
-                    ResultOffSet = ExcelStatic.ResultOffset,
-                    CheckDuration = this.CheckDuration.IsChecked.HasValue ? (bool)this.CheckDuration.IsChecked : false,
-                    CheckHasVideo = this.CheckHasVideo.IsChecked.HasValue ? (bool)this.CheckHasVideo.IsChecked : false,
-                    CheckHasAudio = this.CheckHasAudio.IsChecked.HasValue ? (bool)this.CheckHasAudio.IsChecked : false,
-                    CheckResolution = this.CheckResolution.IsChecked.HasValue ? (bool)this.CheckResolution.IsChecked:false
-                };
-                mediaDurationChecker.Reportor.ProgressChange += Reportor_ProgressChange;
-                mediaDurationChecker.Reportor.MessageChange += Reportor_MessageChange;
-                this.Unloaded += WPFCheckMediaInfo_Unloaded;
-                await mediaDurationChecker.StartAsync(_cancellationTokenSource.Token);
+                await mediaDurationChecker.StartAsync(cancellationTokenSource.Token);
             }
             catch (Exception Ex)
             {
@@ -50,16 +54,14 @@ namespace _1Math
             }
             finally
             {
+                cancellationTokenSource.Dispose();
+                mediaDurationChecker.Reportor.MessageChange -= Reportor_MessageChange;
+                mediaDurationChecker.Reportor.ProgressChange -= Reportor_ProgressChange;
+                mediaDurationChecker = null;
                 ExcelStatic.EndTask();
             }
         }
 
-        private void WPFCheckMediaInfo_Unloaded(object sender, RoutedEventArgs e)
-        {
-            _cancellationTokenSource.Cancel();
-        }
-
-        private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
         private void Reportor_MessageChange(object sender, Reportor.MessageEventArgs e)
         {
             try

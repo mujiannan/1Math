@@ -63,7 +63,7 @@ namespace _1Math
     }
     public static class Main
     {
-        public static async Task TranslateSelectionAsync(string toLanguageCode, Translator translator)
+        public static async Task TranslateSelectionAsync(string toLanguageCode, Translator translator,CancellationToken cancellationToken=new CancellationToken())
         {
             Excel.Range selection = ExcelStatic.GetSelectionAsRange();
             int m = selection.Rows.Count, n = selection.Columns.Count;
@@ -74,9 +74,11 @@ namespace _1Math
                     translator.AddContent(selection[i + 1, j + 1].Value.ToString());
                 }
             }
-            List<string> translation = await translator.TranslateAsync(toLanguageCode);
+            List<string> translation;
+            translation = await translator.TranslateAsync(toLanguageCode,cancellationToken);
             string[,] translationArr = new string[m, n];
             int t = 0;
+
             for (int i = 0; i < m; i++)
             {
                 for (int j = 0; j < n; j++)
@@ -85,33 +87,41 @@ namespace _1Math
                     t++;
                 }
             }
-            selection.Offset[m*ExcelStatic.ResultOffset[0], n*ExcelStatic.ResultOffset[1]].Value = translationArr;
+            if (!cancellationToken.IsCancellationRequested)
+            {
+                selection.Offset[m * ExcelStatic.ResultOffset[0], n * ExcelStatic.ResultOffset[1]].Value = translationArr;
+            }
+            else
+            {
+                throw new TaskCanceledException();
+            }
         }
     }
-    internal class ExcelConcurrentTask
+    internal class ExcelConcurrentTask:IDisposable  
     {
-        CancellationTokenSource _cancellationTokenSource;
         ExcelConcurrent _excelConcurrent;
         internal ExcelConcurrentTask(ExcelConcurrent excelConcurrent)
         {
             _excelConcurrent = excelConcurrent;
         }
+
+        public void Dispose()
+        {
+            _excelConcurrent = null;
+        }
+
         internal async Task StartAsync()
         {
-            _cancellationTokenSource = new CancellationTokenSource();
-            CancellationToken cancellationToken = _cancellationTokenSource.Token;
+            CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+            CancellationToken cancellationToken = cancellationTokenSource.Token;
             StatusForm statusForm = new StatusForm();
             statusForm.Show();
-            _excelConcurrent.Reportor.MessageChange += statusForm.MessageLabel_TextChange;
-            _excelConcurrent.Reportor.ProgressChange += statusForm.ProgressBar_ValueChange;
-            statusForm.FormClosing += StatusForm_FormClosing;
+            _excelConcurrent.Reportor.MessageChange += statusForm.ChangeMessage;
+            _excelConcurrent.Reportor.ProgressChange += statusForm.ChangeProgress;
+            statusForm.FormClosing += (object s, System.Windows.Forms.FormClosingEventArgs e) => cancellationTokenSource.Cancel();
             await _excelConcurrent.StartAsync(cancellationToken);
         }
 
-        private void StatusForm_FormClosing(object sender, System.Windows.Forms.FormClosingEventArgs e)
-        {
-            _cancellationTokenSource.Cancel();
-        }
     }
    
    

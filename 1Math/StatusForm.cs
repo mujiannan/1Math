@@ -19,7 +19,7 @@ namespace _1Math
         {
 
         }
-        public void MessageLabel_TextChange(object Sender, Reportor.MessageEventArgs messageEventArgs)
+        public void ChangeMessage(object Sender, Reportor.MessageEventArgs messageEventArgs)
         {
             if (this.IsDisposed)
             {
@@ -34,20 +34,20 @@ namespace _1Math
                 MessageLabel.Text = messageEventArgs.NewMessage;
             }
         }
-        public void ProgressBar_ValueChange(object Sender, Reportor.ProgressEventArgs progressEventArgs)
+        public void ChangeProgress(object Sender, Reportor.ProgressEventArgs progressEventArgs)
         {
             int value = (int)(100 * progressEventArgs.NewProgress);
             if (this.IsDisposed)
             {
                 return;
             }
-            if (this.progressBar1.InvokeRequired)
+            if (this.progressBar.InvokeRequired)
             {
-                progressBar1.BeginInvoke(new Action(() => { progressBar1.Value = value; }));
+                progressBar.BeginInvoke(new Action(() => { progressBar.Value = value; }));
             }
             else
             {
-                progressBar1.Value = value;
+                progressBar.Value = value;
             }
         }
     }

@@ -49,12 +49,16 @@ namespace _1Math
                 ComboBoxToLanguage.SelectedItem = "简体中文";
             }));
         }
-        private System.Threading.CancellationTokenSource _cancellationTokenSource = new System.Threading.CancellationTokenSource();
         private async void ButtonStartTranslate_ClickAsync(object sender, RoutedEventArgs e)
         {
             System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
             stopwatch.Start();
             ExcelStatic.StartTask();
+            System.Threading.CancellationTokenSource cancellationTokenSource = new System.Threading.CancellationTokenSource();
+            this.Unloaded += (object s,RoutedEventArgs routedEvent) =>
+            {
+                cancellationTokenSource.Cancel();
+            };
             try
             {
                 Translator translator = new Translator(Properties.Resources.AzureCognitiveBaseUrl, Secret.AzureCognitiveKey);
@@ -69,8 +73,8 @@ namespace _1Math
                     }
                 }
                 translator.ProgressChange += Translator_ProgressChange;
-                await Main.TranslateSelectionAsync(toLanguageCode, translator);
-                this.Dispatcher.Invoke(() => this.TextBlockTime.Text = "耗时: " + stopwatch.Elapsed.TotalSeconds + "秒");
+                await Main.TranslateSelectionAsync(toLanguageCode, translator,cancellationTokenSource.Token);
+                this?.Dispatcher.Invoke(() => this.TextBlockTime.Text = "耗时: " + stopwatch.Elapsed.TotalSeconds + "秒");
             }
             catch (Exception Ex)
             {

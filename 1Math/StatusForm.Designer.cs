@@ -31,7 +31,7 @@ namespace _1Math
         private void InitializeComponent()
         {
             this.MessageLabel = new System.Windows.Forms.Label();
-            this.progressBar1 = new System.Windows.Forms.ProgressBar();
+            this.progressBar = new System.Windows.Forms.ProgressBar();
             this.SuspendLayout();
             // 
             // MessageLabel
@@ -44,18 +44,18 @@ namespace _1Math
             // 
             // progressBar1
             // 
-            this.progressBar1.Location = new System.Drawing.Point(35, 44);
-            this.progressBar1.Name = "progressBar1";
-            this.progressBar1.Size = new System.Drawing.Size(513, 23);
-            this.progressBar1.TabIndex = 1;
-            this.progressBar1.Click += new System.EventHandler(this.ProgressBar1_Click);
+            this.progressBar.Location = new System.Drawing.Point(35, 44);
+            this.progressBar.Name = "progressBar1";
+            this.progressBar.Size = new System.Drawing.Size(513, 23);
+            this.progressBar.TabIndex = 1;
+            this.progressBar.Click += new System.EventHandler(this.ProgressBar1_Click);
             // 
             // StatusForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(584, 91);
-            this.Controls.Add(this.progressBar1);
+            this.Controls.Add(this.progressBar);
             this.Controls.Add(this.MessageLabel);
             this.Name = "StatusForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
@@ -68,7 +68,7 @@ namespace _1Math
         }
 
         #endregion
-        public System.Windows.Forms.Label MessageLabel;
-        public System.Windows.Forms.ProgressBar progressBar1;
+        private System.Windows.Forms.Label MessageLabel;
+        private System.Windows.Forms.ProgressBar progressBar;
     }
 }

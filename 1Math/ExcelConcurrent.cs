@@ -246,24 +246,39 @@ namespace _1Math
             string resolution = string.Empty;
             await Task.Run(() =>
             {
-                MediaPlayer mediaPlayer = new MediaPlayer();
+                MediaPlayer mediaPlayer = new MediaPlayer
+                {
+                    ScrubbingEnabled = true
+                };
                 mediaPlayer.Open(new Uri(source));//胡乱输入的话，Debug阶段会有异常，Release版本没问题，最外层会处理好
                 DateTime start = DateTime.Now;
                 TimeSpan timeSpan;
-                do
+                try
                 {
-                    Thread.Sleep(50);
-                    if (mediaPlayer.NaturalDuration.HasTimeSpan)
+                    do
                     {
-                        duration = mediaPlayer.NaturalDuration.TimeSpan.TotalSeconds;
-                        hasVideo = mediaPlayer.HasVideo;
-                        hasAudio = mediaPlayer.HasAudio;
-                        resolution = mediaPlayer.NaturalVideoWidth.ToString() + "*" + mediaPlayer.NaturalVideoHeight.ToString();
-                        mediaPlayer.Stop();
-                        mediaPlayer.Close();
-                    }
-                    timeSpan = DateTime.Now - start;
-                } while (duration == 0 && timeSpan.TotalSeconds < 10);
+                        Thread.Sleep(50);
+                        if (mediaPlayer.NaturalDuration.HasTimeSpan)
+                        {
+                            mediaPlayer.Pause();
+                            duration = mediaPlayer.NaturalDuration.TimeSpan.TotalSeconds;
+                            hasVideo = mediaPlayer.HasVideo;
+                            hasAudio = mediaPlayer.HasAudio;
+                            resolution = mediaPlayer.NaturalVideoWidth.ToString() + "*" + mediaPlayer.NaturalVideoHeight.ToString();
+                        }
+                        timeSpan = DateTime.Now - start;
+                    } while (duration == 0 && timeSpan.TotalSeconds < 100);
+                }
+                catch (Exception)
+                {
+                    throw;
+                }
+                finally
+                {
+                    mediaPlayer.Stop();
+                    mediaPlayer.Close();
+                    mediaPlayer = null;
+                }
             });
             StringBuilder result = new StringBuilder(16);
             if (CheckDuration)

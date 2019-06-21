@@ -95,7 +95,7 @@ namespace _1Math
             this.splitButtonMediaDuration.Items.Add(this.buttonMoreMediaInfo);
             this.splitButtonMediaDuration.Label = "媒体时长";
             this.splitButtonMediaDuration.Name = "splitButtonMediaDuration";
-            this.splitButtonMediaDuration.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.SplitButtonMediaDurationAsync_Click);
+            this.splitButtonMediaDuration.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.SplitButtonMediaDuration_Click);
             // 
             // buttonMoreMediaInfo
             // 

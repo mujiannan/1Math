@@ -48,8 +48,8 @@ namespace _1Math
                 MergeAreas mergeAreas = new MergeAreas();
                 StatusForm statusForm = new StatusForm();
                 statusForm.Show();
-                mergeAreas.Reportor.MessageChange += statusForm.MessageLabel_TextChange;
-                mergeAreas.Reportor.ProgressChange += statusForm.ProgressBar_ValueChange;
+                mergeAreas.Reportor.MessageChange += statusForm.ChangeMessage;
+                mergeAreas.Reportor.ProgressChange += statusForm.ChangeProgress;
                 CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
                 statusForm.FormClosing += delegate
                 {
@@ -75,6 +75,7 @@ namespace _1Math
             ExcelStatic.StartTask();
             try
             {
+                
                 Translator translator = new Translator(Properties.Resources.AzureCognitiveBaseUrl, Secret.AzureCognitiveKey);
                 await Main.TranslateSelectionAsync("en", translator);
             }
@@ -170,33 +171,51 @@ namespace _1Math
             }
         }
 
-        private async void SplitButtonMediaDurationAsync_Click(object sender, RibbonControlEventArgs e)
+        private void SplitButtonMediaDuration_Click(object sender, RibbonControlEventArgs e)
         {
-            ExcelStatic.StartTask();
-            try
-            {
-                MediaInfoChecker mediaDurationChecker=new MediaInfoChecker()
-                {
-                    ResultOffSet = this.OffSet,
-                    CheckDuration = true
-                };
-                ExcelConcurrentTask excelConcurrent = new ExcelConcurrentTask(mediaDurationChecker);
-                await excelConcurrent.StartAsync();
-            }
-            catch (Exception Ex)
-            {
-                System.Windows.Forms.MessageBox.Show(Ex.Message);
-            }
-            finally
-            {
-                ExcelStatic.EndTask();
-            }
+            //我有点搞不懂了
+            //如果这个事件处理程序作为Async void方法，在Ribbon里直接运行，就会有大量内存无法释放
+            //但改成普通void方法，在方法内部用action封装一个async方法运行，就不会出现内存无法释放的情况
+            Action action = async() =>
+              {
+                  ExcelStatic.StartTask();
+                  MediaInfoChecker mediaDurationChecker = new MediaInfoChecker()
+                  {
+                      ResultOffSet = this.OffSet,
+                      CheckDuration = true
+                  };
+                  CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+                  StatusForm statusForm = new StatusForm();
+                  statusForm.Show();
+                  mediaDurationChecker.Reportor.MessageChange += statusForm.ChangeMessage;
+                  mediaDurationChecker.Reportor.ProgressChange += statusForm.ChangeProgress;
+                  statusForm.FormClosing += (object s, System.Windows.Forms.FormClosingEventArgs formClosingEventArgs) => cancellationTokenSource.Cancel();
+                  try
+                  {
+                      await mediaDurationChecker.StartAsync(cancellationTokenSource.Token);
+                  }
+                  catch (Exception Ex)
+                  {
+                      System.Windows.Forms.MessageBox.Show(Ex.Message);
+                  }
+                  finally
+                  {
+                      mediaDurationChecker = null;
+                      System.GC.Collect();
+                      ExcelStatic.EndTask();
+                  }
+              };
+            action.Invoke();
+
         }
 
         private void ButtonMoreMediaInfo_Click(object sender, RibbonControlEventArgs e)
         {
-            FormCheckMediaInfo formCheckMediaInfo = new FormCheckMediaInfo();
-            formCheckMediaInfo.Show();
+            for (int i = 0; i < 100; i++)
+            {
+                FormCheckMediaInfo formCheckMediaInfo = new FormCheckMediaInfo();
+                formCheckMediaInfo.Show();
+            }
         }
     }
 }
