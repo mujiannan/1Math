@@ -61,7 +61,7 @@ namespace _1Math
         }
         public static int[] ResultOffset { get; set; } = new int[2] { 0, 1 };
     }
-    public static class Main
+    public static class Controller
     {
         public static async Task TranslateSelectionAsync(string toLanguageCode, Translator translator,CancellationToken cancellationToken=new CancellationToken())
         {
@@ -97,32 +97,25 @@ namespace _1Math
             }
         }
     }
-    internal class ExcelConcurrentTask:IDisposable  
-    {
-        ExcelConcurrent _excelConcurrent;
-        internal ExcelConcurrentTask(ExcelConcurrent excelConcurrent)
-        {
-            _excelConcurrent = excelConcurrent;
-        }
-
-        public void Dispose()
-        {
-            _excelConcurrent = null;
-        }
-
-        internal async Task StartAsync()
-        {
-            CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-            CancellationToken cancellationToken = cancellationTokenSource.Token;
-            StatusForm statusForm = new StatusForm();
-            statusForm.Show();
-            _excelConcurrent.Reportor.MessageChange += statusForm.ChangeMessage;
-            _excelConcurrent.Reportor.ProgressChange += statusForm.ChangeProgress;
-            statusForm.FormClosing += (object s, System.Windows.Forms.FormClosingEventArgs e) => cancellationTokenSource.Cancel();
-            await _excelConcurrent.StartAsync(cancellationToken);
-        }
-
-    }
+    //internal class ExcelConcurrentTask
+    //{
+    //    ExcelConcurrent _excelConcurrent;
+    //    internal ExcelConcurrentTask(ExcelConcurrent excelConcurrent)
+    //    {
+    //        _excelConcurrent = excelConcurrent;
+    //    }
+    //    internal async Task StartAsync()
+    //    {
+    //        CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+    //        CancellationToken cancellationToken = cancellationTokenSource.Token;
+    //        StatusForm statusForm = new StatusForm();
+    //        statusForm.Show();
+    //        _excelConcurrent.Reportor.MessageChange += statusForm.ChangeMessage;
+    //        _excelConcurrent.Reportor.ProgressChange += statusForm.ChangeProgress;
+    //        statusForm.FormClosing += (object s, System.Windows.Forms.FormClosingEventArgs e) => cancellationTokenSource.Cancel();
+    //        await _excelConcurrent.StartAsync(cancellationToken);
+    //    }
+    //}
    
    
 }

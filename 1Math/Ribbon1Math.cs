@@ -4,6 +4,7 @@ using System;
 using System.Threading;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace _1Math
 {
@@ -15,16 +16,19 @@ namespace _1Math
         private async void ButtonUrlCheck_ClickAsync(object sender, RibbonControlEventArgs e)
         {
             ExcelStatic.StartTask();
+            CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+            cancellationTokenSource.Token.Register(() => ExcelStatic.EndTask());
+            StatusForm statusForm = new StatusForm();
+            statusForm.FormClosing += (object s, FormClosingEventArgs eventArgs) => cancellationTokenSource.Cancel();
+            AccessibilityChecker accessibilityChecker = new AccessibilityChecker()
+            {
+                ResultOffSet = this.OffSet
+            };
+            accessibilityChecker.Reportor.ProgressChange += statusForm.ChangeProgress;
+            accessibilityChecker.Reportor.MessageChange += statusForm.ChangeMessage;
             try
             {
-                ExcelConcurrentTask excelConcurrent = new ExcelConcurrentTask
-                                                                            (
-                                                                                new AccessibilityChecker()
-                                                                                {
-                                                                                    ResultOffSet = this.OffSet
-                                                                                }
-                                                                            );
-                await excelConcurrent.StartAsync();
+                await accessibilityChecker.StartAsync(cancellationTokenSource.Token);
             }
             catch (Exception Ex)
             {
@@ -51,6 +55,7 @@ namespace _1Math
                 mergeAreas.Reportor.MessageChange += statusForm.ChangeMessage;
                 mergeAreas.Reportor.ProgressChange += statusForm.ChangeProgress;
                 CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+                cancellationTokenSource.Token.Register(() => ExcelStatic.EndTask());
                 statusForm.FormClosing += delegate
                 {
                     cancellationTokenSource.Cancel();
@@ -77,7 +82,7 @@ namespace _1Math
             {
                 
                 Translator translator = new Translator(Properties.Resources.AzureCognitiveBaseUrl, Secret.AzureCognitiveKey);
-                await Main.TranslateSelectionAsync("en", translator);
+                await Controller.TranslateSelectionAsync("en", translator);
             }
             catch (Exception Ex)
             {
@@ -146,6 +151,7 @@ namespace _1Math
 
         private async void ButtonQRAsync_Click(object sender, RibbonControlEventArgs e)
         {
+            ExcelStatic.StartTask();
             string selectedPath;
             using (System.Windows.Forms.FolderBrowserDialog folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog())
             {
@@ -159,63 +165,75 @@ namespace _1Math
                     return;
                 }
             }
+            QRGenerator qRGenerator = new QRGenerator(selectedPath)
+            {
+                ResultOffSet = this.OffSet
+            };
+            CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+            cancellationTokenSource.Token.Register(() => ExcelStatic.EndTask());
+            StatusForm statusForm = new StatusForm();
+            statusForm.FormClosing += (object s,System.Windows.Forms.FormClosingEventArgs formClosingEventArgs) => cancellationTokenSource.Cancel();
+            qRGenerator.Reportor.MessageChange += statusForm.ChangeMessage;
+            qRGenerator.Reportor.ProgressChange += statusForm.ChangeProgress;
             try
             {
-                QRGenerator qRGenerator = new QRGenerator(selectedPath);
-                ExcelConcurrentTask task = new ExcelConcurrentTask(qRGenerator);
-                await task.StartAsync();
+                await qRGenerator.StartAsync(cancellationTokenSource.Token);
             }
             catch (Exception Ex)
             {
                 System.Windows.Forms.MessageBox.Show(Ex.Message);
             }
+            finally
+            {
+                ExcelStatic.EndTask();
+            }
         }
 
-        private void SplitButtonMediaDuration_Click(object sender, RibbonControlEventArgs e)
+        private async void SplitButtonMediaDuration_Click(object sender, RibbonControlEventArgs e)
         {
             //我有点搞不懂了
             //如果这个事件处理程序作为Async void方法，在Ribbon里直接运行，就会有大量内存无法释放
             //但改成普通void方法，在方法内部用action封装一个async方法运行，就不会出现内存无法释放的情况
-            Action action = async() =>
-              {
-                  ExcelStatic.StartTask();
-                  MediaInfoChecker mediaDurationChecker = new MediaInfoChecker()
-                  {
-                      ResultOffSet = this.OffSet,
-                      CheckDuration = true
-                  };
-                  CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-                  StatusForm statusForm = new StatusForm();
-                  statusForm.Show();
-                  mediaDurationChecker.Reportor.MessageChange += statusForm.ChangeMessage;
-                  mediaDurationChecker.Reportor.ProgressChange += statusForm.ChangeProgress;
-                  statusForm.FormClosing += (object s, System.Windows.Forms.FormClosingEventArgs formClosingEventArgs) => cancellationTokenSource.Cancel();
-                  try
-                  {
-                      await mediaDurationChecker.StartAsync(cancellationTokenSource.Token);
-                  }
-                  catch (Exception Ex)
-                  {
-                      System.Windows.Forms.MessageBox.Show(Ex.Message);
-                  }
-                  finally
-                  {
-                      mediaDurationChecker = null;
-                      System.GC.Collect();
-                      ExcelStatic.EndTask();
-                  }
-              };
-            action.Invoke();
+            //Action action = async() =>
+            //  {
+            ExcelStatic.StartTask();
+            MediaInfoChecker mediaDurationChecker = new MediaInfoChecker()
+            {
+                ResultOffSet = this.OffSet,
+                CheckDuration = true
+            };
+            CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+            StatusForm statusForm = new StatusForm();
+            statusForm.Show();
+            mediaDurationChecker.Reportor.MessageChange += statusForm.ChangeMessage;
+            mediaDurationChecker.Reportor.ProgressChange += statusForm.ChangeProgress;
+            statusForm.FormClosing += (object s, System.Windows.Forms.FormClosingEventArgs formClosingEventArgs) => cancellationTokenSource.Cancel();
+            cancellationTokenSource.Token.Register(() => ExcelStatic.EndTask());
+            try
+            {
+                await mediaDurationChecker.StartAsync(cancellationTokenSource.Token);
+            }
+            catch (Exception Ex)
+            {
+                System.Windows.Forms.MessageBox.Show(Ex.Message);
+            }
+            finally
+            {
+                mediaDurationChecker.Reportor.MessageChange -= statusForm.ChangeMessage;
+                mediaDurationChecker.Reportor.ProgressChange -= statusForm.ChangeProgress;
+                mediaDurationChecker = null;
+                System.GC.Collect();
+                ExcelStatic.EndTask();
+            }
+            //  };
+            //action.Invoke();
 
         }
 
         private void ButtonMoreMediaInfo_Click(object sender, RibbonControlEventArgs e)
         {
-            for (int i = 0; i < 100; i++)
-            {
-                FormCheckMediaInfo formCheckMediaInfo = new FormCheckMediaInfo();
-                formCheckMediaInfo.Show();
-            }
+            FormCheckMediaInfo formCheckMediaInfo = new FormCheckMediaInfo();
+            formCheckMediaInfo.Show();
         }
     }
 }

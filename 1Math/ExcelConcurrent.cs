@@ -250,7 +250,14 @@ namespace _1Math
                 {
                     ScrubbingEnabled = true
                 };
-                mediaPlayer.Open(new Uri(source));//胡乱输入的话，Debug阶段会有异常，Release版本没问题，最外层会处理好
+                try
+                {
+                    mediaPlayer.Open(new Uri(source));//胡乱输入的话，Debug阶段会有异常，Release版本没问题，最外层会处理好
+                }
+                catch (Exception)
+                {
+                    throw new Exception($"mediaPlayer无法打开：{source}");
+                }
                 DateTime start = DateTime.Now;
                 TimeSpan timeSpan;
                 try
@@ -267,7 +274,7 @@ namespace _1Math
                             resolution = mediaPlayer.NaturalVideoWidth.ToString() + "*" + mediaPlayer.NaturalVideoHeight.ToString();
                         }
                         timeSpan = DateTime.Now - start;
-                    } while (duration == 0 && timeSpan.TotalSeconds < 100);
+                    } while (duration == 0 && timeSpan.TotalSeconds < 25);
                 }
                 catch (Exception)
                 {
@@ -280,7 +287,7 @@ namespace _1Math
                     mediaPlayer = null;
                 }
             });
-            StringBuilder result = new StringBuilder(16);
+            StringBuilder result = new StringBuilder();
             if (CheckDuration)
             {
                 result.Append(duration);

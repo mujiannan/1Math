@@ -40,6 +40,7 @@ namespace _1Math
             mediaDurationChecker.Reportor.ProgressChange += Reportor_ProgressChange;
             mediaDurationChecker.Reportor.MessageChange += Reportor_MessageChange;
             CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+            cancellationTokenSource.Token.Register(() => ExcelStatic.EndTask());
             this.Unloaded += (object s, System.Windows.RoutedEventArgs routedEventArgs) =>
             {
                 cancellationTokenSource.Cancel();
@@ -54,10 +55,6 @@ namespace _1Math
             }
             finally
             {
-                cancellationTokenSource.Dispose();
-                mediaDurationChecker.Reportor.MessageChange -= Reportor_MessageChange;
-                mediaDurationChecker.Reportor.ProgressChange -= Reportor_ProgressChange;
-                mediaDurationChecker = null;
                 ExcelStatic.EndTask();
             }
         }

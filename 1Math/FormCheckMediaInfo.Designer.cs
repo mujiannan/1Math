@@ -48,8 +48,10 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(831, 117);
             this.Controls.Add(this.elementHost1);
+            this.MaximizeBox = false;
             this.Name = "FormCheckMediaInfo";
-            this.Text = "FormCheckMediaInfo";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            this.Text = "媒体信息检测";
             this.ResumeLayout(false);
 
         }

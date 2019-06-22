@@ -73,7 +73,7 @@ namespace _1Math
                     }
                 }
                 translator.ProgressChange += Translator_ProgressChange;
-                await Main.TranslateSelectionAsync(toLanguageCode, translator,cancellationTokenSource.Token);
+                await Controller.TranslateSelectionAsync(toLanguageCode, translator,cancellationTokenSource.Token);
                 this?.Dispatcher.Invoke(() => this.TextBlockTime.Text = "耗时: " + stopwatch.Elapsed.TotalSeconds + "秒");
             }
             catch (Exception Ex)
