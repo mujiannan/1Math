@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.28922.388
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "1Math", "1Math\1Math.csproj", "{75BA2074-FA7A-4146-97E4-5191AF8476B4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "1Math-Installer", "1Math-Installer\1Math-Installer.csproj", "{5A7905A9-A200-45E0-A78D-27187BA06C90}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "1Math_Installer", "1Math_Installer\1Math_Installer.csproj", "{EE97DDC9-DB0C-455C-9768-43E742BF3749}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +17,10 @@ Global
 		{75BA2074-FA7A-4146-97E4-5191AF8476B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{75BA2074-FA7A-4146-97E4-5191AF8476B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{75BA2074-FA7A-4146-97E4-5191AF8476B4}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5A7905A9-A200-45E0-A78D-27187BA06C90}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5A7905A9-A200-45E0-A78D-27187BA06C90}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5A7905A9-A200-45E0-A78D-27187BA06C90}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5A7905A9-A200-45E0-A78D-27187BA06C90}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EE97DDC9-DB0C-455C-9768-43E742BF3749}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE97DDC9-DB0C-455C-9768-43E742BF3749}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE97DDC9-DB0C-455C-9768-43E742BF3749}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE97DDC9-DB0C-455C-9768-43E742BF3749}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

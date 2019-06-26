@@ -4,10 +4,20 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.Win32;
-namespace _1MathSetUp
+using _1Math;
+using System.Net.Http.Formatting;
+using System.Net.Http.Handlers;
+
+namespace _1Math_Installer
 {
-    class Program
+
+    class Installer: IReportor
     {
+        public Reportor Reportor { get; }//它只在构造函数中初始化，之后就是只读的（当然，可以令其向外报告事件）
+        public Installer()
+        {
+            this.Reportor = new Reportor(this);
+        }
         private static string Local1MathPath
         {
             get
@@ -32,27 +42,25 @@ namespace _1MathSetUp
                 return path;
             }
         }
-        static void Main(string[] args)
+        
+        public async Task StartInstallerAsync()
         {
-            Console.WriteLine("--您正在使用1Math安装器--");
             try
             {
-                CertAsync().Wait();
+                await CertAsync();
+                TrustDirSetter.SetTrustDir();
             }
             catch
             {
-                Console.WriteLine("错误：请联网并使用管理员权限运行");
-                Console.ReadKey();
+                throw new Exception("错误：请联网并使用管理员权限运行");
             }
-            TrustDirSetter.SetTrustDir();
-            SetUpAsync().Wait();
-            Console.ReadKey();
+            await SetUpAsync();
         }
-        private static async Task CertAsync()
+        private async Task CertAsync()
         {
             string localFullName = $"{DownloadPath}sn.cer";
             Uri uri = new Uri("http://Public.mujiannan.me/1Math/sn.cer");
-            await Download(uri, localFullName);
+            await DownloadAsync(uri, localFullName);
             using (X509Certificate2 myCert = new X509Certificate2(localFullName))
             {
                 using (X509Store store = new X509Store(StoreName.Root, StoreLocation.LocalMachine))
@@ -63,23 +71,29 @@ namespace _1MathSetUp
                 }
             }
         }
-        private static async Task SetUpAsync()
+        private async Task SetUpAsync()
         {
             string localFullName = $"{DownloadPath}setup.exe";
             Uri uri = new Uri("http://Public.mujiannan.me/1Math/setup.exe");
-            Console.WriteLine($"下载安装包，将存放在{localFullName}，请耐心等待");
-            await Download(uri, localFullName);
-            System.Diagnostics.Process.Start(localFullName).WaitForExit();
+            Reportor.Report($"下载{uri.AbsolutePath}至{localFullName}，请耐心等待...");
+            await DownloadAsync(uri, localFullName);
+            System.Diagnostics.Process.Start(localFullName);
         }
-        private static async Task Download(Uri uri, string localFullName)
+        private async Task DownloadAsync(Uri uri, string localFullName)
         {
-            HttpClient httpClient = new HttpClient();
+            
+            HttpClientHandler httpClientHandler = new HttpClientHandler();
+            
+            ProgressMessageHandler progressMessageHandler = new ProgressMessageHandler(httpClientHandler);
+            HttpClient httpClient = new HttpClient(progressMessageHandler);
+            progressMessageHandler.HttpReceiveProgress += (object sender, HttpProgressEventArgs e) => Reportor.Report(e.ProgressPercentage);//捕获下载进度，向外汇报
             FileStream fileStream = File.Create(localFullName, 1024, FileOptions.Asynchronous);
             byte[] bytes = await httpClient.GetByteArrayAsync(uri);
-            fileStream.Write(bytes,0,bytes.Length);
+            fileStream.Write(bytes, 0, bytes.Length);
             fileStream.Flush();
             fileStream.Close();
         }
+
         private static class TrustDirSetter
         {
             private static RegistryKey Key
@@ -110,4 +124,5 @@ namespace _1MathSetUp
         }
 
     }
+
 }

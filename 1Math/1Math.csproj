@@ -33,7 +33,7 @@
     <PublishUrl>ftp://13.88.14.236/Public/1Math/</PublishUrl>
     <InstallUrl>http://Public.mujiannan.me/1Math/</InstallUrl>
     <TargetCulture>zh-chs</TargetCulture>
-    <ApplicationVersion>1.0.0.37</ApplicationVersion>
+    <ApplicationVersion>1.0.0.39</ApplicationVersion>
     <AutoIncrementApplicationRevision>true</AutoIncrementApplicationRevision>
     <UpdateEnabled>true</UpdateEnabled>
     <UpdateInterval>7</UpdateInterval>
