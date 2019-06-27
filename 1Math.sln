@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "1Math", "1Math\1Math.csproj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "1Math_Installer", "1Math_Installer\1Math_Installer.csproj", "{EE97DDC9-DB0C-455C-9768-43E742BF3749}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Corresponddence", "Corresponding\Corresponddence.csproj", "{C4CC632C-CF10-439F-9840-87702F7C5D0C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{EE97DDC9-DB0C-455C-9768-43E742BF3749}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EE97DDC9-DB0C-455C-9768-43E742BF3749}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EE97DDC9-DB0C-455C-9768-43E742BF3749}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C4CC632C-CF10-439F-9840-87702F7C5D0C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C4CC632C-CF10-439F-9840-87702F7C5D0C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C4CC632C-CF10-439F-9840-87702F7C5D0C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C4CC632C-CF10-439F-9840-87702F7C5D0C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

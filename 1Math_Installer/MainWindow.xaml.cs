@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Correspondence;
 
 namespace _1Math_Installer
 {
@@ -28,8 +29,8 @@ namespace _1Math_Installer
         private async void SetUp()
         {
             Installer installer = new Installer();
-            installer.Reportor.ProgressChange += (object sender, _1Math.Reportor.ProgressEventArgs e) => progressBar.Dispatcher.Invoke(()=>progressBar.Value = e.NewProgress);
-            installer.Reportor.MessageChange += (object sender, _1Math.Reportor.MessageEventArgs e) =>messageTextBlock.Dispatcher.Invoke(()=>messageTextBlock.Text = e.NewMessage);
+            installer.Reportor.ProgressChange += (object sender, Reportor.ProgressEventArgs e) => progressBar.Dispatcher.Invoke(()=>progressBar.Value = e.NewProgress);
+            installer.Reportor.MessageChange += (object sender, Reportor.MessageEventArgs e) =>messageTextBlock.Dispatcher.Invoke(()=>messageTextBlock.Text = e.NewMessage);
             try
             {
                 await installer.StartInstallerAsync();

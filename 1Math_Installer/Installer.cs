@@ -4,12 +4,13 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.Win32;
-using _1Math;
 using System.Net.Http.Formatting;
 using System.Net.Http.Handlers;
+using Correspondence;
 
 namespace _1Math_Installer
 {
+    
 
     class Installer: IReportor
     {
