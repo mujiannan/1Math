@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "1Math", "1Math\1Math.csproj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "1Math_Installer", "1Math_Installer\1Math_Installer.csproj", "{EE97DDC9-DB0C-455C-9768-43E742BF3749}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Corresponddence", "Corresponding\Corresponddence.csproj", "{C4CC632C-CF10-439F-9840-87702F7C5D0C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Corresponddence", "Corresponding\Corresponddence.csproj", "{C4CC632C-CF10-439F-9840-87702F7C5D0C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
