@@ -218,7 +218,6 @@
     <Compile Include="Ribbon.cs">
       <XmlRibbon>true</XmlRibbon>
     </Compile>
-    <Compile Include="Secret.cs" />
     <Compile Include="StatusForm.cs">
       <SubType>Form</SubType>
     </Compile>
