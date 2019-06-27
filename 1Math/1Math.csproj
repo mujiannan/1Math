@@ -200,7 +200,6 @@
     <Compile Include="FormCheckMediaInfo.Designer.cs">
       <DependentUpon>FormCheckMediaInfo.cs</DependentUpon>
     </Compile>
-    <Compile Include="IReportor.cs" />
     <Compile Include="MergeAreas.cs" />
     <Compile Include="ExcelConcurrent.cs" />
     <Compile Include="FormTranslator.cs">
@@ -214,11 +213,9 @@
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
     </Compile>
-    <Compile Include="Reportor.cs" />
     <Compile Include="Ribbon.cs">
       <XmlRibbon>true</XmlRibbon>
     </Compile>
-    <Compile Include="Secret.cs" />
     <Compile Include="StatusForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -258,7 +255,6 @@
       <DependentUpon>StatusForm.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="app.config" />
-    <None Include="my.pfx" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -339,6 +335,12 @@
   <ItemGroup>
     <None Include="Resources\秒表.png" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Corresponding\Corresponddence.csproj">
+      <Project>{c4cc632c-cf10-439f-9840-87702f7c5d0c}</Project>
+      <Name>Corresponddence</Name>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
@@ -354,7 +356,7 @@
     <ManifestCertificateThumbprint>3042AD497EC84D0EA0B834713F93DE43BC96436E</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
-    <SignAssembly>true</SignAssembly>
+    <SignAssembly>false</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject />
@@ -363,7 +365,11 @@
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>my.pfx</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ManifestTimestampUrl>http://timestamp.comodoca.com/rfc3161</ManifestTimestampUrl>
   </PropertyGroup>
   <!-- Include the build rules for a C# project. -->
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

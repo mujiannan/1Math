@@ -44,16 +44,16 @@
             this.elementHost1.ChildChanged += new System.EventHandler<System.Windows.Forms.Integration.ChildChangedEventArgs>(this.ElementHost1_ChildChanged);
             this.elementHost1.Child = this.wpfTranslate1;
             // 
-            // FormWPF
+            // FormTranslator
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoScroll = true;
             this.ClientSize = new System.Drawing.Size(863, 121);
             this.Controls.Add(this.elementHost1);
-            this.Name = "FormWPF";
+            this.Name = "FormTranslator";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "详细设置";
+            this.Text = "翻译";
             this.ResumeLayout(false);
             this.PerformLayout();
 

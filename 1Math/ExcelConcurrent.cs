@@ -8,6 +8,7 @@ using System.Threading;
 using System.Net.Http;
 using System.Windows.Media;
 using QRCoder;
+using Correspondence;
 namespace _1Math
 {
     internal abstract class ExcelConcurrent : IReportor//定位：用于批量执行针对Excel.Range的任务

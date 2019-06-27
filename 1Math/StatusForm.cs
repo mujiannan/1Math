@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
-
+using Correspondence;
 namespace _1Math
 {
     public partial class StatusForm : Form

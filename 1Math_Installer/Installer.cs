@@ -81,10 +81,8 @@ namespace _1Math_Installer
             System.Diagnostics.Process.Start(localFullName);
         }
         private async Task DownloadAsync(Uri uri, string localFullName)
-        {
-            
+        {    
             HttpClientHandler httpClientHandler = new HttpClientHandler();
-            
             ProgressMessageHandler progressMessageHandler = new ProgressMessageHandler(httpClientHandler);
             HttpClient httpClient = new HttpClient(progressMessageHandler);
             progressMessageHandler.HttpReceiveProgress += (object sender, HttpProgressEventArgs e) => Reportor.Report(e.ProgressPercentage);//捕获下载进度，向外汇报
@@ -115,11 +113,11 @@ namespace _1Math_Installer
             }
             internal static void SetTrustDir()
             {
-                Key.SetValue("MyComputer", "Disabled");
-                Key.SetValue("LocalIntranet", "Disabled");
-                Key.SetValue("Internet", "Disabled");
-                Key.SetValue("TrustedSites", "Disabled");
-                Key.SetValue("UntrustedSites", "AuthenticodeRequired");
+                Key.SetValue("MyComputer", "Enabled");
+                Key.SetValue("LocalIntranet", "Enabled");
+                Key.SetValue("Internet", "AuthenticodeRequired");
+                Key.SetValue("TrustedSites", "Enabled");
+                Key.SetValue("UntrustedSites", "Disabled");
                 Key.Close();
             }
         }
