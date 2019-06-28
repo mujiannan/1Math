@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using Correspondence;
 namespace _1Math
 {
     /// <summary>
@@ -22,7 +23,7 @@ namespace _1Math
         }
         private void SetAcceptLanguages()
         {
-            Translator translator = new Translator(Properties.Resources.AzureCognitiveBaseUrl, Secret.AzureCognitiveKey);
+            Translator translator = new Translator(Properties.Resources.AzureCognitiveBaseUrl,Properties.Resources.AzureCognitiveKey);
             Dictionary<string, Translator.Language> translatableLanguages;
             try
             {
@@ -61,7 +62,7 @@ namespace _1Math
             };
             try
             {
-                Translator translator = new Translator(Properties.Resources.AzureCognitiveBaseUrl, Secret.AzureCognitiveKey);
+                Translator translator = new Translator(Properties.Resources.AzureCognitiveBaseUrl,Properties.Resources.AzureCognitiveKey);
                 string toLanguageNativeName = (string)this.ComboBoxToLanguage.SelectedItem;
                 string toLanguageCode = string.Empty;
                 foreach (string code in translator.TranslatableLanguages.Keys)

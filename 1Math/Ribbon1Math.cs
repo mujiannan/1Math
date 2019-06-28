@@ -81,7 +81,7 @@ namespace _1Math
             try
             {
                 
-                Translator translator = new Translator(Properties.Resources.AzureCognitiveBaseUrl, Secret.AzureCognitiveKey);
+                Translator translator = new Translator(Properties.Resources.AzureCognitiveBaseUrl, Properties.Resources.AzureCognitiveKey);
                 await Controller.TranslateSelectionAsync("en", translator);
             }
             catch (Exception Ex)
