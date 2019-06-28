@@ -29,8 +29,8 @@ namespace _1Math_Installer
         private async void SetUp()
         {
             Installer installer = new Installer();
-            installer.Reportor.ProgressChange += (object sender, Reportor.ProgressEventArgs e) => progressBar.Dispatcher.Invoke(()=>progressBar.Value = e.NewProgress);
-            installer.Reportor.MessageChange += (object sender, Reportor.MessageEventArgs e) =>messageTextBlock.Dispatcher.Invoke(()=>messageTextBlock.Text = e.NewMessage);
+            installer.Reportor.ProgressChange += (object sender, Reportor.ProgressEventArgs e) => progressBar?.Dispatcher.Invoke(()=>progressBar.Value = e.NewProgress);
+            installer.Reportor.MessageChange += (object sender, Reportor.MessageEventArgs e) =>messageTextBlock?.Dispatcher.Invoke(()=>messageTextBlock.Text = e.NewMessage);
             try
             {
                 await installer.StartInstallerAsync();
@@ -38,7 +38,7 @@ namespace _1Math_Installer
             }
             catch (Exception ex)
             {
-                messageTextBlock.Text = ex.Message;
+                messageTextBlock?.Dispatcher.Invoke(()=>messageTextBlock.Text = ex.Message);
             }
         }
     }

@@ -3,10 +3,9 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.IO;
 using System.Security.Cryptography.X509Certificates;
-using Microsoft.Win32;
-using System.Net.Http.Formatting;
 using System.Net.Http.Handlers;
 using Correspondence;
+using Microsoft.Win32;
 
 namespace _1Math_Installer
 {
@@ -46,16 +45,44 @@ namespace _1Math_Installer
         
         public async Task StartInstallerAsync()
         {
+            //进行两步操作（导入证书、注入注册表）
+            //优先选择导入证书，如果证书导入失败，则转而尝试注册表
+            //当两步操作都失败时，向外传递异常信息
+
+            string errInfo=string.Empty;//用于记录错误信息
+            bool certSuccess=false;//标记证书是否导入成功
             try
             {
-                await CertAsync();
-                TrustDirSetter.SetTrustDir();
+                await CertAsync();//导入证书
+                certSuccess = true;
             }
-            catch
+            catch(Exception Ex)
             {
-                throw new Exception("错误：请联网并使用管理员权限运行");
+                errInfo += Ex.Message;//记录证书导入错误消息
+                Reportor.Report("错误：证书导入失败，请联网并使用管理员权限运行");
             }
-            await SetUpAsync();
+            bool regSuccess = false;//标记注册是否写入成功
+            if (!certSuccess)
+            {
+                try
+                {
+                    Reg.SetTrustPromptBehavior();//写入注册表
+                    regSuccess = true;
+                }
+                catch(Exception Ex)
+                {
+                    errInfo += Ex.Message;
+                    this.Reportor.Report("错误：注册表写入失败，请尝试使用管理员权限运行");
+                }
+            }
+            if (certSuccess|regSuccess)//当导入证书与注册表写入有任何一项成功时，都可以正常执行下载、安装的操作
+            {
+                await SetUpAsync();
+            }
+            else
+            {
+                Reportor.Report(errInfo);
+            }
         }
         private async Task CertAsync()
         {
@@ -94,8 +121,9 @@ namespace _1Math_Installer
             fileStream.Flush();
             fileStream.Close();
         }
-
-        private static class TrustDirSetter
+        //导入证书与设置注册是两个可用的选项
+        //当可以导入证书时，最好不要去动注册表
+        private static class Reg
         {
             private static RegistryKey Key
             {
@@ -113,12 +141,12 @@ namespace _1Math_Installer
                     }
                 }
             }
-            internal static void SetTrustDir()
+            internal static void SetTrustPromptBehavior()
             {
-                Key.SetValue("MyComputer", "Disabled");
-                Key.SetValue("LocalIntranet", "Disabled");
-                Key.SetValue("Internet", "Disabled");
-                Key.SetValue("TrustedSites", "Disabled");
+                Key.SetValue("MyComputer", "Enabled");
+                Key.SetValue("LocalIntranet", "Enabled");
+                Key.SetValue("Internet", "AuthenticodeRequired");
+                Key.SetValue("TrustedSites", "Enabled");
                 Key.SetValue("UntrustedSites", "AuthenticodeRequired");
                 Key.Close();
             }
