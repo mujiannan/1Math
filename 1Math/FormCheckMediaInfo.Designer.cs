@@ -37,7 +37,7 @@
             this.elementHost1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.elementHost1.Location = new System.Drawing.Point(0, 0);
             this.elementHost1.Name = "elementHost1";
-            this.elementHost1.Size = new System.Drawing.Size(831, 117);
+            this.elementHost1.Size = new System.Drawing.Size(831, 62);
             this.elementHost1.TabIndex = 0;
             this.elementHost1.Text = "elementHost1";
             this.elementHost1.Child = this.wpfCheckMediaInfo1;
@@ -46,7 +46,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(831, 117);
+            this.ClientSize = new System.Drawing.Size(831, 62);
             this.Controls.Add(this.elementHost1);
             this.MaximizeBox = false;
             this.Name = "FormCheckMediaInfo";

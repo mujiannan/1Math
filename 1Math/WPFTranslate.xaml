@@ -5,32 +5,48 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:_1Math"
              mc:Ignorable="d" 
-             d:DesignHeight="120" d:DesignWidth="600" Initialized="UserControl_Initialized">
+             d:DesignHeight="100" d:DesignWidth="600" Initialized="UserControl_Initialized">
     <Grid Background="White">
         <Grid.RowDefinitions>
             <RowDefinition Height="50"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
-        <TextBlock FontSize="28" Text="Azure Cognitive Translator" Foreground="Azure" VerticalAlignment="Top" HorizontalAlignment="Center">
-            <TextBlock.Background>
-                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                    <GradientStop Color="#FF635858" Offset="1"/>
-                    <GradientStop Color="White"/>
-                </LinearGradientBrush>
-            </TextBlock.Background></TextBlock>
+        <StackPanel Orientation="Vertical" Grid.Row="0" Margin="0 2 0 0">
+            <TextBlock FontSize="28" Text="Azure Cognitive Translator" Foreground="Azure" VerticalAlignment="Top" HorizontalAlignment="Center">
+                <TextBlock.Background>
+                    <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                        <GradientStop Color="Gray" Offset="1"/>
+                        <GradientStop Color="LightGray" Offset="0.3"></GradientStop>
+                        <GradientStop Color="Snow" Offset="0"/>
+                    </LinearGradientBrush>
+                </TextBlock.Background></TextBlock>
             <ProgressBar Name="ProgressBarForTranslation"
-                        Grid.Row="0"
-                        VerticalAlignment="Bottom"
-                        Height="5"
-                        Margin="0 10 0 0"
-                        MaxWidth="Infinity"/>
-        <StackPanel Orientation="Vertical" Grid.Row="1" Margin="10 10 10 10">
-            <StackPanel Margin="0 10 0 0" Orientation="Horizontal" VerticalAlignment="Center">
+                         Height="4" BorderThickness="0" Margin="0 2 0 0" MaxWidth="Infinity"
+                         >
+                <ProgressBar.Background>
+                    <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+                        <GradientStop Color="Gray" Offset="0.45"></GradientStop>
+                        <GradientStop Color="Gray" Offset="0.55"></GradientStop>
+                        <GradientStop Color="Snow" Offset="0"></GradientStop>
+                        <GradientStop Color="Snow" Offset="1"></GradientStop>
+                    </LinearGradientBrush>
+                </ProgressBar.Background>
+            </ProgressBar>
+        </StackPanel>
+        <StackPanel Orientation="Vertical" Grid.Row="1" Margin="10 0 10 5">
+            <StackPanel.Resources>
+                <Style x:Name="combobox" TargetType="ComboBox">
+                    <Setter Property="FontSize" Value="18"></Setter>
+                    <Setter Property="Margin" Value="10 0 0 0"></Setter>
+                    <Setter Property="BorderThickness" Value="0"></Setter>
+                    <Setter Property="IsReadOnly" Value="True"></Setter>
+                </Style>
+            </StackPanel.Resources>
+            <StackPanel Margin="0 5 0 0" Orientation="Horizontal" VerticalAlignment="Center">
                 <TextBlock Text="从" FontSize="24"></TextBlock>
-                <ComboBox TabIndex="0" BorderBrush="AliceBlue" Name="ComboBoxFromLanguage" FontSize="24" Margin="10 0 0 0" IsReadOnly="True">
-                </ComboBox>
+                <ComboBox TabIndex="0" Name="ComboBoxFromLanguage"></ComboBox>
                 <TextBlock Text="翻译到" FontSize="24" Margin="10 0 0 0"></TextBlock>
-                <ComboBox TabIndex="1" BorderBrush="AliceBlue" Name="ComboBoxToLanguage" FontSize="24" Margin="10 0 0 0" IsReadOnly="True" Grid.Row="1"/>
+                <ComboBox TabIndex="1" Name="ComboBoxToLanguage"/>
                 <Button TabIndex="2" BorderBrush="AliceBlue" Name="ButtonStartTranslate" Content="开始翻译" FontSize="24" Margin="30 0 0 0" Click="ButtonStartTranslate_ClickAsync"></Button>
                 <TextBlock Name="TextBlockTime" FontSize="12" VerticalAlignment="Center"></TextBlock>
             </StackPanel>
