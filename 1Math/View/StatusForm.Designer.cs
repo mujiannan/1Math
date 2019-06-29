@@ -42,11 +42,12 @@ namespace _1Math
             this.MessageLabel.Size = new System.Drawing.Size(0, 12);
             this.MessageLabel.TabIndex = 0;
             // 
-            // progressBar1
+            // progressBar
             // 
             this.progressBar.Location = new System.Drawing.Point(35, 44);
-            this.progressBar.Name = "progressBar1";
+            this.progressBar.Name = "progressBar";
             this.progressBar.Size = new System.Drawing.Size(513, 23);
+            this.progressBar.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
             this.progressBar.TabIndex = 1;
             this.progressBar.Click += new System.EventHandler(this.ProgressBar1_Click);
             // 
@@ -68,7 +69,7 @@ namespace _1Math
         }
 
         #endregion
-        private System.Windows.Forms.Label MessageLabel;
-        private System.Windows.Forms.ProgressBar progressBar;
+        public System.Windows.Forms.Label MessageLabel;
+        public System.Windows.Forms.ProgressBar progressBar;
     }
 }

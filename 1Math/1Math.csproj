@@ -33,7 +33,7 @@
     <PublishUrl>D:\OneDrive\WebSites\MJN\1Math\</PublishUrl>
     <InstallUrl>http://Public.mujiannan.me/1Math/</InstallUrl>
     <TargetCulture>zh-chs</TargetCulture>
-    <ApplicationVersion>1.0.0.40</ApplicationVersion>
+    <ApplicationVersion>1.0.0.41</ApplicationVersion>
     <AutoIncrementApplicationRevision>true</AutoIncrementApplicationRevision>
     <UpdateEnabled>true</UpdateEnabled>
     <UpdateInterval>7</UpdateInterval>
@@ -194,18 +194,18 @@
     can be found.
   -->
   <ItemGroup>
-    <Compile Include="FormCheckMediaInfo.cs">
+    <Compile Include="View\FormCheckMediaInfo.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FormCheckMediaInfo.Designer.cs">
+    <Compile Include="View\FormCheckMediaInfo.Designer.cs">
       <DependentUpon>FormCheckMediaInfo.cs</DependentUpon>
     </Compile>
     <Compile Include="MergeAreas.cs" />
     <Compile Include="ExcelConcurrent.cs" />
-    <Compile Include="FormTranslator.cs">
+    <Compile Include="View\FormTranslator.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FormTranslator.Designer.cs">
+    <Compile Include="View\FormTranslator.Designer.cs">
       <DependentUpon>FormTranslator.cs</DependentUpon>
     </Compile>
     <Compile Include="Properties\Resources.Designer.cs">
@@ -213,34 +213,34 @@
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
     </Compile>
-    <Compile Include="Ribbon.cs">
+    <Compile Include="View\Ribbon.cs">
       <XmlRibbon>true</XmlRibbon>
     </Compile>
-    <Compile Include="StatusForm.cs">
+    <Compile Include="View\StatusForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="StatusForm.Designer.cs">
+    <Compile Include="View\StatusForm.Designer.cs">
       <DependentUpon>StatusForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Ribbon1Math.cs">
+    <Compile Include="View\Ribbon1Math.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Ribbon1Math.Designer.cs">
+    <Compile Include="View\Ribbon1Math.Designer.cs">
       <DependentUpon>Ribbon1Math.cs</DependentUpon>
     </Compile>
-    <Compile Include="WPFCheckMediaInfo.xaml.cs">
+    <Compile Include="View\WPFCheckMediaInfo.xaml.cs">
       <DependentUpon>WPFCheckMediaInfo.xaml</DependentUpon>
     </Compile>
-    <Compile Include="WPFTranslate.xaml.cs">
+    <Compile Include="View\WPFTranslate.xaml.cs">
       <DependentUpon>WPFTranslate.xaml</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="FormCheckMediaInfo.resx">
+    <EmbeddedResource Include="View\FormCheckMediaInfo.resx">
       <DependentUpon>FormCheckMediaInfo.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="FormTranslator.resx">
+    <EmbeddedResource Include="View\FormTranslator.resx">
       <DependentUpon>FormTranslator.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -248,10 +248,10 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <EmbeddedResource Include="Ribbon1Math.resx">
+    <EmbeddedResource Include="View\Ribbon1Math.resx">
       <DependentUpon>Ribbon1Math.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="StatusForm.resx">
+    <EmbeddedResource Include="View\StatusForm.resx">
       <DependentUpon>StatusForm.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="app.config" />
@@ -317,14 +317,14 @@
     <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Ribbon.xml" />
+    <EmbeddedResource Include="View\Ribbon.xml" />
   </ItemGroup>
   <ItemGroup>
-    <Page Include="WPFCheckMediaInfo.xaml">
+    <Page Include="View\WPFCheckMediaInfo.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="WPFTranslate.xaml">
+    <Page Include="View\WPFTranslate.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

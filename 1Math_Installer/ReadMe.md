@@ -5,7 +5,7 @@
 
 ## 项目介绍
 我花费几个月时间断断续续折腾出了一个Excel VSTO，曾在分发阶段遭遇了许多问题。
-虽然麻烦不断，但通过不断努力（地搜索），最终得到了一套比较完善的[方案](##我的分发方案)，遂撰文分享一二。  
+虽然麻烦不断，但通过不断努力（地搜索），最终得到了一套比较完善的方案，遂撰文分享一二。  
 **主要思路**：在VSTO的ClickOnce之前套一层安装器，进行证书导入等操作，之后自动下载VSTO安装包、自动运行。  
 
 1. 自制证书  
@@ -53,7 +53,6 @@ https://www.jianshu.com/p/db72e0c4545d?utm_campaign=maleskine&utm_content=note&u
 https://docs.microsoft.com/en-us/visualstudio/vsto/deploying-an-office-solution-by-using-clickonce?view=vs-2017#Custom)
 
 证书派的导入自制证书需要让用户多出一步操作，注册表派的注入注册表也需要让用户在安装VSTO之前运行一个事先写好的脚本。
-
 ## 我的分发方案
 
 我的思路非常简单，如开头所述，
@@ -167,7 +166,7 @@ https://docs.microsoft.com/en-us/visualstudio/vsto/deploying-an-office-solution-
             }
         }
 1. 发布安装器  
-你应该只把安装器发布给最终用户，用户在你的站点上或通过其它渠道下载安装器，这个安装器将如期运行：自动下载证书、自动导入证书、自动下载VSTO-ClickOnce的set.exe文件、自动安装VSTO。
+你应该只把安装器发布给最终用户，用户在你的站点上或通过其它渠道下载安装器，这个安装器将如期运行：自动下载证书、自动导入证书、自动下载VSTO-ClickOnce的setup.exe文件、自动安装VSTO。
 ## 后记
 作为一名非科班出身的编程初学者，一些像VSTO分发之类在专业开发者眼中可能根本不能算是问题的问题也会成为我的拦路虎。  
 我相信专业的开发者们总能很自然地处理好这些事情，但我知道，还有一些跟我一样自学入门的开发者们在面对这些问题时也是头疼不已。
