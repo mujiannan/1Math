@@ -6,7 +6,7 @@
 ## 项目介绍
 我花费几个月时间断断续续折腾出了一个Excel VSTO，曾在分发阶段遭遇了许多问题。
 虽然麻烦不断，但通过不断努力（地搜索），最终得到了一套比较完善的方案，遂撰文分享一二。  
-<b>主要思路</b>：在VSTO的ClickOnce之前套一层安装器，进行证书导入等操作，之后自动下载VSTO安装包、自动运行。  
+**主要思路**：在VSTO的ClickOnce之前套一层安装器，进行证书导入等操作，之后自动下载VSTO安装包、自动运行。  
 [`安装测试`](http://mujiannan.me/1Math/Installer/1Math_Installer.exe)
 [`开源地址`](https://github.com/mujiannan/1Math)  
 对于非商业项目，我没有任何兼容性顾虑，项目中的.net Framework和Interop.Excel都选择了最新版本，因此可能会不兼容许多低版本系统或office。
@@ -18,13 +18,13 @@
 这种发布方式被称为“ClickOnce”：
 [Deploy an Office solution by using ClickOnce - Visual Studio​docs.microsoft.com](
 https://docs.microsoft.com/en-us/visualstudio/vsto/deploying-an-office-solution-by-using-clickonce?view=vs-2017#Custom)  
-<b>注：</b>
-><i>官网还介绍了以Windows Installer打包发布VSTO的方式，这种方式不支持自动升级。  
->一些第三方打包工具，如AdvancedInstaller，我不确定它们能否打包出可自动升级的VSTO。</i>
+**注：**
+>*官网还介绍了以Windows Installer打包发布VSTO的方式，这种方式不支持自动升级。  
+>一些第三方打包工具，如AdvancedInstaller，我不确定它们能否打包出可自动升级的VSTO。*
 
 不与如今的各种应用商店作比较，这种发布方式看起来是非常优秀的。
 你可以指定用户从你的网站下载setup.exe，打开后安装器会自动从你设定的网络路径拉取所需文件，
-安装完成之后它能够保持自动更新……这一切看起来都相当完美，但前提是你得有一个已经获取系统授信的<b>代码证书</b>。  
+安装完成之后它能够保持自动更新……这一切看起来都相当完美，但前提是你得有一个已经获取系统授信的**代码证书**。  
 我也曾尝试从Comodo申请个人代码证书，但是，经过一阵沟通之后，个人代码证书似乎需要进行Face-to-Face验证，而我身在中国……
 
 如果使用自己的测试证书之类的进行ClickOnce发布，并妄图将安装源设定在你的网站，甚至还妄想它能够保持自动更新……那么，你会得到这个：  
@@ -37,30 +37,30 @@ https://docs.microsoft.com/en-us/visualstudio/vsto/deploying-an-office-solution-
 答案主要分为两派：“自制证书派”和“改注册表派”（以下分别简称“证书派”与“注册表派”）。  
 
 
-<b>证书派：</b>自制代码证书，让用户导入你的证书，参见
+**证书派：**自制代码证书，让用户导入你的证书，参见
 [通商软件MAX](
 				https://www.jianshu.com/p/db72e0c4545d?utm_campaign=maleskine&utm_content=note&utm_medium=seo_notes&utm_source=recommendation
 			)
 			的文章  
-<b>注册表派：</b>注入注册表，修改用户机器的信任提示设置，参见
+**注册表派：**注入注册表，修改用户机器的信任提示设置，参见
 [微软官方文档](
 				https://docs.microsoft.com/en-us/visualstudio/vsto/deploying-an-office-solution-by-using-clickonce?view=vs-2017#Custom
 			)
 
-导入自制证书需要让用户多出一步操作，注入注册表也需要让用户在安装VSTO之前运行一个事先写好的脚本。
+证书派的导入自制证书需要让用户多出一步操作，注册表派的注入注册表也需要让用户在安装VSTO之前运行一个事先写好的脚本。
 
 ## 我的分发方案
 
-我的思路非常简单，如果所述，
+我的思路非常简单，如开头所述，
 就仅仅是在VSTO的ClickOnce之前加一层安装器，进行证书导入等操作，之后自动下载VSTO安装包、自动运行。
 1. 自制证书  
-随便你用什么工具，自制一个代码证书，最终效果差不多是这样：  
+工具任选，自制一个代码证书，最终效果差不多是这样：  
 ![自制证书](https://mujiannan.oss-cn-shanghai.aliyuncs.com/pictures/write/DIYCodeCert.png)
 1. 给VSTO签名  
 ![使用自制证书给VSTO签名](https://mujiannan.oss-cn-shanghai.aliyuncs.com/pictures/write/SignVSTO.png)
 1. 直接发布  
-用私钥给自己的VSTO签名后便把VSTO当作是已经被用商业证书签名了，直接发布到自己的站点上。  
-到此为止，你已经成功获得了一个<b>用户无法安装的VSTO</b>
+虽然你使用了不受用户信任的自制证书，但你可以假装它是正规商业证书，直接把你的VSTO发布到站点上就是了。  
+到此为止，你已经成功获得了一个**用户无法安装的VSTO**
 1. 自行制作一个安装器  
 它的名字可能会类似于“Installer.exe”，既可以是命令行脚本也可以是拥有华丽界面的WPF程序，这些都不重要，你可以随心所欲。  
 重要的是，它应该是一个单文件软件，开袋即食的那种单文件软件，以方便用户下载、直接点击运行。  
