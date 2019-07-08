@@ -19,6 +19,7 @@ namespace _1Math
             CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
             cancellationTokenSource.Token.Register(() => ExcelStatic.EndTask());
             StatusForm statusForm = new StatusForm();
+            statusForm.Show();
             statusForm.FormClosing += (object s, FormClosingEventArgs eventArgs) => cancellationTokenSource.Cancel();
             AccessibilityChecker accessibilityChecker = new AccessibilityChecker()
             {
