@@ -47,20 +47,23 @@ namespace _1Math
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
 #endif
+            ExcelStatic.StartTask();
+            MergeAreas mergeAreas = new MergeAreas();
+            StatusForm statusForm = new StatusForm();
+            statusForm.Show();
+            statusForm.SetStyle(ProgressBarStyle.Marquee);
+            mergeAreas.Found += ((object s, EventArgs ea) => statusForm.SetStyle(ProgressBarStyle.Continuous));
+            mergeAreas.Reportor.MessageChange += statusForm.ChangeMessage;
+            mergeAreas.Reportor.ProgressChange += statusForm.ChangeProgress;
+            CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+            cancellationTokenSource.Token.Register(() => ExcelStatic.EndTask());
+            statusForm.FormClosing += delegate
+            {
+                cancellationTokenSource.Cancel();
+            };
+            
             try
             {
-                ExcelStatic.StartTask();
-                MergeAreas mergeAreas = new MergeAreas();
-                StatusForm statusForm = new StatusForm();
-                statusForm.Show();
-                mergeAreas.Reportor.MessageChange += statusForm.ChangeMessage;
-                mergeAreas.Reportor.ProgressChange += statusForm.ChangeProgress;
-                CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-                cancellationTokenSource.Token.Register(() => ExcelStatic.EndTask());
-                statusForm.FormClosing += delegate
-                {
-                    cancellationTokenSource.Cancel();
-                };
                 await mergeAreas.SafelyUnMergeAndFill(cancellationTokenSource.Token);
             }
             catch (Exception Ex)

@@ -1,6 +1,6 @@
 ﻿namespace _1Math
 {
-    partial class FormTranslator
+    partial class FormCheckMediaInfo
     {
         /// <summary>
         /// Required designer variable.
@@ -29,39 +29,36 @@
         private void InitializeComponent()
         {
             this.elementHost1 = new System.Windows.Forms.Integration.ElementHost();
-            this.wpfTranslate1 = new _1Math.WPFTranslate();
+            this.wpfCheckMediaInfo1 = new _1Math.WPFCheckMediaInfo();
             this.SuspendLayout();
             // 
             // elementHost1
             // 
-            this.elementHost1.AutoSize = true;
             this.elementHost1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.elementHost1.Location = new System.Drawing.Point(0, 0);
             this.elementHost1.Name = "elementHost1";
-            this.elementHost1.Size = new System.Drawing.Size(863, 121);
+            this.elementHost1.Size = new System.Drawing.Size(831, 62);
             this.elementHost1.TabIndex = 0;
             this.elementHost1.Text = "elementHost1";
-            this.elementHost1.ChildChanged += new System.EventHandler<System.Windows.Forms.Integration.ChildChangedEventArgs>(this.ElementHost1_ChildChanged);
-            this.elementHost1.Child = this.wpfTranslate1;
+            this.elementHost1.Child = this.wpfCheckMediaInfo1;
             // 
-            // FormTranslator
+            // FormCheckMediaInfo
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.AutoScroll = true;
-            this.ClientSize = new System.Drawing.Size(863, 121);
+            this.ClientSize = new System.Drawing.Size(831, 62);
             this.Controls.Add(this.elementHost1);
-            this.Name = "FormTranslator";
+            this.MaximizeBox = false;
+            this.Name = "FormCheckMediaInfo";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "翻译";
+            this.Text = "媒体信息检测";
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
         #endregion
 
         private System.Windows.Forms.Integration.ElementHost elementHost1;
-        private WPFTranslate wpfTranslate1;
+        private WPFCheckMediaInfo wpfCheckMediaInfo1;
     }
 }

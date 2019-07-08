@@ -6,32 +6,24 @@
         xmlns:local="clr-namespace:_1Math_Installer"
         mc:Ignorable="d"
         Title="Installer" Height="160" Width="1000">
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="1*"></RowDefinition>
-        </Grid.RowDefinitions>
-        <StackPanel Orientation="Vertical" Grid.Row="0" Margin="10 0 10 0">
-            <TextBlock Text="1Math——A VSTO for Excel" Width="600" TextAlignment="Center" FontSize="36" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
-            <Canvas Height="10" Width="800" HorizontalAlignment="Center">
-                <Line X1="100" Y1="0" X2="700" Y2="0"
+    <StackPanel Orientation="Vertical" Grid.Row="0" Margin="10 0 10 0" Background="Snow">
+        <TextBlock Text="1Math——A VSTO for Excel" Width="600" TextAlignment="Center" FontSize="36" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
+        <Canvas Height="10" Width="800" HorizontalAlignment="Center">
+            <Line X1="100" Y1="0" X2="700" Y2="0"
                       HorizontalAlignment="Center" VerticalAlignment="Center"
                       StrokeThickness="4" StrokeEndLineCap="Round"
                       >
-                    <Line.Stroke>
-                        <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
-                            <GradientStop Color="AliceBlue" Offset="0"></GradientStop>
-                            <GradientStop Color="Gray" Offset="0.3"></GradientStop>
-                            <GradientStop Color="Gray" Offset="0.7"></GradientStop>
-                            <GradientStop Color="AliceBlue" Offset="1"></GradientStop>
-                        </LinearGradientBrush>
-                    </Line.Stroke>
-                </Line>
-            </Canvas>
-            <TextBlock Name="messageTextBlock" FontSize="18" HorizontalAlignment="Left"></TextBlock>
-            <ProgressBar Name="progressBar" Height="30px" ></ProgressBar>
-        </StackPanel>
-
-        
-
-    </Grid>
+                <Line.Stroke>
+                    <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+                        <GradientStop Color="AliceBlue" Offset="0"></GradientStop>
+                        <GradientStop Color="Gray" Offset="0.3"></GradientStop>
+                        <GradientStop Color="Gray" Offset="0.7"></GradientStop>
+                        <GradientStop Color="AliceBlue" Offset="1"></GradientStop>
+                    </LinearGradientBrush>
+                </Line.Stroke>
+            </Line>
+        </Canvas>
+        <TextBlock Name="messageTextBlock" FontSize="18" HorizontalAlignment="Left"></TextBlock>
+        <ProgressBar Name="progressBar" Height="30px" ></ProgressBar>
+    </StackPanel>
 </Window>
