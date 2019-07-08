@@ -36,18 +36,21 @@
             // 
             this.elementHost1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.elementHost1.Location = new System.Drawing.Point(0, 0);
+            this.elementHost1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.elementHost1.Name = "elementHost1";
-            this.elementHost1.Size = new System.Drawing.Size(831, 62);
+            this.elementHost1.Size = new System.Drawing.Size(1108, 106);
             this.elementHost1.TabIndex = 0;
             this.elementHost1.Text = "elementHost1";
+            this.elementHost1.ChildChanged += new System.EventHandler<System.Windows.Forms.Integration.ChildChangedEventArgs>(this.ElementHost1_ChildChanged);
             this.elementHost1.Child = this.wpfCheckMediaInfo1;
             // 
             // FormCheckMediaInfo
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(831, 62);
+            this.ClientSize = new System.Drawing.Size(1108, 106);
             this.Controls.Add(this.elementHost1);
+            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.MaximizeBox = false;
             this.Name = "FormCheckMediaInfo";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;

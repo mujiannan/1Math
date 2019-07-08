@@ -16,5 +16,10 @@ namespace _1Math
         {
             InitializeComponent();
         }
+
+        private void ElementHost1_ChildChanged(object sender, System.Windows.Forms.Integration.ChildChangedEventArgs e)
+        {
+
+        }
     }
 }
