@@ -33,14 +33,14 @@
     <PublishUrl>C:\Users\littl\OneDrive\MySoftWare\VSTO\1Math\</PublishUrl>
     <InstallUrl>http://mujiannan.me/1Math/</InstallUrl>
     <TargetCulture>zh-chs</TargetCulture>
-    <ApplicationVersion>1.0.0.42</ApplicationVersion>
+    <ApplicationVersion>1.0.0.43</ApplicationVersion>
     <AutoIncrementApplicationRevision>true</AutoIncrementApplicationRevision>
     <UpdateEnabled>true</UpdateEnabled>
-    <UpdateInterval>7</UpdateInterval>
+    <UpdateInterval>1</UpdateInterval>
     <UpdateIntervalUnits>days</UpdateIntervalUnits>
     <ProductName>1Math</ProductName>
-    <PublisherName />
-    <SupportUrl />
+    <PublisherName>沈楠</PublisherName>
+    <SupportUrl>https://github.com/mujiannan/1Math</SupportUrl>
     <FriendlyName>1Math</FriendlyName>
     <OfficeApplicationDescription />
     <LoadBehavior>3</LoadBehavior>
