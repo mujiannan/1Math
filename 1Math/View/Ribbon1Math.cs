@@ -176,6 +176,7 @@ namespace _1Math
             CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
             cancellationTokenSource.Token.Register(() => ExcelStatic.EndTask());
             StatusForm statusForm = new StatusForm();
+            statusForm.Show();
             statusForm.FormClosing += (object s,System.Windows.Forms.FormClosingEventArgs formClosingEventArgs) => cancellationTokenSource.Cancel();
             qRGenerator.Reportor.MessageChange += statusForm.ChangeMessage;
             qRGenerator.Reportor.ProgressChange += statusForm.ChangeProgress;
